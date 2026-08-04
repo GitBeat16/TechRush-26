@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/server/token";
+import { updateSession } from "@/lib/supabase/middleware";
 
 /**
  * Server-side route protection.
@@ -12,26 +13,40 @@ import { SESSION_COOKIE, verifySessionToken } from "@/lib/server/token";
 
 const PUBLIC_PATHS = ["/login"];
 
+function withSupabaseCookies(from: NextResponse, to: NextResponse) {
+  from.cookies.getAll().forEach(({ name, value }) => {
+    to.cookies.set(name, value);
+  });
+  return to;
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const { supabaseResponse, user } = await updateSession(request);
 
+  // Keep legacy email sessions working; Google uses Supabase cookies.
   const token = request.cookies.get(SESSION_COOKIE)?.value;
-  const session = await verifySessionToken(token);
+  const legacySession = await verifySessionToken(token);
+  const isAuthed = Boolean(user || legacySession);
+
   const isPublic = PUBLIC_PATHS.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
 
-  if (!session && !isPublic) {
+  if (!isAuthed && !isPublic) {
     const url = new URL("/login", request.nextUrl);
     if (pathname !== "/") url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+    return withSupabaseCookies(supabaseResponse, NextResponse.redirect(url));
   }
 
-  if (session && isPublic) {
-    return NextResponse.redirect(new URL("/", request.nextUrl));
+  if (isAuthed && isPublic) {
+    return withSupabaseCookies(
+      supabaseResponse,
+      NextResponse.redirect(new URL("/", request.nextUrl)),
+    );
   }
 
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {

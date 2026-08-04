@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { supabase } from "@/lib/supabase/client";
 import type {
   AuthSnapshot,
   ProfilePatch,
@@ -143,8 +144,18 @@ export async function signOut() {
 }
 
 /** Full page navigation — OAuth cannot happen inside fetch. */
-export function startGoogleOAuth(next = "/") {
-  window.location.href = `/api/auth/google?next=${encodeURIComponent(next)}`;
+export async function startGoogleOAuth(next = "/") {
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(safeNext)}`,
+    },
+  });
+
+  if (error) {
+    window.location.assign("/login?error=google_failed");
+  }
 }
 
 export function isGoogleEnabled() {
