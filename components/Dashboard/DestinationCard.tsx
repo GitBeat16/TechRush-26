@@ -122,13 +122,23 @@ export function DestinationCard({ destination, fluid = false }: DestinationCardP
             <p className="font-body text-[11px] text-clay-muted">
               Best · {destination.bestSeason}
             </p>
-            <Link
-              href={`/plan?destination=${encodeURIComponent(destination.name)}`}
-              onClick={() => play("nav")}
-              className="rounded-full bg-clay-butter px-3 py-1 font-body text-[11px] font-bold shadow-clay-xs transition-shadow hover:shadow-clay-sm"
-            >
-              Plan this
-            </Link>
+            <div className="flex items-center gap-1.5">
+              <Link
+                href="/budget"
+                onClick={() => play("nav")}
+                className="rounded-full bg-clay-mint px-2.5 py-1 font-body text-[11px] font-bold text-clay-ink shadow-clay-xs transition-shadow hover:shadow-clay-sm"
+                title="View & customize trip budget"
+              >
+                Budget
+              </Link>
+              <Link
+                href={`/plan?destination=${encodeURIComponent(destination.name)}`}
+                onClick={() => play("nav")}
+                className="rounded-full bg-clay-butter px-3 py-1 font-body text-[11px] font-bold shadow-clay-xs transition-shadow hover:shadow-clay-sm"
+              >
+                Plan this
+              </Link>
+            </div>
           </div>
         </div>
       </ClayCard>

@@ -24,6 +24,7 @@ export interface AppState {
   trips: Trip[];
   savedDestinationIds: string[];
   lastPlan: GeneratedPlan | null;
+  activeDestinationId: string;
 }
 
 const STORAGE_KEY = "wanderly:state:v1";
@@ -32,6 +33,7 @@ const SEED: AppState = {
   trips: SEED_TRIPS,
   savedDestinationIds: ["japan"],
   lastPlan: null,
+  activeDestinationId: "goa",
 };
 
 let state: AppState = SEED;
@@ -53,6 +55,7 @@ function hydrate() {
         ? parsed.savedDestinationIds
         : SEED.savedDestinationIds,
       lastPlan: parsed.lastPlan ?? null,
+      activeDestinationId: typeof parsed.activeDestinationId === "string" ? parsed.activeDestinationId : SEED.activeDestinationId,
     };
   } catch {
     /* corrupt or blocked storage — fall back to the seed */
@@ -126,6 +129,15 @@ export function useSavedDestinations() {
   return { savedDestinationIds, isSaved: saved };
 }
 
+export function useActiveDestination() {
+  const { activeDestinationId } = useAppState();
+  const query = (activeDestinationId || "").trim().toLowerCase();
+  const activeDestination = DESTINATIONS.find(
+    (d) => d.id.toLowerCase() === query || d.name.toLowerCase() === query || d.country.toLowerCase() === query
+  ) || DESTINATIONS[0];
+  return { activeDestinationId: activeDestination.id, activeDestination };
+}
+
 /* ----------------------------- writing ----------------------------- */
 
 function uid(prefix: string) {
@@ -134,6 +146,19 @@ function uid(prefix: string) {
 
 export const actions = {
   /* destinations ---------------------------------------------------- */
+  setActiveDestination(id: string) {
+    if (!id) return;
+    const query = id.trim().toLowerCase();
+    const matched = DESTINATIONS.find(
+      (d) => d.id.toLowerCase() === query || d.name.toLowerCase() === query || d.country.toLowerCase() === query
+    );
+    const targetId = matched ? matched.id : id;
+    commit({
+      ...state,
+      activeDestinationId: targetId,
+    });
+  },
+
   toggleSavedDestination(id: string) {
     const has = state.savedDestinationIds.includes(id);
     commit({

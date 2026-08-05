@@ -230,6 +230,7 @@ export const DESTINATIONS: Destination[] = [
     tagline: "Temples, ramen alleys and bullet trains",
     rating: 4.9, bestSeason: "Mar - May",
     vibes: ["Culture", "Food", "Cities"],
+    coordinates: { lat: 35.6762, lng: 139.6503 },
   },
   {
     id: "bali", name: "Bali", country: "Indonesia", region: "Asia",
@@ -237,6 +238,7 @@ export const DESTINATIONS: Destination[] = [
     tagline: "Rice terraces, warm water, slow mornings",
     rating: 4.7, bestSeason: "Apr - Oct",
     vibes: ["Beaches", "Nature", "Relaxed"],
+    coordinates: { lat: -8.4095, lng: 115.1889 },
   },
   {
     id: "switzerland", name: "Switzerland", country: "Switzerland", region: "Europe",
@@ -244,6 +246,7 @@ export const DESTINATIONS: Destination[] = [
     tagline: "Alpine trains and impossibly green valleys",
     rating: 4.8, bestSeason: "Jun - Sep",
     vibes: ["Nature", "Hiking", "Scenic"],
+    coordinates: { lat: 46.8182, lng: 8.2275 },
   },
   {
     id: "iceland", name: "Iceland", country: "Iceland", region: "Nordics",
@@ -251,6 +254,7 @@ export const DESTINATIONS: Destination[] = [
     tagline: "Black beaches, geysers and northern lights",
     rating: 4.8, bestSeason: "Sep - Mar",
     vibes: ["Nature", "Adventure", "Scenic"],
+    coordinates: { lat: 64.9631, lng: -19.0208 },
   },
   {
     id: "vietnam", name: "Vietnam", country: "Vietnam", region: "Asia",
@@ -258,6 +262,7 @@ export const DESTINATIONS: Destination[] = [
     tagline: "Limestone bays and street food marathons",
     rating: 4.6, bestSeason: "Nov - Apr",
     vibes: ["Food", "Nature", "Budget"],
+    coordinates: { lat: 14.0583, lng: 108.2772 },
   },
   {
     id: "portugal", name: "Portugal", country: "Portugal", region: "Europe",
@@ -265,6 +270,7 @@ export const DESTINATIONS: Destination[] = [
     tagline: "Tiled streets, cliff coasts and pastéis",
     rating: 4.7, bestSeason: "May - Sep",
     vibes: ["Culture", "Beaches", "Food"],
+    coordinates: { lat: 39.3999, lng: -8.2245 },
   },
 ];
 
@@ -376,7 +382,7 @@ export const AI_STEPS = [
 /* ------------------------------------------------------------------ */
 
 export function formatInr(value: number): string {
-  return `Rs ${Math.round(value).toLocaleString("en-IN")}`;
+  return `₹${Math.round(value).toLocaleString("en-IN")}`;
 }
 
 export function formatShort(value: number): string {

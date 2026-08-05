@@ -7,8 +7,10 @@ import { DestinationCard } from "@/components/Dashboard/DestinationCard";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { ClayCard, ClayWell } from "@/components/ui/ClayCard";
 import { ClayChip } from "@/components/ui/ClayButton";
+import { GoogleMapCard, TripNestMapSection, type MapMarkerProps } from "@/components/map";
 import {
   BookmarkIcon,
+  GlobeIcon,
   PinIcon,
   SearchIcon,
   WalletIcon,
@@ -38,6 +40,7 @@ export function ExploreView() {
   const [maxPrice, setMaxPrice] = useState(150000);
   const [savedOnly, setSavedOnly] = useState(false);
   const [sort, setSort] = useState<Sort>("recommended");
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   const results = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -61,6 +64,26 @@ export function ExploreView() {
     if (sort === "rating") sorted.sort((a, b) => b.rating - a.rating);
     return sorted;
   }, [query, region, vibes, maxPrice, savedOnly, savedDestinationIds, sort]);
+
+  const mapMarkers = useMemo<MapMarkerProps[]>(() => {
+    return results
+      .filter((d) => d.coordinates)
+      .map((d) => ({
+        id: d.id,
+        position: d.coordinates!,
+        title: `${d.name}, ${d.country}`,
+        tone: d.tone,
+        infoWindowContent: (
+          <div className="space-y-1">
+            <p className="font-display text-xs font-semibold text-clay-ink">{d.tagline}</p>
+            <div className="flex items-center justify-between text-[11px] text-clay-ink-soft pt-1">
+              <span>{formatInr(d.price)} · {d.days} days</span>
+              <span className="font-bold text-amber-700">★ {d.rating}</span>
+            </div>
+          </div>
+        ),
+      }));
+  }, [results]);
 
   const toggleVibe = (vibe: string) =>
     setVibes((current) =>
@@ -191,16 +214,44 @@ export function ExploreView() {
         </motion.div>
       </motion.div>
 
-      {/* ---------------------------------------------------- results */}
+      {/* ---------------------------------------------------- view toggle & results */}
       <motion.div
         key={`${region}-${sort}-${savedOnly}-${vibes.join()}-${query}`}
         variants={stagger(0.05)}
         initial="hidden"
         animate="show"
       >
-        <motion.p variants={fadeUp} className="mb-3 px-1 font-body text-sm text-clay-ink-soft">
-          {results.length} {results.length === 1 ? "destination" : "destinations"} match
-        </motion.p>
+        <div className="mb-3 px-1 flex items-center justify-between">
+          <motion.p variants={fadeUp} className="font-body text-sm text-clay-ink-soft">
+            {results.length} {results.length === 1 ? "destination" : "destinations"} match
+          </motion.p>
+
+          <motion.div variants={fadeUp} className="flex items-center gap-1.5 bg-clay-surface/80 p-1 rounded-full shadow-clay-xs border border-white/60">
+            <ClayChip
+              tone="peach"
+              active={viewMode === "grid"}
+              onClick={() => {
+                setViewMode("grid");
+                play("tap");
+              }}
+            >
+              <span className="px-1 text-xs">Grid View</span>
+            </ClayChip>
+            <ClayChip
+              tone="sky"
+              active={viewMode === "map"}
+              onClick={() => {
+                setViewMode("map");
+                play("tap");
+              }}
+            >
+              <span className="inline-flex items-center gap-1 px-1 text-xs">
+                <GlobeIcon size={13} />
+                Map View
+              </span>
+            </ClayChip>
+          </motion.div>
+        </div>
 
         {results.length === 0 ? (
           <motion.div variants={fadeUp}>
@@ -210,6 +261,10 @@ export function ExploreView() {
                 Try widening the budget or clearing a vibe filter.
               </p>
             </ClayCard>
+          </motion.div>
+        ) : viewMode === "map" ? (
+          <motion.div variants={fadeUp}>
+            <TripNestMapSection destinations={results} />
           </motion.div>
         ) : (
           <motion.div
@@ -234,3 +289,5 @@ function FilterLabel({ children }: { children: React.ReactNode }) {
     </span>
   );
 }
+
+
