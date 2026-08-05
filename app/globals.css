@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Wanderly — Claymorphism design system
+   Soft 3D surfaces, pastel clay palette, tactile neumorphic shadows.
+------------------------------------------------------------------ */
+
+@theme {
+  /* Surfaces */
+  --color-clay-bg: #f1e7dc;
+  --color-clay-bg-deep: #e9dcce;
+  --color-clay-surface: #fbf4ec;
+  --color-clay-raised: #fffdfa;
+  --color-clay-sunken: #ece0d4;
+
+  /* Ink */
+  --color-clay-ink: #4a3a30;
+  --color-clay-ink-soft: #7c6558;
+  --color-clay-muted: #a2897a;
+
+  /* Pastel clay accents */
+  --color-clay-blush: #ffd3d8;
+  --color-clay-rose: #f7a8b8;
+  --color-clay-peach: #ffd7b3;
+  --color-clay-tangerine: #f9b384;
+  --color-clay-butter: #ffe8a3;
+  --color-clay-mint: #bfe9d5;
+  --color-clay-jade: #7fcfae;
+  --color-clay-sky: #c3dcfb;
+  --color-clay-ocean: #8fb6ee;
+  --color-clay-lilac: #dcd2fb;
+  --color-clay-grape: #b09ff0;
+
+  /* Clay radii */
+  --radius-clay-sm: 22px;
+  --radius-clay: 32px;
+  --radius-clay-lg: 42px;
+  --radius-clay-xl: 50px;
+
+  /* Clay shadows — the core of the look.
+     outer drop + outer light + inner top highlight + inner bottom occlusion */
+  --shadow-clay-xs:
+    4px 4px 10px rgba(178, 146, 121, 0.28), -3px -3px 8px rgba(255, 255, 255, 0.9),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.7),
+    inset -2px -2px 4px rgba(178, 146, 121, 0.14);
+
+  --shadow-clay-sm:
+    8px 10px 18px rgba(178, 146, 121, 0.3), -6px -6px 14px rgba(255, 255, 255, 0.92),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.75),
+    inset -4px -5px 9px rgba(178, 146, 121, 0.16);
+
+  --shadow-clay:
+    14px 18px 32px rgba(172, 139, 113, 0.32), -10px -10px 26px rgba(255, 255, 255, 0.9),
+    inset 3px 3px 7px rgba(255, 255, 255, 0.8),
+    inset -7px -9px 16px rgba(172, 139, 113, 0.16);
+
+  --shadow-clay-lg:
+    22px 28px 52px rgba(166, 132, 106, 0.34), -14px -14px 34px rgba(255, 255, 255, 0.92),
+    inset 4px 4px 10px rgba(255, 255, 255, 0.85),
+    inset -10px -12px 22px rgba(166, 132, 106, 0.17);
+
+  --shadow-clay-hover:
+    22px 30px 46px rgba(166, 132, 106, 0.36), -12px -12px 30px rgba(255, 255, 255, 0.95),
+    inset 4px 4px 9px rgba(255, 255, 255, 0.9),
+    inset -8px -10px 18px rgba(166, 132, 106, 0.15);
+
+  --shadow-clay-pressed:
+    2px 2px 6px rgba(172, 139, 113, 0.22), -2px -2px 6px rgba(255, 255, 255, 0.7),
+    inset 6px 7px 14px rgba(172, 139, 113, 0.3),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.75);
+
+  --shadow-clay-inset:
+    inset 7px 8px 16px rgba(172, 139, 113, 0.28),
+    inset -6px -6px 14px rgba(255, 255, 255, 0.9);
+
+  --shadow-clay-inset-sm:
+    inset 4px 5px 10px rgba(172, 139, 113, 0.24),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.85);
+
+  /* Type */
+  --font-display: var(--font-fredoka), "SF Pro Rounded", ui-rounded, system-ui, sans-serif;
+  --font-body: var(--font-nunito), "SF Pro Rounded", ui-rounded, system-ui, sans-serif;
+
+  /* Motion */
+  --ease-clay: cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-clay-bg);
+  color: var(--color-clay-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-clay-peach);
+  color: var(--color-clay-ink);
+}
+
+@layer utilities {
+  /* Hide scrollbars on the destination rail without losing scrollability */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Soft clay "rim light" applied to illustrative blobs */
+  .clay-rim {
+    box-shadow:
+      inset 3px 4px 8px rgba(255, 255, 255, 0.85),
+      inset -5px -6px 12px rgba(160, 126, 100, 0.22),
+      10px 14px 24px rgba(166, 132, 106, 0.28);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom range slider styled as a clay track + knob */
+input[type="range"].clay-range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  height: 26px;
+  width: 100%;
+  cursor: pointer;
+}
+
+input[type="range"].clay-range::-webkit-slider-runnable-track {
+  height: 14px;
+  border-radius: 999px;
+  background: var(--color-clay-sunken);
+  box-shadow: var(--shadow-clay-inset-sm);
+}
+
+input[type="range"].clay-range::-moz-range-track {
+  height: 14px;
+  border-radius: 999px;
+  background: var(--color-clay-sunken);
+  box-shadow: var(--shadow-clay-inset-sm);
+}
+
+input[type="range"].clay-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 26px;
+  width: 26px;
+  margin-top: -6px;
+  border-radius: 999px;
+  background: var(--color-clay-tangerine);
+  box-shadow:
+    3px 4px 8px rgba(160, 110, 70, 0.4),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.7),
+    inset -3px -4px 7px rgba(160, 110, 70, 0.3);
+  transition: transform 0.18s var(--ease-clay);
+}
+
+input[type="range"].clay-range::-webkit-slider-thumb:active {
+  transform: scale(0.9);
+}
+
+input[type="range"].clay-range::-moz-range-thumb {
+  height: 26px;
+  width: 26px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-clay-tangerine);
+  box-shadow:
+    3px 4px 8px rgba(160, 110, 70, 0.4),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.7),
+    inset -3px -4px 7px rgba(160, 110, 70, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
