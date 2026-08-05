@@ -5,26 +5,20 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
 
   const code = searchParams.get("code");
-  const rawNext = searchParams.get("next") ?? "/";
-  const next =
-    rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+  console.log("[callback] code exists:", !!code);
 
   if (!code) {
+    console.log("[callback] no code");
     return NextResponse.redirect(`${origin}/login?error=google_failed`);
   }
 
-  try {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+  const supabase = await createClient();
 
-    if (error) {
-      console.error("[auth callback]", error.message);
-      return NextResponse.redirect(`${origin}/login?error=google_failed`);
-    }
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-    return NextResponse.redirect(`${origin}${next}`);
-  } catch (err) {
-    console.error("[auth callback]", err);
-    return NextResponse.redirect(`${origin}/login?error=google_failed`);
-  }
+  console.log("[callback] exchange error:", error);
+  console.log("[callback] session:", !!data.session);
+  console.log("[callback] user:", data.user?.email);
+
+  return NextResponse.redirect(`${origin}/`);
 }

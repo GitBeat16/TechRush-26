@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { supabase } from "@/lib/supabase/client";
 import type {
   AuthSnapshot,
+  OnboardingInput,
   ProfilePatch,
   SignInInput,
   SignUpInput,
@@ -201,3 +202,14 @@ export const OAUTH_ERRORS: Record<string, string> = {
   google_unverified: "That Google account does not have a verified email.",
   google_failed: "Google sign-in failed. Please try again.",
 };
+
+export async function submitOnboarding(input: OnboardingInput): Promise<UserProfile> {
+  const res = await fetch("/api/auth/onboarding", {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new AuthError(json.error ?? "Could not save your preferences", json.field);
+  return json.user as UserProfile;
+}

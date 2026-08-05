@@ -11,16 +11,20 @@ import { breathe, floatY, springSoft } from "@/lib/animations";
 import { useSession } from "@/lib/auth/session";
 
 const PUBLIC_ROUTES = ["/login"];
+const ONBOARDING_ROUTE = "/onboarding";
 
 /**
  * Everything that persists across routes lives here: the rail, the navbar,
  * the dock and the ambient background. It also holds the auth gate, so a
- * signed-out visitor never sees a flash of the dashboard.
+ * signed-out visitor never sees a flash of the dashboard — and now the
+ * onboarding gate, so a signed-in visitor who hasn't set preferences yet
+ * never sees a flash of it either.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { status } = useSession();
+  const { status, user } = useSession();
   const isPublic = PUBLIC_ROUTES.includes(pathname);
+  const isOnboardingRoute = pathname === ONBOARDING_ROUTE;
 
   // Auth screens get the background and nothing else.
   if (isPublic) {
@@ -50,7 +54,48 @@ export function AppShell({ children }: { children: ReactNode }) {
       <MotionConfig reducedMotion="user">
         <div className="relative min-h-screen">
           <AmbientBackground />
-          <RedirectToLogin />
+          <RedirectTo path="/login" label="Taking you to sign in" />
+        </div>
+      </MotionConfig>
+    );
+  }
+
+  // status === "authenticated" from here on.
+  const needsOnboarding = !user?.onboardingCompleted;
+
+  // Signed in, hasn't onboarded yet, and trying to reach anything else —
+  // send them to the questionnaire first.
+  if (needsOnboarding && !isOnboardingRoute) {
+    return (
+      <MotionConfig reducedMotion="user">
+        <div className="relative min-h-screen">
+          <AmbientBackground />
+          <RedirectTo path={ONBOARDING_ROUTE} label="Just a couple of quick questions" />
+        </div>
+      </MotionConfig>
+    );
+  }
+
+  // Already onboarded but somehow back on the questionnaire URL — skip it.
+  if (!needsOnboarding && isOnboardingRoute) {
+    return (
+      <MotionConfig reducedMotion="user">
+        <div className="relative min-h-screen">
+          <AmbientBackground />
+          <RedirectTo path="/" label="Taking you to your dashboard" />
+        </div>
+      </MotionConfig>
+    );
+  }
+
+  // On the questionnaire, and meant to be — bare shell, no nav yet, same
+  // treatment as /login.
+  if (isOnboardingRoute) {
+    return (
+      <MotionConfig reducedMotion="user">
+        <div className="relative min-h-screen">
+          <AmbientBackground />
+          {children}
         </div>
       </MotionConfig>
     );
@@ -86,15 +131,15 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 /* ------------------------------------------------------------------ */
 
-function RedirectToLogin() {
+function RedirectTo({ path, label }: { path: string; label: string }) {
   const router = useRouter();
 
   // Navigation is an external system, so this is exactly what an effect is for.
   useEffect(() => {
-    router.replace("/login");
-  }, [router]);
+    router.replace(path);
+  }, [router, path]);
 
-  return <Splash label="Taking you to sign in" />;
+  return <Splash label={label} />;
 }
 
 function Splash({ label = "Warming up the clay" }: { label?: string }) {

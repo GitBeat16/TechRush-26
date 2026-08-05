@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { rowToProfile, type ProfileRow } from "@/lib/supabase/profile";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,37 +14,19 @@ export async function GET() {
 
   if (!user) {
     return NextResponse.json(
-      {
-        user: null,
-        googleEnabled: true,
-      },
-      {
-        headers: {
-          "cache-control": "no-store",
-        },
-      },
+      { user: null, googleEnabled: true },
+      { headers: { "cache-control": "no-store" } },
     );
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single<ProfileRow>();
+
   return NextResponse.json(
-    {
-      user: {
-        id: user.id,
-        name:
-          user.user_metadata.full_name ??
-          user.user_metadata.name ??
-          "Traveler",
-        email: user.email ?? "",
-        avatarId: "sunseeker",
-        homeCity: "",
-        provider: user.app_metadata.provider ?? "google",
-      },
-      googleEnabled: true,
-    },
-    {
-      headers: {
-        "cache-control": "no-store",
-      },
-    },
+    { user: profile ? rowToProfile(profile) : null, googleEnabled: true },
+    { headers: { "cache-control": "no-store" } },
   );
 }
