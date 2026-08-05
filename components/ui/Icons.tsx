@@ -305,3 +305,16 @@ export const ChevronDownIcon = (p: IconProps) => (
     <path d="M5.5 9.5 12 16l6.5-6.5" />
   </Base>
 );
+
+export const ChatIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z" />
+    <path d="M8 9h8M8 12.2h5" />
+  </Base>
+);
+
+export const LocationArrowIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="m4 4 16 6.5-7 2.5-2.5 7z" />
+  </Base>
+);

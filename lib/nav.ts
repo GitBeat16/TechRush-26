@@ -1,5 +1,6 @@
 import type { ComponentType, SVGProps } from "react";
 import {
+  ChatIcon,
   GlobeIcon,
   HomeIcon,
   PinIcon,
@@ -58,6 +59,14 @@ export const NAV: NavItem[] = [
     short: "Compare",
     description: "Two destinations, side by side",
     icon: SwapIcon,
+    primary: false,
+  },
+  {
+    href: "/assistant",
+    label: "AI Assistant",
+    short: "Chat",
+    description: "Ask anything — budget, packing, weather, nearby spots",
+    icon: ChatIcon,
     primary: false,
   },
   {
