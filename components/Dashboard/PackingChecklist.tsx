@@ -5,7 +5,20 @@ import { useMemo, useRef, useState } from "react";
 import { ClayCard } from "@/components/ui/ClayCard";
 import { ClayButton } from "@/components/ui/ClayButton";
 import { ClaySuitcase } from "@/components/ui/ClayIllustrations";
-import { CheckIcon, PlusIcon, SparkIcon, TrashIcon } from "@/components/ui/Icons";
+import { ClayPackable } from "@/components/ui/ClayPackables";
+import { CheckIcon, CloudIcon, PlusIcon, SparkIcon, SunIcon, TrashIcon } from "@/components/ui/Icons";
+import { DESTINATIONS } from "@/lib/data";
+import { useSession } from "@/lib/auth/session";
+import {
+  categoryFor,
+  daysFor,
+  describeClimate,
+  iconFor,
+  suggestPacking,
+  type PackableIcon,
+  type Suggestion,
+} from "@/lib/packing";
+import { useTripClimate, type ClimateState } from "@/lib/weather";
 import {
   fadeUp,
   springBouncy,
@@ -34,9 +47,15 @@ const CATEGORY_TONE: Record<PackingCategory, string> = {
 interface Flyer {
   key: number;
   label: string;
+  icon: PackableIcon;
   itemId: string;
   from: { x: number; y: number; w: number };
   to: { x: number; y: number };
+}
+
+/** The drawing for an item, guessed from its label when it predates icons. */
+function iconOf(item: PackingItem): PackableIcon {
+  return item.icon ?? iconFor(item.label);
 }
 
 export function PackingChecklist({
@@ -56,7 +75,57 @@ export function PackingChecklist({
   const suitcaseRef = useRef<HTMLDivElement>(null);
   const flyerKey = useRef(0);
 
+  const { user } = useSession();
+
+  /* ------------------------------------------------- what to suggest */
+
+  const destination = useMemo(
+    () =>
+      DESTINATIONS.find((d) => d.id === trip.destinationId) ??
+      DESTINATIONS.find(
+        (d) => d.country.toLowerCase() === trip.country.trim().toLowerCase(),
+      ) ??
+      null,
+    [trip.destinationId, trip.country],
+  );
+
+  // Real conditions for the actual dates: the forecast if the trip is close
+  // enough, otherwise the same week last year. Suggestions wait for it rather
+  // than guessing a season.
+  const climateState = useTripClimate(
+    destination?.coordinates ?? null,
+    trip.startDate,
+    trip.endDate,
+  );
+  const climate = climateState.status === "ready" ? climateState.climate : null;
+
+  const suggestions = useMemo(
+    () =>
+      suggestPacking({
+        destination,
+        days: daysFor(trip.startDate, trip.endDate, trip.days),
+        climate,
+        // Home is a city, not a country, so this asks the only question it
+        // can answer honestly: does the destination country appear in it?
+        abroad: !destination
+          ? false
+          : !(user?.homeCity ?? "")
+              .toLowerCase()
+              .includes(destination.country.toLowerCase()),
+      }),
+    [destination, trip.startDate, trip.endDate, trip.days, climate, user?.homeCity],
+  );
+
   const items = trip.packing;
+
+  /** Suggestions not already in the bag, in the current category. */
+  const openSuggestions = useMemo(() => {
+    const packed = new Set(items.map((item) => item.label.toLowerCase()));
+    return suggestions.filter(
+      (suggestion) => !packed.has(suggestion.label.toLowerCase()),
+    );
+  }, [suggestions, items]);
+
   const packedCount = items.filter((item) => item.packed).length;
   const progress = packedRatio(trip);
   const complete = items.length > 0 && packedCount === items.length;
@@ -77,7 +146,7 @@ export function PackingChecklist({
     [items],
   );
 
-  /** Launch the item across the card and into the suitcase. */
+  /** Launch the object across the card and into the suitcase. */
   function packItem(item: PackingItem, element: HTMLElement) {
     const stage = stageRef.current;
     const target = suitcaseRef.current;
@@ -96,16 +165,24 @@ export function PackingChecklist({
       y: itemBox.top - stageBox.top,
       w: itemBox.width,
     };
+    // Aim the object's centre at the mouth of the case, not its top-left.
     const to = {
-      x: targetBox.left - stageBox.left + targetBox.width / 2 - itemBox.width / 2,
-      y: targetBox.top - stageBox.top + targetBox.height / 2 - 18,
+      x: targetBox.left - stageBox.left + targetBox.width / 2 - 26,
+      y: targetBox.top - stageBox.top + targetBox.height / 2 - 26,
     };
 
     flyerKey.current += 1;
     setInFlight((current) => new Set(current).add(item.id));
     setFlyers((current) => [
       ...current,
-      { key: flyerKey.current, label: item.label, itemId: item.id, from, to },
+      {
+        key: flyerKey.current,
+        label: item.label,
+        icon: iconOf(item),
+        itemId: item.id,
+        from,
+        to,
+      },
     ]);
     play("whoosh");
   }
@@ -121,6 +198,33 @@ export function PackingChecklist({
 
     const willComplete = packedCount + 1 === items.length;
     play(willComplete ? "success" : "toggleOn");
+  }
+
+  /**
+   * Accept a suggestion. It is added unpacked so the user still gets the
+   * satisfying part — tapping it into the bag themselves.
+   */
+  function acceptSuggestion(suggestion: Suggestion) {
+    actions.addPackingItem(
+      trip.id,
+      suggestion.label,
+      suggestion.category,
+      suggestion.icon,
+    );
+    setCategory(suggestion.category);
+    play("pop");
+  }
+
+  function acceptAll() {
+    openSuggestions.forEach((suggestion) =>
+      actions.addPackingItem(
+        trip.id,
+        suggestion.label,
+        suggestion.category,
+        suggestion.icon,
+      ),
+    );
+    play("success");
   }
 
   function toggle(item: PackingItem, element: HTMLElement) {
@@ -143,7 +247,7 @@ export function PackingChecklist({
                 Pack the suitcase
               </h2>
               <p className="mt-1 font-body text-sm text-clay-ink-soft">
-                Tap an item and watch it fly in
+                Tap a thing and watch it go in the bag
               </p>
             </div>
             <span className="rounded-full bg-clay-sunken px-4 py-2 font-display text-sm font-bold shadow-clay-inset-sm">
@@ -153,6 +257,16 @@ export function PackingChecklist({
 
           <div className={`mt-6 grid gap-6 ${compact ? "" : "md:grid-cols-[1fr_auto] md:items-start"}`}>
             <div className="min-w-0">
+              {/* ----------------------------------------- suggestions */}
+              <SuggestionStrip
+                destination={destination?.name ?? trip.country}
+                days={daysFor(trip.startDate, trip.endDate, trip.days)}
+                state={climateState}
+                suggestions={openSuggestions}
+                onAccept={acceptSuggestion}
+                onAcceptAll={acceptAll}
+              />
+
               {/* category tabs */}
               <motion.div variants={fadeUp} className="flex flex-wrap gap-2">
                 {CATEGORIES.map((value) => {
@@ -217,18 +331,27 @@ export function PackingChecklist({
                 variants={fadeUp}
                 onSubmit={(event) => {
                   event.preventDefault();
-                  if (!draft.trim()) return;
-                  actions.addPackingItem(trip.id, draft, category);
+                  const label = draft.trim();
+                  if (!label) return;
+                  // Typed items get an object and a drawer guessed from the
+                  // words, so a hand-added "rain jacket" looks and files
+                  // exactly like a suggested one.
+                  const guessed = categoryFor(label);
+                  actions.addPackingItem(trip.id, label, guessed, iconFor(label));
+                  setCategory(guessed);
                   play("toggleOn");
                   setDraft("");
                 }}
                 className="mt-3 flex items-center gap-2 rounded-clay-sm bg-clay-sunken/70 p-2 shadow-clay-inset-sm"
               >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center">
+                  <ClayPackable icon={draft.trim() ? iconFor(draft) : "item"} size={28} />
+                </span>
                 <input
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
-                  placeholder={`Add to ${category.toLowerCase()}`}
-                  className="min-w-0 flex-1 bg-transparent px-3 font-body text-sm outline-none placeholder:text-clay-muted"
+                  placeholder="Add anything else you need"
+                  className="min-w-0 flex-1 bg-transparent px-1 font-body text-sm outline-none placeholder:text-clay-muted"
                 />
                 <ClayButton
                   type="submit"
@@ -304,24 +427,27 @@ export function PackingChecklist({
                 key={flyer.key}
                 initial={{ x: flyer.from.x, y: flyer.from.y, scale: 1, opacity: 1, rotate: 0 }}
                 animate={{
+                  // Up over the card, tumbling, then shrinking as it drops
+                  // into the case — an arc reads as thrown, a straight line
+                  // reads as a slide.
                   x: [flyer.from.x, (flyer.from.x + flyer.to.x) / 2, flyer.to.x],
-                  y: [flyer.from.y, Math.min(flyer.from.y, flyer.to.y) - 90, flyer.to.y],
-                  scale: [1, 0.86, 0.22],
-                  rotate: [0, -14, 22],
-                  opacity: [1, 1, 0.15],
+                  y: [flyer.from.y, Math.min(flyer.from.y, flyer.to.y) - 110, flyer.to.y],
+                  scale: [1, 1.1, 0.35],
+                  rotate: [0, -160, -352],
+                  opacity: [1, 1, 0.2],
                 }}
                 exit={{ opacity: 0 }}
                 transition={{
                   type: "tween",
-                  duration: 0.72,
-                  ease: [0.4, 0.05, 0.35, 1],
-                  times: [0, 0.55, 1],
+                  duration: 0.78,
+                  ease: [0.34, 0.02, 0.3, 1],
+                  times: [0, 0.5, 1],
                 }}
                 onAnimationComplete={() => landFlyer(flyer)}
-                style={{ width: flyer.from.w, top: 0, left: 0 }}
-                className="pointer-events-none absolute z-30 rounded-clay-sm bg-clay-peach px-4 py-3 font-display text-sm font-semibold text-clay-ink shadow-clay"
+                style={{ top: 0, left: 0 }}
+                className="pointer-events-none absolute z-30"
               >
-                {flyer.label}
+                <ClayPackable icon={flyer.icon} size={52} />
               </motion.div>
             ))}
           </AnimatePresence>
@@ -384,6 +510,15 @@ function PackingRow({
             </motion.span>
           </span>
 
+          {/* the object itself, so the row and the thing in flight match */}
+          <motion.span
+            animate={{ opacity: item.packed ? 0.45 : 1, scale: item.packed ? 0.9 : 1 }}
+            transition={springSnappy}
+            className="flex h-9 w-9 shrink-0 items-center justify-center"
+          >
+            <ClayPackable icon={iconOf(item)} size={30} />
+          </motion.span>
+
           <span
             className={`flex-1 font-display text-[15px] font-semibold transition-colors ${
               item.packed ? "text-clay-muted line-through" : "text-clay-ink"
@@ -408,5 +543,129 @@ function PackingRow({
         </motion.button>
       </motion.div>
     </motion.li>
+  );
+}
+
+
+/* ------------------------- suggestions ------------------------- */
+
+/**
+ * What to pack, from the real forecast for the real dates.
+ *
+ * Every state here is honest about where the advice came from. With no
+ * weather it still suggests the things that are true of any trip, and says
+ * that is all it is doing — it never dresses a guess up as a forecast.
+ */
+function SuggestionStrip({
+  destination,
+  days,
+  state,
+  suggestions,
+  onAccept,
+  onAcceptAll,
+}: {
+  destination: string;
+  days: number;
+  state: ClimateState;
+  suggestions: Suggestion[];
+  onAccept: (suggestion: Suggestion) => void;
+  onAcceptAll: () => void;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const shown = showAll ? suggestions : suggestions.slice(0, 8);
+
+  const weatherLine =
+    state.status === "ready"
+      ? `${describeClimate(state.climate)} · ${
+          state.climate.source === "forecast"
+            ? "from the forecast"
+            : "based on the same dates last year"
+        }`
+      : state.status === "loading"
+        ? "Checking the weather for your dates…"
+        : state.status === "error"
+          ? "No weather for those dates — showing the basics only"
+          : "Add dates to get weather-based suggestions";
+
+  if (suggestions.length === 0) {
+    return (
+      <motion.div
+        variants={fadeUp}
+        className="mb-4 rounded-clay-sm bg-clay-mint/50 p-3.5 shadow-clay-inset-sm"
+      >
+        <p className="font-display text-sm font-semibold">
+          <span className="mr-1.5 inline-block align-middle text-clay-jade">
+            <CheckIcon size={15} />
+          </span>
+          Everything we would suggest is already on your list
+        </p>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div variants={fadeUp} className="mb-5">
+      <div className="mb-2.5 flex flex-wrap items-end justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-display text-sm font-semibold">
+            Suggested for {days} {days === 1 ? "day" : "days"} in {destination}
+          </p>
+          <p className="mt-0.5 flex items-center gap-1.5 font-body text-xs text-clay-ink-soft">
+            <span className="text-clay-ocean">
+              {state.status === "ready" && state.climate.rainDays > 0 ? (
+                <CloudIcon size={13} />
+              ) : (
+                <SunIcon size={13} />
+              )}
+            </span>
+            {weatherLine}
+          </p>
+        </div>
+
+        <ClayButton size="sm" tone="mint" sound={null} onClick={onAcceptAll}>
+          Add all {suggestions.length}
+        </ClayButton>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <AnimatePresence initial={false}>
+          {shown.map((suggestion) => (
+            <motion.button
+              key={suggestion.id}
+              layout
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.7 }}
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.94 }}
+              transition={springSnappy}
+              onClick={() => onAccept(suggestion)}
+              title={suggestion.reason}
+              className="flex items-center gap-2 rounded-full bg-clay-raised py-1.5 pl-1.5 pr-3.5 text-left shadow-clay-xs transition-shadow hover:shadow-clay-sm"
+            >
+              <ClayPackable icon={suggestion.icon} size={26} />
+              <span className="min-w-0">
+                <span className="block font-display text-[13px] font-semibold leading-tight">
+                  {suggestion.label}
+                </span>
+                <span className="block font-body text-[10px] leading-tight text-clay-muted">
+                  {suggestion.reason}
+                </span>
+              </span>
+              <PlusIcon size={13} />
+            </motion.button>
+          ))}
+        </AnimatePresence>
+
+        {suggestions.length > 8 && (
+          <button
+            onClick={() => setShowAll((current) => !current)}
+            className="rounded-full bg-clay-sunken px-3.5 py-2 font-body text-xs font-bold text-clay-ink-soft shadow-clay-inset-sm"
+          >
+            {showAll ? "Show fewer" : `+${suggestions.length - 8} more`}
+          </button>
+        )}
+      </div>
+    </motion.div>
   );
 }

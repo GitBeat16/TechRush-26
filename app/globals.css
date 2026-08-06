@@ -38,44 +38,55 @@
   --radius-clay-xl: 50px;
 
   /* Clay shadows — the core of the look.
-     outer drop + outer light + inner top highlight + inner bottom occlusion */
+     outer drop + outer light + inner top highlight + inner bottom occlusion
+
+     The occlusion colour is a variable (--clay-shade) rather than a literal,
+     so a theme can retint every shadow in the app by changing one triple.
+     Custom-property substitution is lazy, so this resolves at use time and
+     re-resolves whenever html[data-theme] changes. */
   --shadow-clay-xs:
-    4px 4px 10px rgba(178, 146, 121, 0.28), -3px -3px 8px rgba(255, 255, 255, 0.9),
-    inset 1px 1px 2px rgba(255, 255, 255, 0.7),
-    inset -2px -2px 4px rgba(178, 146, 121, 0.14);
+    4px 4px 10px rgb(var(--clay-shade) / 0.28),
+    -3px -3px 8px rgb(var(--clay-light) / 0.9),
+    inset 1px 1px 2px rgb(var(--clay-light) / 0.7),
+    inset -2px -2px 4px rgb(var(--clay-shade) / 0.14);
 
   --shadow-clay-sm:
-    8px 10px 18px rgba(178, 146, 121, 0.3), -6px -6px 14px rgba(255, 255, 255, 0.92),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.75),
-    inset -4px -5px 9px rgba(178, 146, 121, 0.16);
+    8px 10px 18px rgb(var(--clay-shade) / 0.3),
+    -6px -6px 14px rgb(var(--clay-light) / 0.92),
+    inset 2px 2px 4px rgb(var(--clay-light) / 0.75),
+    inset -4px -5px 9px rgb(var(--clay-shade) / 0.16);
 
   --shadow-clay:
-    14px 18px 32px rgba(172, 139, 113, 0.32), -10px -10px 26px rgba(255, 255, 255, 0.9),
-    inset 3px 3px 7px rgba(255, 255, 255, 0.8),
-    inset -7px -9px 16px rgba(172, 139, 113, 0.16);
+    14px 18px 32px rgb(var(--clay-shade) / 0.32),
+    -10px -10px 26px rgb(var(--clay-light) / 0.9),
+    inset 3px 3px 7px rgb(var(--clay-light) / 0.8),
+    inset -7px -9px 16px rgb(var(--clay-shade) / 0.16);
 
   --shadow-clay-lg:
-    22px 28px 52px rgba(166, 132, 106, 0.34), -14px -14px 34px rgba(255, 255, 255, 0.92),
-    inset 4px 4px 10px rgba(255, 255, 255, 0.85),
-    inset -10px -12px 22px rgba(166, 132, 106, 0.17);
+    22px 28px 52px rgb(var(--clay-shade) / 0.34),
+    -14px -14px 34px rgb(var(--clay-light) / 0.92),
+    inset 4px 4px 10px rgb(var(--clay-light) / 0.85),
+    inset -10px -12px 22px rgb(var(--clay-shade) / 0.17);
 
   --shadow-clay-hover:
-    22px 30px 46px rgba(166, 132, 106, 0.36), -12px -12px 30px rgba(255, 255, 255, 0.95),
-    inset 4px 4px 9px rgba(255, 255, 255, 0.9),
-    inset -8px -10px 18px rgba(166, 132, 106, 0.15);
+    22px 30px 46px rgb(var(--clay-shade) / 0.36),
+    -12px -12px 30px rgb(var(--clay-light) / 0.95),
+    inset 4px 4px 9px rgb(var(--clay-light) / 0.9),
+    inset -8px -10px 18px rgb(var(--clay-shade) / 0.15);
 
   --shadow-clay-pressed:
-    2px 2px 6px rgba(172, 139, 113, 0.22), -2px -2px 6px rgba(255, 255, 255, 0.7),
-    inset 6px 7px 14px rgba(172, 139, 113, 0.3),
-    inset -4px -4px 10px rgba(255, 255, 255, 0.75);
+    2px 2px 6px rgb(var(--clay-shade) / 0.22),
+    -2px -2px 6px rgb(var(--clay-light) / 0.7),
+    inset 6px 7px 14px rgb(var(--clay-shade) / 0.3),
+    inset -4px -4px 10px rgb(var(--clay-light) / 0.75);
 
   --shadow-clay-inset:
-    inset 7px 8px 16px rgba(172, 139, 113, 0.28),
-    inset -6px -6px 14px rgba(255, 255, 255, 0.9);
+    inset 7px 8px 16px rgb(var(--clay-shade) / 0.28),
+    inset -6px -6px 14px rgb(var(--clay-light) / 0.9);
 
   --shadow-clay-inset-sm:
-    inset 4px 5px 10px rgba(172, 139, 113, 0.24),
-    inset -3px -3px 8px rgba(255, 255, 255, 0.85);
+    inset 4px 5px 10px rgb(var(--clay-shade) / 0.24),
+    inset -3px -3px 8px rgb(var(--clay-light) / 0.85);
 
   /* Type */
   --font-display: var(--font-fredoka), "SF Pro Rounded", ui-rounded, system-ui, sans-serif;
@@ -83,6 +94,125 @@
 
   /* Motion */
   --ease-clay: cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+
+/* ------------------------------------------------------------------
+   Themes
+
+   A theme overrides the @theme custom properties on <html data-theme>.
+   Every Tailwind utility in the app compiles to `var(--color-clay-…)`,
+   so redefining the variables reskins the entire product — cards,
+   buttons, chips, bars, shadows — without touching a single component.
+
+   html[data-theme] (0,1,1) outranks :root (0,1,0), so these always win
+   regardless of where Tailwind hoists the @theme block.
+------------------------------------------------------------------ */
+
+:root {
+  /* Shadow occlusion + highlight, as raw RGB triples. */
+  --clay-shade: 172 139 113;
+  --clay-light: 255 255 255;
+  /* Ambient blob colours, read by the weather layer. */
+  --clay-amb-1: #ffd3d8;
+  --clay-amb-2: #c3dcfb;
+  --clay-amb-3: #bfe9d5;
+  --clay-precip: #ffffff;
+}
+
+/* ------------------------------------------------ hot and sunny */
+html[data-theme="sunny"] {
+  --color-clay-bg: #fbeadb;
+  --color-clay-bg-deep: #f4dcc4;
+  --color-clay-surface: #fff7ea;
+  --color-clay-raised: #fffdf7;
+  --color-clay-sunken: #f2e1cb;
+
+  --color-clay-ink: #4c3520;
+  --color-clay-ink-soft: #7f5c39;
+  --color-clay-muted: #a9855e;
+
+  --color-clay-blush: #ffcfc0;
+  --color-clay-rose: #f58a6b;
+  --color-clay-peach: #ffd9a8;
+  --color-clay-tangerine: #f59433;
+  --color-clay-butter: #ffe391;
+  --color-clay-mint: #e6e6a4;
+  --color-clay-jade: #c0b859;
+  --color-clay-sky: #ffe0bd;
+  --color-clay-ocean: #e8973f;
+  --color-clay-lilac: #f6d5e0;
+  --color-clay-grape: #d98fa6;
+
+  --clay-shade: 190 138 82;
+  --clay-light: 255 253 246;
+  --clay-amb-1: #ffd9a8;
+  --clay-amb-2: #ffe391;
+  --clay-amb-3: #ffcfc0;
+  --clay-precip: #fff3cf;
+}
+
+/* ------------------------------------------------ cold and snowy */
+html[data-theme="snowy"] {
+  --color-clay-bg: #e7eef7;
+  --color-clay-bg-deep: #dae4f0;
+  --color-clay-surface: #f6faff;
+  --color-clay-raised: #ffffff;
+  --color-clay-sunken: #dce5f1;
+
+  --color-clay-ink: #2c3c50;
+  --color-clay-ink-soft: #536a86;
+  --color-clay-muted: #8296ae;
+
+  --color-clay-blush: #e0e7fb;
+  --color-clay-rose: #9fb2e8;
+  --color-clay-peach: #d6e7f8;
+  --color-clay-tangerine: #6f95d6;
+  --color-clay-butter: #e4effb;
+  --color-clay-mint: #cfeaf0;
+  --color-clay-jade: #6bb6c8;
+  --color-clay-sky: #cfe0f7;
+  --color-clay-ocean: #5b83c9;
+  --color-clay-lilac: #ded9fa;
+  --color-clay-grape: #9d92e6;
+
+  --clay-shade: 108 138 178;
+  --clay-light: 255 255 255;
+  --clay-amb-1: #cfe0f7;
+  --clay-amb-2: #ded9fa;
+  --clay-amb-3: #cfeaf0;
+  --clay-precip: #ffffff;
+}
+
+/* ------------------------------------------------ cool and rainy */
+html[data-theme="rainy"] {
+  --color-clay-bg: #e5eee6;
+  --color-clay-bg-deep: #d6e3d8;
+  --color-clay-surface: #f4faf3;
+  --color-clay-raised: #fdfffc;
+  --color-clay-sunken: #d9e5da;
+
+  --color-clay-ink: #2c3f33;
+  --color-clay-ink-soft: #526e59;
+  --color-clay-muted: #819a86;
+
+  --color-clay-blush: #d8ecdc;
+  --color-clay-rose: #7fb98f;
+  --color-clay-peach: #dcecd0;
+  --color-clay-tangerine: #55a677;
+  --color-clay-butter: #e7f0bf;
+  --color-clay-mint: #c8e8d2;
+  --color-clay-jade: #4fa87e;
+  --color-clay-sky: #cfe3ea;
+  --color-clay-ocean: #5d93aa;
+  --color-clay-lilac: #d7dcf0;
+  --color-clay-grape: #8f9ad9;
+
+  --clay-shade: 88 128 100;
+  --clay-light: 253 255 252;
+  --clay-amb-1: #c8e8d2;
+  --clay-amb-2: #cfe3ea;
+  --clay-amb-3: #e7f0bf;
+  --clay-precip: #b9d8e4;
 }
 
 html,
@@ -96,6 +226,11 @@ body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  /* Long, soft crossfade so switching themes feels like light changing
+     rather than a page repaint. */
+  transition:
+    background-color 0.7s ease,
+    color 0.7s ease;
 }
 
 ::selection {
@@ -116,9 +251,9 @@ body {
   /* Soft clay "rim light" applied to illustrative blobs */
   .clay-rim {
     box-shadow:
-      inset 3px 4px 8px rgba(255, 255, 255, 0.85),
-      inset -5px -6px 12px rgba(160, 126, 100, 0.22),
-      10px 14px 24px rgba(166, 132, 106, 0.28);
+      inset 3px 4px 8px rgb(var(--clay-light) / 0.85),
+      inset -5px -6px 12px rgb(var(--clay-shade) / 0.22),
+      10px 14px 24px rgb(var(--clay-shade) / 0.28);
   }
 
   .text-balance {
@@ -181,6 +316,171 @@ input[type="range"].clay-range::-moz-range-thumb {
     inset -3px -4px 7px rgba(160, 110, 70, 0.3);
 }
 
+/* ------------------------------------------------------------------
+   Ambient weather
+
+   All three loops animate transform and opacity only, so they stay on the
+   compositor and never trigger layout. The layer itself is fixed,
+   pointer-events:none and behind everything.
+------------------------------------------------------------------ */
+
+@keyframes clay-fall {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: var(--flake-opacity, 0.85);
+  }
+  92% {
+    opacity: var(--flake-opacity, 0.85);
+  }
+  100% {
+    transform: translate3d(var(--flake-drift, 3vw), 112vh, 0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes clay-rain {
+  0% {
+    transform: translate3d(0, -18vh, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--drop-opacity, 0.5);
+  }
+  90% {
+    opacity: var(--drop-opacity, 0.5);
+  }
+  100% {
+    transform: translate3d(6vw, 118vh, 0);
+    opacity: 0;
+  }
+}
+
+/* The theme-change wash. Driven entirely by remounting the element, so no
+   React state is involved in the transition. */
+@keyframes clay-wash {
+  0% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.clay-theme-wash {
+  opacity: 0;
+  animation: clay-wash 0.75s ease-out 1;
+}
+
+@keyframes clay-rays {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes clay-shimmer {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(0, -22px, 0) scale(1.25);
+    opacity: 0.95;
+  }
+}
+
+@keyframes clay-ripple {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.clay-flake {
+  position: absolute;
+  top: 0;
+  border-radius: 9999px;
+  background: var(--clay-precip);
+  will-change: transform, opacity;
+  animation-name: clay-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.clay-drop {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--clay-precip),
+    transparent
+  );
+  will-change: transform, opacity;
+  animation-name: clay-rain;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.clay-mote {
+  position: absolute;
+  border-radius: 9999px;
+  background: var(--clay-precip);
+  filter: blur(1px);
+  will-change: transform, opacity;
+  animation-name: clay-shimmer;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.clay-ripple {
+  position: absolute;
+  border-radius: 9999px;
+  border: 1.5px solid var(--clay-precip);
+  will-change: transform, opacity;
+  animation-name: clay-ripple;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+
+.clay-rays {
+  position: absolute;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    rgb(var(--clay-light) / 0) 0deg,
+    rgb(var(--clay-light) / 0.55) 12deg,
+    rgb(var(--clay-light) / 0) 26deg,
+    rgb(var(--clay-light) / 0) 60deg,
+    rgb(var(--clay-light) / 0.4) 74deg,
+    rgb(var(--clay-light) / 0) 90deg,
+    rgb(var(--clay-light) / 0) 150deg,
+    rgb(var(--clay-light) / 0.5) 164deg,
+    rgb(var(--clay-light) / 0) 182deg,
+    rgb(var(--clay-light) / 0) 250deg,
+    rgb(var(--clay-light) / 0.42) 262deg,
+    rgb(var(--clay-light) / 0) 280deg,
+    rgb(var(--clay-light) / 0) 360deg
+  );
+  will-change: transform;
+  animation: clay-rays 68s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -188,5 +488,13 @@ input[type="range"].clay-range::-moz-range-thumb {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+
+  /* Precipitation frozen mid-fall looks broken — hide it outright. */
+  .clay-flake,
+  .clay-drop,
+  .clay-ripple,
+  .clay-rays {
+    display: none;
   }
 }

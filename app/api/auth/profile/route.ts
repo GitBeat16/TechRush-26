@@ -1,12 +1,19 @@
 import { NextResponse } from "next/server";
 import { isAvatarId } from "@/lib/avatars";
-import { currentUser } from "@/lib/server/session";
-import { toProfile, updateUser } from "@/lib/server/users";
+import { ensureProfile, rowToProfile, type ProfileRow } from "@/lib/supabase/profile";
+import { createClient } from "@/lib/supabase/server";
+import { isThemeId } from "@/lib/theme/themes";
+import type { ThemeId } from "@/types/theme";
 
 export const runtime = "nodejs";
 
 export async function PATCH(request: Request) {
-  const user = await currentUser();
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
@@ -18,7 +25,12 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const patch: { name?: string; avatarId?: string; homeCity?: string } = {};
+  const patch: {
+    name?: string;
+    avatar_id?: string;
+    home_city?: string;
+    theme?: ThemeId | null;
+  } = {};
 
   if (body.name !== undefined) {
     const name = String(body.name).trim();
@@ -38,20 +50,45 @@ export async function PATCH(request: Request) {
   }
 
   if (body.homeCity !== undefined) {
-    patch.homeCity = String(body.homeCity).slice(0, 60);
+    patch.home_city = String(body.homeCity).trim().slice(0, 60);
   }
 
   if (body.avatarId !== undefined) {
     if (!isAvatarId(body.avatarId)) {
       return NextResponse.json({ error: "Unknown avatar" }, { status: 400 });
     }
-    patch.avatarId = body.avatarId;
+    patch.avatar_id = body.avatarId;
   }
 
-  const updated = await updateUser(user.id, patch);
-  if (!updated) {
+  // null is meaningful here — it clears the override so the theme falls back
+  // to whatever the questionnaire answer implies.
+  if (body.theme !== undefined) {
+    if (body.theme !== null && !isThemeId(body.theme)) {
+      return NextResponse.json({ error: "Unknown theme" }, { status: 400 });
+    }
+    patch.theme = body.theme as ThemeId | null;
+  }
+
+  const current = await ensureProfile(supabase, user);
+  if (!current) {
+    return NextResponse.json({ error: "Could not load your profile" }, { status: 500 });
+  }
+
+  if (Object.keys(patch).length === 0) {
+    return NextResponse.json({ user: current });
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update(patch)
+    .eq("id", user.id)
+    .select("*")
+    .single<ProfileRow>();
+
+  if (error || !data) {
+    console.error("[profile] save failed:", error?.message);
     return NextResponse.json({ error: "Could not save" }, { status: 500 });
   }
 
-  return NextResponse.json({ user: toProfile(updated) });
+  return NextResponse.json({ user: rowToProfile(data) });
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { startSession } from "@/lib/server/session";
-import { createEmailUser, findByEmail, toProfile } from "@/lib/server/users";
+import { DEFAULT_AVATAR_ID, isAvatarId } from "@/lib/avatars";
+import { ensureProfile } from "@/lib/supabase/profile";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -17,8 +18,8 @@ export async function POST(request: Request) {
   const name = String(body.name ?? "").trim();
   const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
-  const avatarId = typeof body.avatarId === "string" ? body.avatarId : undefined;
-  const homeCity = typeof body.homeCity === "string" ? body.homeCity : "";
+  const avatarId = isAvatarId(body.avatarId) ? body.avatarId : DEFAULT_AVATAR_ID;
+  const homeCity = String(body.homeCity ?? "").trim().slice(0, 60);
 
   if (name.length < 2) {
     return NextResponse.json(
@@ -45,15 +46,52 @@ export async function POST(request: Request) {
     );
   }
 
-  if (await findByEmail(email)) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { name, avatar_id: avatarId, home_city: homeCity } },
+  });
+
+  if (error) {
+    const message = error.message.toLowerCase();
+    if (message.includes("already registered") || message.includes("already exists")) {
+      return NextResponse.json(
+        { error: "An account with this email already exists", field: "email" },
+        { status: 409 },
+      );
+    }
+    return NextResponse.json({ error: error.message, field: "email" }, { status: 400 });
+  }
+
+  if (!data.user) {
     return NextResponse.json(
-      { error: "An account with this email already exists", field: "email" },
-      { status: 409 },
+      { error: "Could not create your account" },
+      { status: 500 },
     );
   }
 
-  const user = await createEmailUser({ name, email, password, avatarId, homeCity });
-  await startSession(user.id);
+  // Email confirmation is switched on in the Supabase project, so there is no
+  // session yet. Say so instead of pretending the user is signed in.
+  if (!data.session) {
+    return NextResponse.json(
+      {
+        error:
+          "Almost there — confirm your email from the link we sent, then sign in.",
+        field: "email",
+      },
+      { status: 400 },
+    );
+  }
 
-  return NextResponse.json({ user: toProfile(user) }, { status: 201 });
+  const profile = await ensureProfile(supabase, data.user);
+  if (!profile) {
+    return NextResponse.json(
+      { error: "Account created, but your profile could not be saved" },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json({ user: profile }, { status: 201 });
 }

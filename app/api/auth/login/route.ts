@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { verifyPassword } from "@/lib/server/password";
-import { startSession } from "@/lib/server/session";
-import { findByEmail, toProfile } from "@/lib/server/users";
+import { ensureProfile } from "@/lib/supabase/profile";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -25,10 +24,6 @@ function throttled(key: string): boolean {
 
   entry.count += 1;
   return entry.count > MAX_ATTEMPTS;
-}
-
-function succeeded(key: string) {
-  attempts.delete(key);
 }
 
 export async function POST(request: Request) {
@@ -56,30 +51,37 @@ export async function POST(request: Request) {
     );
   }
 
-  const user = await findByEmail(email);
+  const supabase = await createClient();
 
-  if (user && user.provider === "google" && !user.passwordHash) {
-    return NextResponse.json(
-      {
-        error: "This account uses Google. Continue with Google instead.",
-        field: "email",
-      },
-      { status: 400 },
-    );
-  }
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-  // Same message whether the email or the password was wrong, so the endpoint
-  // cannot be used to discover which addresses have accounts.
-  const ok = user ? await verifyPassword(password, user.passwordHash) : false;
-  if (!user || !ok) {
+  if (error || !data.user) {
+    const message = (error?.message ?? "").toLowerCase();
+
+    if (message.includes("email not confirmed")) {
+      return NextResponse.json(
+        { error: "Confirm your email first — check your inbox.", field: "email" },
+        { status: 401 },
+      );
+    }
+
+    // Same message whether the email or the password was wrong, so the
+    // endpoint cannot be used to discover which addresses have accounts.
     return NextResponse.json(
       { error: "Email or password is incorrect", field: "password" },
       { status: 401 },
     );
   }
 
-  succeeded(email);
-  await startSession(user.id);
+  attempts.delete(email);
 
-  return NextResponse.json({ user: toProfile(user) });
+  const profile = await ensureProfile(supabase, data.user);
+  if (!profile) {
+    return NextResponse.json(
+      { error: "Signed in, but your profile could not be loaded" },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json({ user: profile });
 }

@@ -6,7 +6,11 @@ import { hashPassword } from "@/lib/server/password";
 import type { AuthProvider, UserProfile } from "@/types/auth";
 
 /* ------------------------------------------------------------------ */
-/* User store                                                          */
+/* User store — LEGACY, no longer wired into the app.                  */
+/*                                                                     */
+/* Authentication now runs entirely on Supabase (auth.users plus the   */
+/* public.profiles table). Nothing under app/ imports this file any    */
+/* more; it is kept only as a reference and can be deleted.            */
 /*                                                                     */
 /* A JSON file, read once into memory and written atomically. That is  */
 /* enough for local development and a single-instance deploy.          */
@@ -96,6 +100,18 @@ export function toProfile(user: UserRecord): UserProfile {
     homeCity: user.homeCity,
     provider: user.provider,
     createdAt: user.createdAt,
+    onboardingCompleted: false,
+    // No stored override on this legacy path — the theme falls back to the
+    // weather answer, which for a fresh record is also null, i.e. plain clay.
+    theme: null,
+    preferences: {
+      preferredDestinations: [],
+      preferredWeather: null,
+      budget: null,
+      travelStyle: null,
+      tripDuration: null,
+      travelGroup: null,
+    },
   };
 }
 

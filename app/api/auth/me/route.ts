@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ensureProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -13,37 +14,17 @@ export async function GET() {
 
   if (!user) {
     return NextResponse.json(
-      {
-        user: null,
-        googleEnabled: true,
-      },
-      {
-        headers: {
-          "cache-control": "no-store",
-        },
-      },
+      { user: null, googleEnabled: true },
+      { headers: { "cache-control": "no-store" } },
     );
   }
 
+  // A missing profile row used to make an authenticated user look signed out,
+  // which sent AppShell into a redirect loop. Create the row instead.
+  const profile = await ensureProfile(supabase, user);
+
   return NextResponse.json(
-    {
-      user: {
-        id: user.id,
-        name:
-          user.user_metadata.full_name ??
-          user.user_metadata.name ??
-          "Traveler",
-        email: user.email ?? "",
-        avatarId: "sunseeker",
-        homeCity: "",
-        provider: user.app_metadata.provider ?? "google",
-      },
-      googleEnabled: true,
-    },
-    {
-      headers: {
-        "cache-control": "no-store",
-      },
-    },
+    { user: profile, googleEnabled: true },
+    { headers: { "cache-control": "no-store" } },
   );
 }
