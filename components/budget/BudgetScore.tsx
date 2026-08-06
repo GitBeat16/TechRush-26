@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import type { BudgetScoreResult } from "@/lib/budget/scoreCalculator";
 import { ClayCard, ClayWell } from "@/components/ui/ClayCard";
-import { SparkIcon } from "@/components/ui/Icons";
+import { AwardIcon } from "@/components/ui/Icons";
 import { springSnappy } from "@/lib/animations";
 
 export interface BudgetScoreProps {
@@ -25,7 +25,7 @@ export function BudgetScore({ scoreResult, className = "" }: BudgetScoreProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="p-2 rounded-full bg-clay-raised/80 text-clay-ink shadow-clay-xs">
-            <SparkIcon size={18} />
+            <AwardIcon size={18} />
           </div>
           <div>
             <h3 className="font-display text-base font-bold text-clay-ink">

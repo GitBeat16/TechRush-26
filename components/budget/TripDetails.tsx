@@ -8,7 +8,7 @@ import { TRAVEL_STYLE_OPTIONS } from "@/lib/budget/budgetDefaults";
 import { ClayCard } from "@/components/ui/ClayCard";
 import { ClayDropdown, type ClayOption } from "./ClaySelect";
 import { ClayTravelStyleCard } from "./ClayTravelStyleCard";
-import { CalendarIcon, PinIcon, SuitcaseIcon, UserIcon } from "@/components/ui/Icons";
+import { CalendarIcon, PinIcon, SparkIcon, SuitcaseIcon, UserIcon, UsersIcon } from "@/components/ui/Icons";
 
 export interface TripDetailsProps {
   destination: Destination | null;
@@ -28,27 +28,27 @@ const DESTINATION_CLAY_OPTIONS: ClayOption<string>[] = DESTINATIONS.map((d) => {
   return {
     value: d.id,
     label,
-    icon: "📍",
+    icon: <PinIcon size={14} className="text-clay-tangerine" />,
   };
 });
 
 const DURATION_CLAY_OPTIONS: ClayOption<number>[] = [
-  { value: 1, label: "1 Day", icon: "📅" },
-  { value: 2, label: "2 Days", icon: "📅" },
-  { value: 3, label: "3 Days", icon: "📅" },
-  { value: 5, label: "5 Days", icon: "📅" },
-  { value: 7, label: "7 Days", icon: "📅" },
-  { value: 10, label: "10 Days", icon: "📅" },
-  { value: 14, label: "14 Days", icon: "📅" },
+  { value: 1, label: "1 Day", icon: <CalendarIcon size={14} className="text-clay-sky" /> },
+  { value: 2, label: "2 Days", icon: <CalendarIcon size={14} className="text-clay-sky" /> },
+  { value: 3, label: "3 Days", icon: <CalendarIcon size={14} className="text-clay-sky" /> },
+  { value: 5, label: "5 Days", icon: <CalendarIcon size={14} className="text-clay-sky" /> },
+  { value: 7, label: "7 Days", icon: <CalendarIcon size={14} className="text-clay-sky" /> },
+  { value: 10, label: "10 Days", icon: <CalendarIcon size={14} className="text-clay-sky" /> },
+  { value: 14, label: "14 Days", icon: <CalendarIcon size={14} className="text-clay-sky" /> },
 ];
 
 const TRAVELLER_CLAY_OPTIONS: ClayOption<number>[] = [
-  { value: 1, label: "1 Traveller", icon: "👤" },
-  { value: 2, label: "2 Travellers", icon: "👥" },
-  { value: 3, label: "3 Travellers", icon: "👥" },
-  { value: 4, label: "4 Travellers", icon: "👥" },
-  { value: 5, label: "5 Travellers", icon: "👥" },
-  { value: 6, label: "6+ Travellers", icon: "👨‍👩‍👧‍👦" },
+  { value: 1, label: "1 Traveller", icon: <UserIcon size={14} className="text-clay-mint" /> },
+  { value: 2, label: "2 Travellers", icon: <UsersIcon size={14} className="text-clay-mint" /> },
+  { value: 3, label: "3 Travellers", icon: <UsersIcon size={14} className="text-clay-mint" /> },
+  { value: 4, label: "4 Travellers", icon: <UsersIcon size={14} className="text-clay-mint" /> },
+  { value: 5, label: "5 Travellers", icon: <UsersIcon size={14} className="text-clay-mint" /> },
+  { value: 6, label: "6+ Travellers", icon: <UsersIcon size={14} className="text-clay-mint" /> },
 ];
 
 export function TripDetails({
@@ -92,7 +92,7 @@ export function TripDetails({
         <div className="space-y-0.5 max-w-md mx-auto text-center">
           <label className="font-body text-[10px] font-bold uppercase tracking-wider text-clay-muted inline-flex items-center gap-1">
             <PinIcon size={11} className="text-clay-tangerine" />
-            📍 DESTINATION
+            DESTINATION
           </label>
           <div>
             <ClayDropdown
@@ -113,7 +113,7 @@ export function TripDetails({
         <div className="space-y-0.5 max-w-md mx-auto text-center">
           <label className="font-body text-[10px] font-bold uppercase tracking-wider text-clay-muted inline-flex items-center gap-1">
             <CalendarIcon size={11} className="text-clay-sky" />
-            📅 DURATION
+            DURATION
           </label>
           <div>
             <ClayDropdown
@@ -129,7 +129,7 @@ export function TripDetails({
         <div className="space-y-0.5 max-w-md mx-auto text-center">
           <label className="font-body text-[10px] font-bold uppercase tracking-wider text-clay-muted inline-flex items-center gap-1">
             <UserIcon size={11} className="text-clay-mint" />
-            👥 TRAVELLERS
+            TRAVELLERS
           </label>
           <div>
             <ClayDropdown
@@ -145,7 +145,8 @@ export function TripDetails({
         <div className="space-y-1.5 pt-1.5 border-t border-clay-muted/15">
           <div className="text-center">
             <span className="font-body text-[10px] font-bold uppercase tracking-wider text-clay-muted inline-flex items-center gap-1">
-              ✨ TRAVEL STYLE
+              <SparkIcon size={11} className="text-clay-tangerine" />
+              TRAVEL STYLE
             </span>
           </div>
 

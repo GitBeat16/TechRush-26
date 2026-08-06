@@ -42,7 +42,7 @@ export function generateSavingsRecommendations(
     const saving = Math.round((stayItem.amount * 0.22) / 250) * 250;
     recommendations.push({
       id: "rec-stay",
-      icon: "💡",
+      icon: "tip",
       categoryKey: "stay",
       tone: "peach",
       title: "Optimize Stay Bookings",
@@ -56,7 +56,7 @@ export function generateSavingsRecommendations(
     const saving = Math.round((transportItem.amount * 0.18) / 250) * 250;
     recommendations.push({
       id: "rec-transport",
-      icon: "✈️",
+      icon: "transport",
       categoryKey: "transport",
       tone: "sky",
       title: "Advance Flight/Rail Booking",
@@ -70,7 +70,7 @@ export function generateSavingsRecommendations(
     const saving = Math.round((localTransportItem.amount * 0.30) / 250) * 250;
     recommendations.push({
       id: "rec-local-transport",
-      icon: "🚕",
+      icon: "local_transport",
       categoryKey: "local_transport",
       tone: "mint",
       title: "Public Transit & Day Passes",
@@ -84,7 +84,7 @@ export function generateSavingsRecommendations(
     const saving = Math.round((foodItem.amount * 0.15) / 250) * 250;
     recommendations.push({
       id: "rec-food",
-      icon: "🍽️",
+      icon: "food",
       categoryKey: "food",
       tone: "butter",
       title: "Local Food & Street Markets",
@@ -98,7 +98,7 @@ export function generateSavingsRecommendations(
     const saving = Math.round((shoppingItem.amount * 0.25) / 250) * 250;
     recommendations.push({
       id: "rec-shopping",
-      icon: "🛍️",
+      icon: "shopping",
       categoryKey: "shopping",
       tone: "lilac",
       title: "Focus on Local Artisans",

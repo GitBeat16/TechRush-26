@@ -27,7 +27,7 @@ export function generateBudgetWarnings(
     warnings.push({
       id: "warn-exceeded",
       severity: "high",
-      icon: "🚨",
+      icon: "warning",
       title: "Budget Limit Exceeded",
       message: `Your total estimated cost exceeds your target budget by ${formatInr(excess)}. Reduce category allocations to stay balanced.`,
     });
@@ -41,7 +41,7 @@ export function generateBudgetWarnings(
       warnings.push({
         id: "warn-stay",
         severity: "medium",
-        icon: "🏨",
+        icon: "stay",
         category: "Accommodation",
         title: "High Accommodation Share",
         message: `Accommodation takes ${Math.round(stayRatio * 100)}% of your trip spending. Consider boutique stays or guesthouses to balance costs.`,
@@ -58,7 +58,7 @@ export function generateBudgetWarnings(
     warnings.push({
       id: "warn-emergency",
       severity: "medium",
-      icon: "🛡️",
+      icon: "emergency",
       category: "Emergency Fund",
       title: "Low Emergency Buffer",
       message: `Emergency reserve is currently ${formatInr(emergencyAmount)}. We recommend maintaining at least ${formatInr(minRecommendedEmergency)} for unexpected detours.`,
@@ -73,7 +73,7 @@ export function generateBudgetWarnings(
       warnings.push({
         id: "warn-shopping",
         severity: "medium",
-        icon: "🛍️",
+        icon: "shopping",
         category: "Shopping",
         title: "High Shopping Allocation",
         message: `Shopping represents ${Math.round(shoppingRatio * 100)}% of your overall estimate (${formatInr(shoppingItem.amount)}).`,
@@ -89,7 +89,7 @@ export function generateBudgetWarnings(
       warnings.push({
         id: "warn-transport",
         severity: "medium",
-        icon: "✈️",
+        icon: "transport",
         category: "Transportation",
         title: "High Travel Transit Cost",
         message: `Long-distance travel takes ${Math.round(transportRatio * 100)}% of your spending. Booking earlier can save up to 25%.`,

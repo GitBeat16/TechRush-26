@@ -4,6 +4,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { BudgetWarning } from "@/lib/budget/warnings";
 import { fadeUp, springSnappy } from "@/lib/animations";
+import { BudgetIcon } from "./BudgetIcons";
 
 export interface BudgetWarningsProps {
   warnings: BudgetWarning[];
@@ -31,7 +32,9 @@ export function BudgetWarnings({ warnings, className = "" }: BudgetWarningsProps
                   : "bg-amber-50/95 border-amber-300 text-amber-950"
               }`}
             >
-              <span className="text-2xl shrink-0 leading-none">{warn.icon}</span>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/80 shadow-clay-xs">
+                <BudgetIcon icon={warn.icon} size={18} />
+              </div>
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
                   <h4 className="font-display font-bold text-sm leading-tight">

@@ -8,6 +8,7 @@ import { ClayCard, ClayWell } from "@/components/ui/ClayCard";
 import { TONES } from "@/lib/tones";
 import type { ClayTone } from "@/types/dashboard";
 import { springSnappy } from "@/lib/animations";
+import { BudgetIcon } from "./BudgetIcons";
 
 export interface ExpenseAnalysisProps {
   categoryBreakdown: CategoryContribution[];
@@ -41,7 +42,7 @@ export function ExpenseAnalysis({
             <div key={item.id} className="space-y-1">
               <div className="flex items-center justify-between text-xs font-semibold text-clay-ink">
                 <span className="flex items-center gap-2">
-                  <span>{item.icon}</span>
+                  <BudgetIcon icon={item.icon} size={16} />
                   <span>{item.category}</span>
                 </span>
                 <span className="flex items-center gap-2">

@@ -5,6 +5,7 @@ import type { ExpenseItem } from "@/types/budget";
 import { formatInr } from "@/lib/data";
 import { ClayCard, ClayWell } from "@/components/ui/ClayCard";
 import { useFeedback } from "@/lib/feedback";
+import { BudgetIcon } from "./BudgetIcons";
 
 export interface ExpenseCardProps {
   item: ExpenseItem;
@@ -29,8 +30,8 @@ export function ExpenseCard({ item, onAmountChange }: ExpenseCardProps) {
       {/* Category Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-clay-raised/90 text-2xl shadow-clay-xs">
-            {item.icon}
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-clay-raised/90 text-clay-ink shadow-clay-xs">
+            <BudgetIcon icon={item.icon} size={20} />
           </div>
           <div>
             <h4 className="font-display font-bold text-base text-clay-ink leading-tight">

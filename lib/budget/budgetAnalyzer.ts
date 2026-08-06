@@ -10,7 +10,7 @@ export interface CategoryContribution {
   category: string;
   amount: number;
   percentage: number;
-  icon: string;
+  icon: string | React.ReactNode;
   tone: string;
 }
 

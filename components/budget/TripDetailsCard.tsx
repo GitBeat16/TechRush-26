@@ -7,9 +7,10 @@ import type { TravelStyleKey } from "@/types/budget";
 import { TRAVEL_STYLE_OPTIONS } from "@/lib/budget/budgetDefaults";
 import { formatLocationName } from "./BudgetHeader";
 import { ClayCard, ClayWell } from "@/components/ui/ClayCard";
-import { CalendarIcon, PinIcon, SuitcaseIcon, UserIcon } from "@/components/ui/Icons";
+import { CalendarIcon, CheckIcon, PinIcon, SuitcaseIcon, UserIcon } from "@/components/ui/Icons";
 import { springSnappy } from "@/lib/animations";
 import { useFeedback } from "@/lib/feedback";
+import { BudgetIcon } from "./BudgetIcons";
 
 export interface TripDetailsCardProps {
   destination: Destination;
@@ -175,14 +176,16 @@ export function TripDetailsCard({
                   <motion.span
                     layoutId="active-style-badge"
                     transition={springSnappy}
-                    className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-clay-tangerine text-white text-[10px] font-extrabold shadow-clay-xs"
+                    className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-clay-tangerine text-white shadow-clay-xs"
                   >
-                    ✓
+                    <CheckIcon size={12} />
                   </motion.span>
                 )}
 
                 <div className="flex items-center gap-2.5 mb-1.5">
-                  <span className="text-2xl">{opt.icon}</span>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-clay-raised/90 text-clay-ink shadow-clay-xs">
+                    <BudgetIcon icon={opt.icon} size={18} />
+                  </div>
                   <div>
                     <h4 className="font-display font-bold text-sm text-clay-ink leading-tight">
                       {opt.title}

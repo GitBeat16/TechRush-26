@@ -4,7 +4,7 @@ import React from "react";
 import type { SavingsPotentialData } from "@/lib/budget/recommendations";
 import { formatInr } from "@/lib/data";
 import { ClayCard, ClayWell } from "@/components/ui/ClayCard";
-import { SparkIcon } from "@/components/ui/Icons";
+import { PiggyBankIcon } from "@/components/ui/Icons";
 
 export interface SavingsPotentialProps {
   savingsData: SavingsPotentialData;
@@ -26,7 +26,7 @@ export function SavingsPotential({
     >
       <div className="flex items-center gap-2">
         <div className="p-2 rounded-full bg-white/80 text-emerald-800 shadow-clay-xs">
-          <SparkIcon size={18} />
+          <PiggyBankIcon size={18} />
         </div>
         <div>
           <h3 className="font-display text-base font-bold text-clay-ink">

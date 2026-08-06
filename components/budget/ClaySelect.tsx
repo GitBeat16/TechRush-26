@@ -4,11 +4,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { springSnappy } from "@/lib/animations";
 import { useFeedback } from "@/lib/feedback";
+import { CheckIcon, ChevronDownIcon } from "@/components/ui/Icons";
+import { BudgetIcon } from "./BudgetIcons";
 
 export interface ClayOption<T> {
   value: T;
   label: string;
-  icon?: string;
+  icon?: string | React.ReactNode;
 }
 
 export interface ClaySelectProps<T> {
@@ -62,7 +64,7 @@ export function ClaySelect<T extends string | number>({
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-2 truncate">
-          {selectedOption?.icon && <span className="text-base">{selectedOption.icon}</span>}
+          {selectedOption?.icon && <BudgetIcon icon={selectedOption.icon} size={16} />}
           {!selectedOption?.icon && icon && <span className="text-clay-tangerine">{icon}</span>}
           <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
         </div>
@@ -71,9 +73,9 @@ export function ClaySelect<T extends string | number>({
         <motion.span
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={springSnappy}
-          className="text-xs text-clay-muted shrink-0 font-bold"
+          className="text-clay-muted shrink-0 flex items-center justify-center"
         >
-          ▼
+          <ChevronDownIcon size={16} />
         </motion.span>
       </motion.button>
 
@@ -110,7 +112,7 @@ export function ClaySelect<T extends string | number>({
                   aria-selected={isSelected}
                 >
                   <div className="flex items-center gap-2 truncate">
-                    {option.icon && <span className="text-base">{option.icon}</span>}
+                    {option.icon && <BudgetIcon icon={option.icon} size={16} />}
                     <span className="truncate">{option.label}</span>
                   </div>
 
@@ -119,9 +121,9 @@ export function ClaySelect<T extends string | number>({
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={springSnappy}
-                      className="text-xs font-extrabold text-clay-tangerine shrink-0"
+                      className="text-clay-tangerine shrink-0"
                     >
-                      ✓
+                      <CheckIcon size={14} />
                     </motion.span>
                   )}
                 </motion.li>

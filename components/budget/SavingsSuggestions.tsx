@@ -6,6 +6,7 @@ import type { SavingsRecommendation } from "@/lib/budget/recommendations";
 import { ClayCard } from "@/components/ui/ClayCard";
 import { SparkIcon } from "@/components/ui/Icons";
 import { fadeUp, stagger } from "@/lib/animations";
+import { BudgetIcon } from "./BudgetIcons";
 
 export interface SavingsSuggestionsProps {
   recommendations: SavingsRecommendation[];
@@ -41,8 +42,8 @@ export function SavingsSuggestions({
               depth="sm"
               className="p-4 flex items-start gap-3.5 border-2 border-white/80 h-full"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/90 text-xl shadow-clay-xs">
-                {rec.icon}
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/90 text-clay-ink shadow-clay-xs">
+                <BudgetIcon icon={rec.icon} size={18} />
               </div>
               <div className="space-y-1">
                 <h4 className="font-display font-bold text-sm text-clay-ink leading-tight">

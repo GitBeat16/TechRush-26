@@ -8,6 +8,7 @@ import { formatInr } from "@/lib/data";
 import { ClayCard, ClayWell } from "@/components/ui/ClayCard";
 import { TONES } from "@/lib/tones";
 import { fadeUp, stagger, springSnappy } from "@/lib/animations";
+import { BudgetIcon } from "./BudgetIcons";
 
 export interface BudgetBreakdownProps {
   destination: Destination;
@@ -79,8 +80,8 @@ export function BudgetBreakdown({
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/90 text-xl shadow-clay-xs">
-                      {item.icon}
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/90 text-clay-ink shadow-clay-xs">
+                      <BudgetIcon icon={item.icon} size={18} />
                     </div>
                     <div>
                       <h4 className="font-display font-bold text-sm text-clay-ink leading-tight">

@@ -7,6 +7,7 @@ import type { Destination } from "@/types/dashboard";
 import { ClayCard } from "@/components/ui/ClayCard";
 import { PinIcon } from "@/components/ui/Icons";
 import { fadeUp, stagger } from "@/lib/animations";
+import { BudgetIcon } from "./BudgetIcons";
 
 export interface DestinationTipsProps {
   destination?: Destination;
@@ -55,7 +56,9 @@ export function DestinationTips({
             className="p-3.5 rounded-clay-sm bg-white/70 shadow-clay-xs space-y-1"
           >
             <div className="flex items-center gap-2">
-              <span className="text-xl">{item.icon}</span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-clay-ink shadow-clay-xs">
+                <BudgetIcon icon={item.icon} size={16} />
+              </div>
               {item.highlight && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-clay-peach/70 text-clay-ink">
                   {item.highlight}

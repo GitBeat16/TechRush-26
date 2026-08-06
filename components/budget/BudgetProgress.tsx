@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import type { BudgetStatus } from "@/types/budget";
 import { springSnappy } from "@/lib/animations";
+import { AlertTriangleIcon } from "@/components/ui/Icons";
 
 export interface BudgetProgressProps {
   percentageUsed: number;
@@ -107,8 +108,14 @@ export function LinearBudgetProgress({
     <div className="w-full space-y-1.5">
       <div className="flex items-center justify-between text-xs font-semibold text-clay-ink-soft">
         <span>Budget Utilization</span>
-        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${colors.badge}`}>
-          {percentageUsed}% Used {status === "exceeded" && "⚠️ Exceeded"}
+        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1 ${colors.badge}`}>
+          <span>{percentageUsed}% Used</span>
+          {status === "exceeded" && (
+            <span className="inline-flex items-center gap-0.5">
+              <AlertTriangleIcon size={12} />
+              <span>Exceeded</span>
+            </span>
+          )}
         </span>
       </div>
 

@@ -16,7 +16,7 @@ export interface TravelStyleOption {
   title: string;
   subtitle: string;
   bullets: string[];
-  icon: string;
+  icon: string | React.ReactNode;
   tone: ClayTone;
   multiplier: number;
 }
@@ -33,7 +33,7 @@ export interface ExpenseItem {
   category: string;
   label: string;
   amount: number;
-  icon: string;
+  icon: string | React.ReactNode;
   tone: ClayTone;
   min: number;
   max: number;

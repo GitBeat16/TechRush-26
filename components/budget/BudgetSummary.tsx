@@ -6,7 +6,7 @@ import type { BudgetSummaryData } from "@/types/budget";
 import { formatInr } from "@/lib/data";
 import { ClayCard, ClayWell } from "@/components/ui/ClayCard";
 import { CircularBudgetProgress, LinearBudgetProgress } from "./BudgetProgress";
-import { ReceiptIcon, WalletIcon } from "@/components/ui/Icons";
+import { EditIcon, ReceiptIcon, RefreshIcon, WalletIcon } from "@/components/ui/Icons";
 import { springSnappy } from "@/lib/animations";
 import { useFeedback } from "@/lib/feedback";
 
@@ -63,9 +63,10 @@ export function BudgetSummary({
                   onResetDefaults();
                   play("toggleOff");
                 }}
-                className="rounded-full bg-clay-sunken px-3.5 py-1.5 font-body text-xs font-bold text-clay-ink shadow-clay-xs hover:bg-clay-peach transition-colors border border-white/60"
+                className="inline-flex items-center gap-1.5 rounded-full bg-clay-sunken px-3.5 py-1.5 font-body text-xs font-bold text-clay-ink shadow-clay-xs hover:bg-clay-peach transition-colors border border-white/60"
               >
-                ↺ Reset to Recommended Budget
+                <RefreshIcon size={14} />
+                <span>Reset to Recommended Budget</span>
               </button>
             )}
           </div>
@@ -105,8 +106,9 @@ export function BudgetSummary({
                   <span className="font-display text-xl font-bold text-clay-ink group-hover:text-clay-tangerine transition-colors">
                     {formatInr(summary.totalBudget)}
                   </span>
-                  <span className="text-[10px] font-bold text-clay-muted opacity-60 group-hover:opacity-100">
-                    ✎ Edit
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-clay-muted opacity-60 group-hover:opacity-100">
+                    <EditIcon size={12} />
+                    <span>Edit</span>
                   </span>
                 </div>
               )}

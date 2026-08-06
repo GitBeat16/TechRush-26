@@ -46,3 +46,6 @@ export type { SavingsPotentialProps } from "./SavingsPotential";
 
 export { DestinationTips } from "./DestinationTips";
 export type { DestinationTipsProps } from "./DestinationTips";
+
+export { BudgetIcon } from "./BudgetIcons";
+export type { BudgetIconProps } from "./BudgetIcons";

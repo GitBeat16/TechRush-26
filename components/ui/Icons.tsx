@@ -318,3 +318,86 @@ export const LocationArrowIcon = (p: IconProps) => (
     <path d="m4 4 16 6.5-7 2.5-2.5 7z" />
   </Base>
 );
+
+export const PiggyBankIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M19 9a4 4 0 0 0-4-4H9a6 6 0 0 0-6 6v3a3 3 0 0 0 3 3h1v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-2h4v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-2h1a3 3 0 0 0 3-3v-2.5a3.5 3.5 0 0 0-.5-2.5Z" />
+    <path d="M16 11h.01" strokeWidth={2.5} />
+    <path d="M11 5v2" />
+  </Base>
+);
+
+export const ShieldIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M12 3s7 3 7 8c0 5.5-4 8.5-7 10-3-1.5-7-4.5-7-10 0-5 7-8 7-8Z" />
+  </Base>
+);
+
+export const AlertTriangleIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M10.3 3.6a2 2 0 0 1 3.4 0l7.2 12.5A2 2 0 0 1 19.2 19H4.8a2 2 0 0 1-1.7-2.9l7.2-12.5Z" />
+    <path d="M12 9v4M12 16h.01" />
+  </Base>
+);
+
+export const AwardIcon = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="12" cy="9" r="5" />
+    <path d="M8.2 13.4 7 21l5-2.5 5 2.5-1.2-7.6" />
+  </Base>
+);
+
+export const LightbulbIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-6 6c0 2.2 1.2 4.1 3 5.2V16a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1.8c1.8-1.1 3-3 3-5.2a6 6 0 0 0-6-6Z" />
+  </Base>
+);
+
+export const ChartPieIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M21.2 15.9A10 10 0 1 1 8.1 2.8" />
+    <path d="M22 12A10 10 0 0 0 12 2v10z" />
+  </Base>
+);
+
+export const CrownIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="m3 17 2-10 4 4 3-6 3 6 4-4 2 10H3z" />
+  </Base>
+);
+
+export const BackpackIcon = (p: IconProps) => (
+  <Base {...p}>
+    <rect x="5" y="8" width="14" height="12" rx="3" />
+    <path d="M9 8V5a3 3 0 0 1 6 0v3M9 13h6M12 13v4" />
+  </Base>
+);
+
+export const CarIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 14h16v3a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H7v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3z" />
+    <path d="M6 14l1.8-4.5A2 2 0 0 1 9.7 8h4.6a2 2 0 0 1 1.9 1.5L18 14" />
+    <circle cx="7.5" cy="14" r="1.5" fill="currentColor" stroke="none" />
+    <circle cx="16.5" cy="14" r="1.5" fill="currentColor" stroke="none" />
+  </Base>
+);
+
+export const BoatIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M2 17l2 3h16l2-3H2zM12 3v11M8 7l4-4 4 4" />
+  </Base>
+);
+
+export const CompassIcon = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3 6.3-2.1z" />
+  </Base>
+);
+
+export const BuildingIcon = (p: IconProps) => (
+  <Base {...p}>
+    <rect x="4" y="4" width="16" height="16" rx="2" />
+    <path d="M9 8h2M13 8h2M9 12h2M13 12h2M11 16v4" />
+  </Base>
+);
