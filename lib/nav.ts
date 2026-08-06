@@ -8,6 +8,7 @@ import {
   SuitcaseIcon,
   SwapIcon,
   UserIcon,
+  WalletIcon,
 } from "@/components/ui/Icons";
 
 export interface NavItem {
@@ -52,6 +53,14 @@ export const NAV: NavItem[] = [
     description: "Itinerary, packing and budget",
     icon: SuitcaseIcon,
     primary: true,
+  },
+  {
+    href: "/budget",
+    label: "Budget Planner",
+    short: "Budget",
+    description: "Smart travel cost estimator and live analytics",
+    icon: WalletIcon,
+    primary: false,
   },
   {
     href: "/compare",
