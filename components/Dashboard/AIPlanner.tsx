@@ -2,10 +2,11 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ClayCard, ClayWell } from "@/components/ui/ClayCard";
 import { ClayButton, ClayChip } from "@/components/ui/ClayButton";
 import { ClayGlobe } from "@/components/ui/ClayIllustrations";
+import { CompanionPicker } from "@/components/trip/CompanionPicker";
 import {
   ArrowRightIcon,
   CalendarIcon,
@@ -14,6 +15,7 @@ import {
   PinIcon,
   RefreshIcon,
   SparkIcon,
+  UsersIcon,
   WalletIcon,
 } from "@/components/ui/Icons";
 import {
@@ -27,9 +29,13 @@ import {
   stagger,
 } from "@/lib/animations";
 import { useFeedback } from "@/lib/feedback";
+import { useSession } from "@/lib/auth/session";
+import { plannerDefaults } from "@/lib/personalize";
+import { selfTraveler } from "@/lib/travelers";
 import { actions } from "@/lib/store";
 import { AI_STEPS, INTERESTS, TRAVEL_STYLES, formatInr } from "@/lib/data";
-import type { GeneratedPlan, PlannerState, TravelStyle } from "@/types/dashboard";
+import type { GeneratedPlan, PlannerState, TravelStyle, Traveler } from "@/types/dashboard";
+import type { TravelGroup } from "@/types/auth";
 
 type Phase = "idle" | "thinking" | "ready" | "error";
 
@@ -44,10 +50,47 @@ const INITIAL: PlannerState = {
 export function AIPlanner({ initialDestination = "" }: { initialDestination?: string }) {
   const router = useRouter();
   const { play } = useFeedback();
+  const { user } = useSession();
+  const preferences = user?.preferences ?? null;
+
+  // The questionnaire already answered "how long", "how much" and "with whom" —
+  // asking again from a blank form would be a worse experience than prefilling.
+  const defaults = useMemo(() => plannerDefaults(preferences), [preferences]);
+
   const [state, setState] = useState<PlannerState>({
     ...INITIAL,
     destination: initialDestination,
   });
+
+  const [group, setGroup] = useState<TravelGroup | null>(null);
+  const [travelers, setTravelers] = useState<Traveler[]>([]);
+  const seeded = useRef(false);
+
+  /* Seed once from the profile, and never again — re-running this on every
+     session refresh would stomp on whatever the user has since typed. */
+  useEffect(() => {
+    if (seeded.current || !user) return;
+    seeded.current = true;
+
+    setState((current) => ({
+      ...current,
+      budget: defaults.budget,
+      duration: defaults.days,
+    }));
+    setGroup(preferences?.travelGroup ?? "solo");
+
+    const self = selfTraveler(user.name, user.email);
+    const placeholders = Array.from(
+      { length: Math.max(0, defaults.groupSize - 1) },
+      (_, index) => ({
+        id: `seed-${index}`,
+        name: `Traveller ${index + 2}`,
+        initials: `T${index + 2}`,
+        tone: "mint" as const,
+      }),
+    );
+    setTravelers([self, ...placeholders]);
+  }, [user, defaults, preferences]);
   const [phase, setPhase] = useState<Phase>("idle");
   const [step, setStep] = useState(0);
   const [plan, setPlan] = useState<GeneratedPlan | null>(null);
@@ -115,7 +158,7 @@ export function AIPlanner({ initialDestination = "" }: { initialDestination?: st
   function saveAsTrip() {
     if (!plan) return;
     play("success");
-    const id = actions.createTripFromPlan(plan, state.budget);
+    const id = actions.createTripFromPlan(plan, state.budget, travelers);
     router.push(`/trips/${id}`);
   }
 
@@ -230,6 +273,31 @@ export function AIPlanner({ initialDestination = "" }: { initialDestination?: st
                     {style}
                   </ClayChip>
                 ))}
+              </div>
+            </div>
+
+            <div>
+              <Label>
+                <span className="inline-flex items-center gap-1.5">
+                  <UsersIcon size={14} />
+                  Who&rsquo;s coming
+                </span>
+                <span className="ml-2 rounded-full bg-clay-raised px-2.5 py-0.5 font-display text-xs font-bold shadow-clay-xs">
+                  {travelers.length} {travelers.length === 1 ? "person" : "people"}
+                </span>
+              </Label>
+              <div className="mt-3">
+                <CompanionPicker
+                  travelers={travelers}
+                  onChange={setTravelers}
+                  group={group}
+                  onGroupChange={setGroup}
+                />
+                <p className="mt-2 font-body text-[11px] text-clay-muted">
+                  {travelers.length > 1
+                    ? `Roughly ${formatInr(Math.round(state.budget / travelers.length))} each — everyone here can be picked when you split an expense.`
+                    : "Add people here and every expense on this trip becomes splittable."}
+                </p>
               </div>
             </div>
 

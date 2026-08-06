@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE, verifySessionToken } from "@/lib/server/token";
 import { updateSession } from "@/lib/supabase/middleware";
 
 /**
@@ -9,6 +8,10 @@ import { updateSession } from "@/lib/supabase/middleware";
  * Checking here means a signed-out visitor never receives the HTML for a
  * protected page at all — the client-side gate in AppShell is only there to
  * keep the transition smooth.
+ *
+ * Supabase is the single source of truth for "is this request signed in".
+ * It has to agree with /api/auth/me, or the two gates bounce the user
+ * between /login and / forever.
  */
 
 const PUBLIC_PATHS = ["/login"];
@@ -24,11 +27,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const { supabaseResponse, user } = await updateSession(request);
 
-  // Keep legacy email sessions working; Google uses Supabase cookies.
-  const token = request.cookies.get(SESSION_COOKIE)?.value;
-  const legacySession = await verifySessionToken(token);
-  const isAuthed = Boolean(user || legacySession);
-
+  const isAuthed = Boolean(user);
   const isPublic = PUBLIC_PATHS.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { ItineraryBuilder } from "@/components/trip/ItineraryBuilder";
 import { BudgetTracker } from "@/components/trip/BudgetTracker";
+import { CompanionPicker } from "@/components/trip/CompanionPicker";
 import { PackingChecklist } from "@/components/Dashboard/PackingChecklist";
 import { ClayCard } from "@/components/ui/ClayCard";
 import { ClayButton } from "@/components/ui/ClayButton";
@@ -33,6 +34,7 @@ import {
   useTrip,
 } from "@/lib/store";
 import { formatInr } from "@/lib/data";
+import { formatDateShort, formatRange } from "@/lib/dates";
 import type { Trip } from "@/types/dashboard";
 
 type Tab = "overview" | "itinerary" | "packing" | "budget";
@@ -88,7 +90,7 @@ export default function TripDetailPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-2.5 p-2 sm:grid-cols-4">
-                <Stat label="Dates" value={trip.startDate.slice(0, 6)} sub={trip.endDate.slice(0, 6) || "to set"} icon={<CalendarIcon size={16} />} />
+                <Stat label="Dates" value={formatDateShort(trip.startDate, "Not set")} sub={formatRange(trip.startDate, trip.endDate)} icon={<CalendarIcon size={16} />} />
                 <Stat label="Ready" value={`${tripProgress(trip)}%`} sub={`${Math.round(packedRatio(trip) * 100)}% packed`} icon={<CheckIcon size={16} />} />
                 <Stat label="Spent" value={formatInr(tripSpend(trip))} sub={`of ${formatInr(trip.budget)}`} icon={<ReceiptIcon size={16} />} />
                 <Stat label="Planned" value={formatInr(tripPlannedCost(trip))} sub={`${trip.itinerary.length} days`} icon={<WalletIcon size={16} />} />
@@ -205,33 +207,31 @@ function Overview({ trip, onJump }: { trip: Trip; onJump: (tab: Tab) => void }) 
             ))}
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-clay-muted/15 pt-4">
-            <span className="flex items-center gap-1.5 font-body text-xs text-clay-ink-soft">
-              <UsersIcon size={15} />
-              Travelling with
-            </span>
-            <div className="flex items-center">
-              {trip.travelers.map((traveler, index) => (
-                <span
-                  key={traveler.id}
-                  style={{ marginLeft: index === 0 ? 0 : -10 }}
-                  className={`flex h-9 w-9 items-center justify-center rounded-full ${TONES[traveler.tone].bg} font-display text-[11px] font-bold shadow-clay-xs ring-4 ring-clay-surface`}
-                  title={traveler.name}
-                >
-                  {traveler.initials}
-                </span>
-              ))}
+          <div className="mt-5 border-t border-clay-muted/15 pt-4">
+            <div className="mb-3 flex flex-wrap items-center gap-3">
+              <span className="flex items-center gap-1.5 font-body text-xs text-clay-ink-soft">
+                <UsersIcon size={15} />
+                Travelling with
+              </span>
+              <ClayButton
+                size="sm"
+                tone="surface"
+                className="ml-auto"
+                leftIcon={<TrashIcon size={14} />}
+                onClick={() => actions.removeTrip(trip.id)}
+              >
+                Delete trip
+              </ClayButton>
             </div>
 
-            <ClayButton
-              size="sm"
-              tone="surface"
-              className="ml-auto"
-              leftIcon={<TrashIcon size={14} />}
-              onClick={() => actions.removeTrip(trip.id)}
-            >
-              Delete trip
-            </ClayButton>
+            {/* Editing the roster here rather than only at plan time — people
+                join and drop out of trips after they are created. Changes
+                flow straight into who an expense can be split between. */}
+            <CompanionPicker
+              travelers={trip.travelers}
+              onChange={(travelers) => actions.setTravelers(trip.id, travelers)}
+              showGroups={false}
+            />
           </div>
         </ClayCard>
       </motion.div>
