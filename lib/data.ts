@@ -1,5 +1,4 @@
 import type {
-  Achievement,
   ComparisonCandidate,
   Destination,
   TravelStyle,
@@ -129,15 +128,6 @@ export const COMPARISON_CANDIDATES: ComparisonCandidate[] = [
 /* ------------------------------------------------------------------ */
 /* Profile                                                             */
 /* ------------------------------------------------------------------ */
-
-export const ACHIEVEMENTS: Achievement[] = [
-  { id: "a1", label: "First flight", detail: "Booked your first trip on Wanderly", tone: "mint", unlocked: true },
-  { id: "a2", label: "Light packer", detail: "Finished a packing list before departure day", tone: "sky", unlocked: true },
-  { id: "a3", label: "Three continents", detail: "Trips logged across three continents", tone: "butter", unlocked: true },
-  { id: "a4", label: "Budget keeper", detail: "Finished a trip under budget", tone: "peach", unlocked: true },
-  { id: "a5", label: "Nine day wanderer", detail: "Complete a trip longer than a week", tone: "lilac", unlocked: false },
-  { id: "a6", label: "Northern lights", detail: "Visit somewhere above 60 degrees north", tone: "blush", unlocked: false },
-];
 
 /* ------------------------------------------------------------------ */
 /* Planner options                                                     */

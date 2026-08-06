@@ -207,14 +207,6 @@ export interface TravelStat {
   icon: "globe" | "suitcase" | "flame" | "camera";
 }
 
-export interface Achievement {
-  id: string;
-  label: string;
-  detail: string;
-  tone: ClayTone;
-  unlocked: boolean;
-}
-
 export interface WeatherNow {
   city: string;
   temperature: number;

@@ -30,7 +30,7 @@ import { TONES } from "@/lib/tones";
 import { useFeedback } from "@/lib/feedback";
 import { AuthError, signOut, updateProfile, useSession } from "@/lib/auth/session";
 import { actions, useAppState, useSavedDestinations } from "@/lib/store";
-import { ACHIEVEMENTS, DESTINATIONS } from "@/lib/data";
+import { DESTINATIONS } from "@/lib/data";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -129,44 +129,6 @@ export default function ProfilePage() {
         <motion.div variants={fadeUp}>
           <PreferenceSummary />
         </motion.div>
-
-        {/* ------------------------------------------ achievements */}
-        <motion.section variants={fadeUp}>
-          <h2 className="mb-4 px-1 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            Achievements
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {ACHIEVEMENTS.map((achievement) => (
-              <ClayCard
-                key={achievement.id}
-                tone={achievement.unlocked ? achievement.tone : "surface"}
-                radius="lg"
-                depth="sm"
-                interactive
-                subtle
-                className={`flex items-center gap-3 p-4 ${achievement.unlocked ? "" : "opacity-70"}`}
-              >
-                <span
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-clay-xs ${
-                    achievement.unlocked
-                      ? "bg-clay-raised text-clay-jade"
-                      : "bg-clay-sunken text-clay-muted shadow-clay-inset-sm"
-                  }`}
-                >
-                  {achievement.unlocked ? <CheckIcon size={19} /> : <SparkIcon size={18} />}
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-display text-sm font-semibold">
-                    {achievement.label}
-                  </span>
-                  <span className="block font-body text-[11px] leading-relaxed text-clay-ink-soft">
-                    {achievement.detail}
-                  </span>
-                </span>
-              </ClayCard>
-            ))}
-          </div>
-        </motion.section>
 
         {/* ------------------------------------------ saved */}
         <motion.section variants={fadeUp}>
