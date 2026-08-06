@@ -148,6 +148,7 @@ export interface Destination {
   rating: number;
   bestSeason: string;
   vibes: string[];
+  coordinates?: { lat: number; lng: number };
 }
 
 export type MetricKind =
