@@ -101,6 +101,9 @@ export function toProfile(user: UserRecord): UserProfile {
     provider: user.provider,
     createdAt: user.createdAt,
     onboardingCompleted: false,
+    // No stored override on this legacy path — the theme falls back to the
+    // weather answer, which for a fresh record is also null, i.e. plain clay.
+    theme: null,
     preferences: {
       preferredDestinations: [],
       preferredWeather: null,

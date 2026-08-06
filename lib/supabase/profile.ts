@@ -10,6 +10,8 @@ import type {
   UserProfile,
   WeatherPreference,
 } from "@/types/auth";
+import type { ThemeId } from "@/types/theme";
+import { isThemeId } from "@/lib/theme/themes";
 
 /** Row shape of the public.profiles table. */
 export interface ProfileRow {
@@ -27,6 +29,7 @@ export interface ProfileRow {
   trip_duration: TripDuration | null;
   travel_group: TravelGroup | null;
   onboarding_completed: boolean;
+  theme: ThemeId | null;
 }
 
 export function rowToProfile(row: ProfileRow): UserProfile {
@@ -39,6 +42,7 @@ export function rowToProfile(row: ProfileRow): UserProfile {
     provider: row.provider,
     createdAt: (row.created_at ?? "").slice(0, 10),
     onboardingCompleted: Boolean(row.onboarding_completed),
+    theme: isThemeId(row.theme) ? row.theme : null,
     preferences: {
       preferredDestinations: row.preferred_destinations ?? [],
       preferredWeather: row.preferred_weather,

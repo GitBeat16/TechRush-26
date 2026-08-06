@@ -9,6 +9,8 @@ import { initialsOf } from "@/components/shell/Navbar";
 import { TravelStats } from "@/components/Dashboard/TravelStats";
 import { DestinationCard } from "@/components/Dashboard/DestinationCard";
 import { AvatarPicker } from "@/components/auth/AvatarPicker";
+import { ThemePicker } from "@/components/profile/ThemePicker";
+import { PreferenceSummary } from "@/components/profile/PreferenceSummary";
 import { ClayCard, ClayWell } from "@/components/ui/ClayCard";
 import { ClayButton } from "@/components/ui/ClayButton";
 import { ClayAvatar, getAvatar } from "@/components/ui/ClayAvatar";
@@ -117,6 +119,16 @@ export default function ProfilePage() {
         </motion.div>
 
         <TravelStats />
+
+        {/* ------------------------------------------ appearance */}
+        <motion.div variants={fadeUp}>
+          <ThemePicker />
+        </motion.div>
+
+        {/* ------------------------------------------ preferences */}
+        <motion.div variants={fadeUp}>
+          <PreferenceSummary />
+        </motion.div>
 
         {/* ------------------------------------------ achievements */}
         <motion.section variants={fadeUp}>

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { isAvatarId } from "@/lib/avatars";
 import { ensureProfile, rowToProfile, type ProfileRow } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
+import { isThemeId } from "@/lib/theme/themes";
+import type { ThemeId } from "@/types/theme";
 
 export const runtime = "nodejs";
 
@@ -23,7 +25,12 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const patch: { name?: string; avatar_id?: string; home_city?: string } = {};
+  const patch: {
+    name?: string;
+    avatar_id?: string;
+    home_city?: string;
+    theme?: ThemeId | null;
+  } = {};
 
   if (body.name !== undefined) {
     const name = String(body.name).trim();
@@ -51,6 +58,15 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unknown avatar" }, { status: 400 });
     }
     patch.avatar_id = body.avatarId;
+  }
+
+  // null is meaningful here — it clears the override so the theme falls back
+  // to whatever the questionnaire answer implies.
+  if (body.theme !== undefined) {
+    if (body.theme !== null && !isThemeId(body.theme)) {
+      return NextResponse.json({ error: "Unknown theme" }, { status: 400 });
+    }
+    patch.theme = body.theme as ThemeId | null;
   }
 
   const current = await ensureProfile(supabase, user);

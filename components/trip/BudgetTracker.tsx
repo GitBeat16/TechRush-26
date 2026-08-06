@@ -12,6 +12,7 @@ import {
   ReceiptIcon,
   TicketIcon,
   TrashIcon,
+  UsersIcon,
   UtensilsIcon,
   WalletIcon,
 } from "@/components/ui/Icons";
@@ -25,6 +26,7 @@ import {
 import { useFeedback } from "@/lib/feedback";
 import { TONES } from "@/lib/tones";
 import { actions, settlement, tripSpend } from "@/lib/store";
+import { settleUp, shareOf } from "@/lib/travelers";
 import { formatInr } from "@/lib/data";
 import type { ClayTone, Expense, ExpenseCategory, Trip } from "@/types/dashboard";
 
@@ -69,6 +71,7 @@ export function BudgetTracker({ trip }: { trip: Trip }) {
   // No useMemo here on purpose: the React Compiler memoizes this call for us,
   // and a manual wrapper around a whole-object dependency defeats it.
   const balances = settlement(trip);
+  const transfers = settleUp(balances);
 
   return (
     <motion.div
@@ -186,6 +189,53 @@ export function BudgetTracker({ trip }: { trip: Trip }) {
               </div>
             ))}
           </div>
+
+          {/* The actionable half: balances say who is up and down, transfers
+              say what to actually pay. Greedy settlement, so at most one row
+              per person rather than everyone paying everyone. */}
+          {transfers.length > 0 && (
+            <div className="mt-4 border-t border-clay-muted/15 pt-4">
+              <p className="mb-2.5 flex items-center gap-1.5 font-body text-[11px] font-bold uppercase tracking-wide text-clay-muted">
+                <UsersIcon size={13} />
+                Settle up in {transfers.length}{" "}
+                {transfers.length === 1 ? "payment" : "payments"}
+              </p>
+              <ul className="space-y-2">
+                {transfers.map((transfer, index) => (
+                  <motion.li
+                    key={`${transfer.from.id}-${transfer.to.id}`}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ ...springSoft, delay: index * 0.05 }}
+                    className="flex flex-wrap items-center gap-2 rounded-clay-sm bg-clay-raised p-3 shadow-clay-xs"
+                  >
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${TONES[transfer.from.tone].bg} font-display text-[10px] font-bold shadow-clay-xs`}>
+                      {transfer.from.initials}
+                    </span>
+                    <span className="font-display text-sm font-semibold">
+                      {transfer.from.isYou ? "You" : transfer.from.name}
+                    </span>
+                    <span className="font-body text-xs text-clay-muted">pays</span>
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${TONES[transfer.to.tone].bg} font-display text-[10px] font-bold shadow-clay-xs`}>
+                      {transfer.to.initials}
+                    </span>
+                    <span className="font-display text-sm font-semibold">
+                      {transfer.to.isYou ? "you" : transfer.to.name}
+                    </span>
+                    <span className="ml-auto rounded-full bg-clay-butter px-3 py-1 font-display text-sm font-bold shadow-clay-xs">
+                      {formatInr(transfer.amount)}
+                    </span>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {transfers.length === 0 && trip.expenses.length > 0 && (
+            <p className="mt-4 rounded-clay-sm bg-clay-mint/50 p-3 text-center font-body text-xs font-bold text-clay-ink shadow-clay-inset-sm">
+              Everyone is square — nothing to settle.
+            </p>
+          )}
         </ClayCard>
       </motion.div>
 
@@ -253,7 +303,11 @@ export function BudgetTracker({ trip }: { trip: Trip }) {
                           {expense.label}
                         </span>
                         <span className="block font-body text-[11px] text-clay-muted">
-                          {payer?.name ?? "Someone"} paid · split {expense.splitWith.length} ways · {expense.date}
+                          {payer?.isYou ? "You" : (payer?.name ?? "Someone")} paid ·{" "}
+                          {expense.splitWith.length > 1
+                            ? `${formatInr(shareOf(expense.amount, expense.splitWith.length))} each × ${expense.splitWith.length}`
+                            : "not split"}{" "}
+                          · {expense.date}
                         </span>
                       </span>
                       <span className="shrink-0 font-display text-sm font-bold">
@@ -338,17 +392,30 @@ function ExpenseForm({
   const [label, setLabel] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<ExpenseCategory>("food");
-  const [paidBy, setPaidBy] = useState(trip.travelers[0]?.id ?? "t1");
+  // Default the payer to whoever is signed in — that is the overwhelmingly
+  // common case, and it is the one row the user cannot delete.
+  const self = trip.travelers.find((traveler) => traveler.isYou);
+  const [paidBy, setPaidBy] = useState(
+    self?.id ?? trip.travelers[0]?.id ?? "t1",
+  );
   const [splitWith, setSplitWith] = useState<string[]>(
     trip.travelers.map((traveler) => traveler.id),
   );
 
   const canSubmit = label.trim().length > 0 && Number(amount) > 0 && splitWith.length > 0;
 
+  const perHead =
+    Number(amount) > 0 && splitWith.length > 0
+      ? shareOf(Number(amount), splitWith.length)
+      : 0;
+
   const toggleSplit = (id: string) =>
     setSplitWith((current) =>
       current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
     );
+
+  const everyone = trip.travelers.map((traveler) => traveler.id);
+  const splitEvenly = splitWith.length === everyone.length;
 
   return (
     <motion.form
@@ -438,9 +505,32 @@ function ExpenseForm({
           </div>
 
           <div>
-            <p className="font-body text-[10px] font-bold uppercase tracking-wide text-clay-muted">
-              Split between
-            </p>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <p className="font-body text-[10px] font-bold uppercase tracking-wide text-clay-muted">
+                Split between
+              </p>
+              <div className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setSplitWith(everyone)}
+                  className={`rounded-full px-2.5 py-0.5 font-body text-[10px] font-bold shadow-clay-xs transition-colors ${
+                    splitEvenly ? "bg-clay-jade text-white" : "bg-clay-raised text-clay-ink-soft"
+                  }`}
+                >
+                  Everyone
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSplitWith([paidBy])}
+                  className={`rounded-full px-2.5 py-0.5 font-body text-[10px] font-bold shadow-clay-xs transition-colors ${
+                    splitWith.length === 1 ? "bg-clay-jade text-white" : "bg-clay-raised text-clay-ink-soft"
+                  }`}
+                >
+                  Payer only
+                </button>
+              </div>
+            </div>
+
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {trip.travelers.map((traveler) => (
                 <ClayChip
@@ -449,6 +539,7 @@ function ExpenseForm({
                   tone="mint"
                   active={splitWith.includes(traveler.id)}
                   onClick={() => toggleSplit(traveler.id)}
+                  title={traveler.name}
                 >
                   {traveler.initials}
                 </ClayChip>
@@ -456,6 +547,22 @@ function ExpenseForm({
             </div>
           </div>
         </div>
+
+        {/* Live share, so nobody has to do the division in their head before
+            deciding whether the split is right. */}
+        <p
+          className={`mt-3 rounded-clay-sm px-3 py-2 font-body text-xs shadow-clay-inset-sm transition-colors ${
+            splitWith.length === 0
+              ? "bg-clay-blush/60 font-bold text-clay-ink"
+              : "bg-clay-raised/70 text-clay-ink-soft"
+          }`}
+        >
+          {splitWith.length === 0
+            ? "Pick at least one person to split this between."
+            : perHead > 0
+              ? `${formatInr(perHead)} each across ${splitWith.length} ${splitWith.length === 1 ? "person" : "people"}.`
+              : `Splitting ${splitWith.length} ${splitWith.length === 1 ? "way" : "ways"} once you enter an amount.`}
+        </p>
 
         <div className="mt-3 flex gap-2">
           <ClayButton

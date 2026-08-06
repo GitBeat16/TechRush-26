@@ -2,6 +2,8 @@
  * Shared domain types for Wanderly.
  */
 
+import type { PackableIcon } from "@/lib/packing";
+
 export type ClayTone =
   | "blush"
   | "peach"
@@ -27,6 +29,10 @@ export interface Traveler {
   name: string;
   initials: string;
   tone: ClayTone;
+  /** Optional — set when the companion was invited by email. */
+  email?: string;
+  /** True for the row that represents the signed-in user. */
+  isYou?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -97,6 +103,12 @@ export interface PackingItem {
   label: string;
   category: PackingCategory;
   packed: boolean;
+  /**
+   * Which clay object to draw for this item. Optional because items created
+   * before the drawings existed do not have one — the UI guesses from the
+   * label in that case rather than migrating the data.
+   */
+  icon?: PackableIcon;
 }
 
 /* ------------------------------------------------------------------ */
@@ -187,6 +199,8 @@ export interface TravelStat {
   id: string;
   label: string;
   value: number;
+  /** Rendered before the number, e.g. a currency symbol. */
+  prefix?: string;
   suffix?: string;
   caption: string;
   tone: ClayTone;

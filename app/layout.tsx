@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fredoka, Nunito } from "next/font/google";
 import { AppShell } from "@/components/shell/AppShell";
+import { ThemeProvider, THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme/ThemeProvider";
 import "./globals.css";
 
 const fredoka = Fredoka({
@@ -36,10 +37,21 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-theme="clay"
+      // The bootstrap script below rewrites data-theme before React hydrates,
+      // which is a deliberate server/client mismatch, not a bug.
+      suppressHydrationWarning
       className={`${fredoka.variable} ${nunito.variable} h-full antialiased`}
     >
+      <head>
+        {/* Applies the cached theme before first paint. Without this the
+            default palette flashes for one frame while /api/auth/me loads. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col bg-clay-bg text-clay-ink">
-        <AppShell>{children}</AppShell>
+        <ThemeProvider>
+          <AppShell>{children}</AppShell>
+        </ThemeProvider>
       </body>
     </html>
   );

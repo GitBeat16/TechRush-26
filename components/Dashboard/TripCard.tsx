@@ -22,7 +22,22 @@ import {
   stagger,
 } from "@/lib/animations";
 import { TONES } from "@/lib/tones";
-import { actions, packedRatio, tripProgress, tripSpend } from "@/lib/store";
+import {
+  actions,
+  isTravelled,
+  packedRatio,
+  tripProgress,
+  tripSpend,
+} from "@/lib/store";
+import {
+  formatDateShort,
+  formatRange,
+  isIsoDate,
+  isWithin,
+  relativeDay,
+  todayIso,
+  tripLength,
+} from "@/lib/dates";
 import { formatInr } from "@/lib/data";
 import { useFeedback } from "@/lib/feedback";
 import type { ClayTone, Trip } from "@/types/dashboard";
@@ -34,6 +49,25 @@ export function TripCard({ trip }: { trip: Trip }) {
 
   const progress = tripProgress(trip);
   const spent = tripSpend(trip);
+
+  // What the badge says has to match reality, not the stored status — a trip
+  // whose dates have passed is over whether or not anyone updated it.
+  const today = todayIso();
+  const happeningNow = isWithin(today, trip.startDate, trip.endDate);
+  const finished = isTravelled(trip, today);
+  const countdown = isIsoDate(trip.startDate) ? relativeDay(trip.startDate) : "";
+
+  const phase = happeningNow
+    ? "Happening now"
+    : finished
+      ? "Completed"
+      : countdown
+        ? `Leaves ${countdown}`
+        : "Dates not set";
+
+  const nights = isIsoDate(trip.startDate) && isIsoDate(trip.endDate)
+    ? tripLength(trip.startDate, trip.endDate) - 1
+    : Math.max(0, trip.days - 1);
 
   return (
     <motion.div
@@ -48,7 +82,7 @@ export function TripCard({ trip }: { trip: Trip }) {
           <div className="min-w-0">
             <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-2.5">
               <span className="rounded-full bg-clay-jade/25 px-3 py-1.5 font-body text-[11px] font-extrabold uppercase tracking-wider">
-                {trip.status === "upcoming" ? "Current trip" : trip.status}
+                {phase}
               </span>
               <span className="flex items-center gap-1.5 rounded-full bg-clay-sunken px-3 py-1.5 font-body text-[11px] font-bold text-clay-ink-soft shadow-clay-inset-sm">
                 <SunIcon size={13} />
@@ -71,15 +105,19 @@ export function TripCard({ trip }: { trip: Trip }) {
               <Fact
                 icon={<CalendarIcon size={18} />}
                 label="Dates"
-                value={trip.startDate.slice(0, 6)}
-                sub={trip.endDate ? `to ${trip.endDate.slice(0, 6)}` : "not set"}
+                value={formatDateShort(trip.startDate, "Not set")}
+                sub={
+                  isIsoDate(trip.startDate)
+                    ? formatRange(trip.startDate, trip.endDate)
+                    : "Pick dates in the calendar"
+                }
                 tone="sky"
               />
               <Fact
                 icon={<SunIcon size={18} />}
                 label="Duration"
                 value={`${trip.days} days`}
-                sub={`${Math.max(0, trip.days - 1)} nights`}
+                sub={`${nights} ${nights === 1 ? "night" : "nights"}`}
                 tone="butter"
               />
               <Fact

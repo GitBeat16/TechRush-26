@@ -33,6 +33,8 @@ import { fadeUp, springSnappy, springSoft, stagger } from "@/lib/animations";
 import { feedback } from "@/lib/feedback";
 import { TONES } from "@/lib/tones";
 import { AuthError, submitOnboarding, useSession } from "@/lib/auth/session";
+import { useTheme } from "@/lib/theme/ThemeProvider";
+import { themeForWeather } from "@/lib/theme/themes";
 import type {
   BudgetTier,
   DestinationType,
@@ -136,11 +138,42 @@ function clampStep(value: number) {
 export default function OnboardingPage() {
   const router = useRouter();
   const { user } = useSession();
+  const { previewTheme } = useTheme();
 
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>(EMPTY);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  /* Someone who has already onboarded is here to change their answers, not
+     to be gated. Same six screens, different copy and exit route. */
+  const editing = Boolean(user?.onboardingCompleted);
+  const seeded = useRef(false);
+
+  /* Prefill from the stored profile exactly once, so an edit starts from
+     what they picked last time rather than a blank slate. */
+  useEffect(() => {
+    if (seeded.current || !user?.onboardingCompleted) return;
+    seeded.current = true;
+    setAnswers({
+      preferredDestinations: user.preferences.preferredDestinations,
+      preferredWeather: user.preferences.preferredWeather,
+      budget: user.preferences.budget,
+      travelStyle: user.preferences.travelStyle,
+      tripDuration: user.preferences.tripDuration,
+      travelGroup: user.preferences.travelGroup,
+    });
+  }, [user]);
+
+  /* Repaint the whole app the moment a weather option is tapped. Nothing is
+     saved yet — previewTheme deliberately bypasses persistence — so backing
+     out of the questionnaire leaves the stored theme untouched. */
+  useEffect(() => {
+    previewTheme(
+      answers.preferredWeather ? themeForWeather(answers.preferredWeather) : null,
+    );
+    return () => previewTheme(null);
+  }, [answers.preferredWeather, previewTheme]);
 
   /* The auto-advance timer, held so a second tap cancels the first. Without
      this, two quick taps both advanced the step and skipped a question. */
@@ -255,7 +288,7 @@ export default function OnboardingPage() {
       // The session cache already holds the saved profile, so AppShell will
       // render the dashboard as soon as we land. No refresh() — that only
       // adds another round trip through the auth proxy.
-      router.replace("/");
+      router.replace(editing ? "/profile" : "/");
     } catch (caught) {
       setError(
         caught instanceof AuthError ? caught.message : "Could not save your preferences",
@@ -283,11 +316,16 @@ export default function OnboardingPage() {
           Step {current + 1} of {STEPS}
         </span>
         <h1 className="mt-4 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-          {current === 0 ? `Nice to meet you, ${firstName}` : "A little more"}
+          {editing
+            ? "Update your travel profile"
+            : current === 0
+              ? `Nice to meet you, ${firstName}`
+              : "A little more"}
         </h1>
         <p className="mt-2 font-body text-sm text-clay-ink-soft">
-          Six quick questions and Wanderly starts suggesting trips that actually
-          sound like you.
+          {editing
+            ? "Change anything below — the dashboard, planner and theme all follow your answers."
+            : "Six quick questions and Wanderly starts suggesting trips that actually sound like you."}
         </p>
       </motion.div>
 

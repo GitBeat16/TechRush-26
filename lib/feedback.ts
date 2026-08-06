@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import type { AmbienceKind } from "@/types/theme";
 
 /* ------------------------------------------------------------------ */
 /* Wanderly feedback engine                                            */
@@ -16,7 +17,16 @@ export type FeedbackKind =
   | "success" // trip generated, checklist complete
   | "whoosh" // item flying into the suitcase, carousel slide
   | "pop" // card hover-in, tooltip
-  | "nav"; // navigating / opening a panel
+  | "nav" // navigating / opening a panel
+  | "pageTurn" // calendar month change
+  | "lift" // picking a trip block up
+  | "drop" // dropping it on a new date
+  | "spin" // globe flicked into a spin
+  | "pin" // a pin on the globe comes into view / is selected
+  | "weatherClay" // theme changed → terracotta
+  | "weatherSun" // theme changed → hot and sunny
+  | "weatherSnow" // theme changed → cold and snowy
+  | "weatherRain"; // theme changed → cool and rainy
 
 interface Voice {
   freq: number;
@@ -86,6 +96,101 @@ const RECIPES: Record<FeedbackKind, Recipe> = {
     ],
     vibrate: 12,
   },
+
+  /* ------------------------------------------------------------ */
+  /* Calendar and globe                                            */
+  /* ------------------------------------------------------------ */
+
+  // Paper sliding over paper — a month turning.
+  pageTurn: {
+    voices: [{ freq: 300, to: 240, type: "sine", dur: 0.09, gain: 0.045, cutoff: 900 }],
+    noise: { dur: 0.16, gain: 0.05, from: 900, to: 2600 },
+    vibrate: 7,
+  },
+
+  // Something coming off the surface: short, rising, weightless.
+  lift: {
+    voices: [{ freq: 300, to: 620, type: "sine", dur: 0.11, gain: 0.06, cutoff: 2200 }],
+    vibrate: [6, 18, 10],
+  },
+
+  // And landing again: heavier, falling, with a little body.
+  drop: {
+    voices: [
+      { freq: 520, to: 260, type: "sine", dur: 0.13, gain: 0.1, cutoff: 1200 },
+      { freq: 180, type: "sine", dur: 0.16, gain: 0.06, at: 0.05, cutoff: 700 },
+    ],
+    vibrate: [14, 20, 8],
+  },
+
+  // A globe given a shove — low whoosh that runs off.
+  spin: {
+    voices: [{ freq: 180, to: 90, type: "sine", dur: 0.5, gain: 0.05, cutoff: 700 }],
+    noise: { dur: 0.4, gain: 0.04, from: 700, to: 180 },
+    vibrate: [8, 40, 14],
+  },
+
+  // A pin arriving: tiny, bright, gone.
+  pin: {
+    voices: [{ freq: 880, to: 1180, type: "sine", dur: 0.07, gain: 0.045, cutoff: 3400 }],
+    vibrate: 6,
+  },
+
+  /* ---------------------------------------------------------------- */
+  /* Weather stingers — one per theme, played when the palette lands.  */
+  /* Longer and softer than the UI sounds: these are scenery, not      */
+  /* button clicks.                                                    */
+  /* ---------------------------------------------------------------- */
+
+  // Warm major arpeggio — the sun coming out.
+  weatherSun: {
+    voices: [
+      { freq: 392, type: "sine", dur: 0.2, gain: 0.075, cutoff: 2400 },
+      { freq: 587.33, type: "triangle", dur: 0.22, gain: 0.06, at: 0.09, cutoff: 2800 },
+      { freq: 783.99, type: "sine", dur: 0.42, gain: 0.07, at: 0.18, cutoff: 3200 },
+    ],
+    noise: { dur: 0.32, gain: 0.024, from: 2400, to: 5200 },
+    vibrate: [10, 45, 10, 45, 18],
+  },
+
+  // Glassy high bell over a breath of wind — cold, still air.
+  weatherSnow: {
+    voices: [
+      { freq: 1046.5, type: "sine", dur: 0.32, gain: 0.05, cutoff: 4400 },
+      { freq: 1567.98, type: "sine", dur: 0.26, gain: 0.03, at: 0.07, cutoff: 5200 },
+      { freq: 783.99, type: "sine", dur: 0.5, gain: 0.045, at: 0.15, cutoff: 3600 },
+    ],
+    noise: { dur: 0.38, gain: 0.026, from: 5200, to: 2000 },
+    vibrate: [6, 60, 6, 60, 10],
+  },
+
+  // A rising patter over a low rumble — rain arriving.
+  weatherRain: {
+    voices: [
+      { freq: 240, to: 165, type: "sine", dur: 0.4, gain: 0.07, cutoff: 900 },
+      { freq: 1180, to: 820, type: "sine", dur: 0.07, gain: 0.03, at: 0.14, cutoff: 2600 },
+      { freq: 960, to: 700, type: "sine", dur: 0.07, gain: 0.026, at: 0.27, cutoff: 2400 },
+    ],
+    noise: { dur: 0.4, gain: 0.07, from: 1300, to: 2900 },
+    vibrate: [8, 30, 8, 30, 8, 30, 8],
+  },
+
+  // Soft kiln thunk — no weather at all, just clay.
+  weatherClay: {
+    voices: [
+      { freq: 300, to: 215, type: "sine", dur: 0.2, gain: 0.11, cutoff: 1000 },
+      { freq: 452, type: "triangle", dur: 0.16, gain: 0.04, at: 0.07, cutoff: 1500 },
+    ],
+    vibrate: [12, 35, 12],
+  },
+};
+
+/** The stinger that belongs to a theme's ambient weather layer. */
+export const WEATHER_FEEDBACK: Record<AmbienceKind, FeedbackKind> = {
+  none: "weatherClay",
+  sun: "weatherSun",
+  snow: "weatherSnow",
+  rain: "weatherRain",
 };
 
 const STORAGE_KEY = "wanderly:feedback";
@@ -197,8 +302,14 @@ function playNoise(ctx: AudioContext, cfg: NonNullable<Recipe["noise"]>, startAt
   src.stop(startAt + cfg.dur + 0.05);
 }
 
-/** Fire a sound + matching haptic pattern. Safe to call anywhere. */
-export function feedback(kind: FeedbackKind = "tap") {
+/**
+ * Fire a sound + matching haptic pattern. Safe to call anywhere.
+ *
+ * `delay` (seconds) schedules the sound ahead on the audio clock rather than
+ * with a timer, so it stays sample-accurate — used to let a sound land *after*
+ * a visual transition instead of on top of it.
+ */
+export function feedback(kind: FeedbackKind = "tap", delay = 0) {
   hydrate();
   const recipe = RECIPES[kind];
   if (!recipe) return;
@@ -206,7 +317,7 @@ export function feedback(kind: FeedbackKind = "tap") {
   if (prefs.sound) {
     const ctx = getCtx();
     if (ctx) {
-      const now = ctx.currentTime + 0.001;
+      const now = ctx.currentTime + 0.001 + Math.max(delay, 0);
       recipe.voices.forEach((v) => playVoice(ctx, v, now));
       if (recipe.noise) playNoise(ctx, recipe.noise, now);
     }
@@ -217,11 +328,15 @@ export function feedback(kind: FeedbackKind = "tap") {
     typeof navigator !== "undefined" &&
     typeof navigator.vibrate === "function"
   ) {
-    try {
-      navigator.vibrate(recipe.vibrate);
-    } catch {
-      /* unsupported */
-    }
+    const buzz = () => {
+      try {
+        navigator.vibrate(recipe.vibrate);
+      } catch {
+        /* unsupported */
+      }
+    };
+    if (delay > 0) window.setTimeout(buzz, delay * 1000);
+    else buzz();
   }
 }
 
@@ -256,7 +371,10 @@ export function setFeedbackPrefs(next: Partial<Prefs>) {
 export function useFeedback() {
   const value = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  const play = useCallback((kind: FeedbackKind = "tap") => feedback(kind), []);
+  const play = useCallback(
+    (kind: FeedbackKind = "tap", delay = 0) => feedback(kind, delay),
+    [],
+  );
 
   const toggleSound = useCallback(() => {
     setFeedbackPrefs({ sound: !prefs.sound });

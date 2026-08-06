@@ -4,15 +4,13 @@ import { motion } from "framer-motion";
 import { useSyncExternalStore } from "react";
 import { ClayCard } from "@/components/ui/ClayCard";
 import { ClayButton } from "@/components/ui/ClayButton";
-import { ClayCloud, ClayPlane, ClayScene } from "@/components/ui/ClayIllustrations";
+import { ClayCloud, ClayPlane, ClayScene, type SceneKind } from "@/components/ui/ClayIllustrations";
 import { RiveCharacter } from "@/components/Dashboard/RiveCharacter";
 import {
   ArrowRightIcon,
-  CloudIcon,
   PinIcon,
   SparkIcon,
   StarIcon,
-  SunIcon,
 } from "@/components/ui/Icons";
 import {
   breathe,
@@ -24,9 +22,15 @@ import {
   stagger,
 } from "@/lib/animations";
 import Link from "next/link";
-import { packedRatio, useActiveTrip } from "@/lib/store";
+import { packedRatio, useActiveTrip, useAppState } from "@/lib/store";
 import { useSession } from "@/lib/auth/session";
-import { DESTINATIONS, WEATHER, formatInr, greetingFor } from "@/lib/data";
+import { formatInr, greetingFor } from "@/lib/data";
+import { formatRange, relativeDay } from "@/lib/dates";
+import { buildHistory } from "@/lib/history";
+import { heroLine, topPick } from "@/lib/personalize";
+import { SCENE_BY_ID } from "@/components/ui/ClayIllustrations";
+import { TONES } from "@/lib/tones";
+import { useMemo } from "react";
 
 /** Server renders "Good evening"; the client swaps in the visitor's local
  *  time of day on hydration, so no mismatch warning and no cascading render. */
@@ -41,11 +45,19 @@ export function HeroSection() {
     serverGreeting,
   );
 
-  const pick = DESTINATIONS[0];
+  const { trips } = useAppState();
   const trip = useActiveTrip();
-  const packed = Math.round(packedRatio(trip) * 100);
+  const packed = trip ? Math.round(packedRatio(trip) * 100) : 0;
   const { user } = useSession();
   const firstName = user?.name.split(" ")[0] ?? "traveller";
+  const preferences = user?.preferences ?? null;
+
+  // The hero headline slot is the highest-value real estate on the page, so
+  // it shows the single best-scoring destination rather than DESTINATIONS[0].
+  // Where they have already been counts as much as what they answered.
+  const history = useMemo(() => buildHistory(trips), [trips]);
+  const pick = useMemo(() => topPick(preferences, history), [preferences, history]);
+  const tagline = useMemo(() => heroLine(preferences), [preferences]);
 
   return (
     <motion.section
@@ -117,18 +129,27 @@ export function HeroSection() {
               variants={fadeUp}
               className="mt-3 max-w-md font-body text-base leading-relaxed text-clay-ink-soft sm:text-lg"
             >
-              Ready for your next adventure? {trip.title} is {packed}% packed
-              and three new routes just came in under budget.
+              {tagline}{" "}
+              {trip
+                ? `${trip.title} is ${packed}% packed and `
+                : "Nothing on the calendar yet — "}
+              {pick.destination.name} scores {pick.score} out of 100 against{" "}
+              {history.isEmpty
+                ? "your answers"
+                : `your answers and ${history.completed.length} trip${
+                    history.completed.length === 1 ? "" : "s"
+                  } so far`}
+              .
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-7 flex flex-wrap gap-3">
-              <Link href={`/trips/${trip.id}`}>
+              <Link href={trip ? `/trips/${trip.id}` : "/plan"}>
                 <ClayButton
                   variant="primary"
                   size="lg"
                   rightIcon={<ArrowRightIcon size={19} />}
                 >
-                  Continue planning
+                  {trip ? "Continue planning" : "Plan your first trip"}
                 </ClayButton>
               </Link>
               <Link href="/explore">
@@ -143,17 +164,21 @@ export function HeroSection() {
               </Link>
             </motion.div>
 
-            {/* weather + recommendation */}
+            {/* Weather used to live here. It now sits directly below the
+                hero as its own strip, because there are two readings worth
+                showing — here and there — and neither fits in half a row. */}
             <motion.div
               variants={stagger(0.09, 0.15)}
-              className="mt-8 grid gap-3 sm:grid-cols-2"
+              className="mt-8 max-w-md"
             >
-              <WeatherCard />
               <RecommendationCard
-                name={pick.name}
-                price={formatInr(pick.price)}
-                days={pick.days}
-                rating={pick.rating}
+                name={pick.destination.name}
+                price={formatInr(pick.destination.price)}
+                days={pick.destination.days}
+                rating={pick.destination.rating}
+                scene={SCENE_BY_ID[pick.destination.id] ?? "coast"}
+                hex={TONES[pick.destination.tone].hex}
+                reason={pick.reasons[0] ?? "Highest rated"}
               />
             </motion.div>
           </div>
@@ -175,10 +200,16 @@ export function HeroSection() {
               className="absolute -right-1 top-4 rounded-clay-sm bg-clay-surface px-4 py-2.5 shadow-clay-sm sm:right-4"
             >
               <p className="font-display text-xs font-semibold text-clay-ink">
-                Next: {trip.country}
+                Next: {trip ? trip.country : pick.destination.name}
               </p>
               <p className="font-body text-[11px] text-clay-muted">
-                {trip.startDate}
+                {trip
+                  ? trip.startDate
+                    ? `${formatRange(trip.startDate, trip.endDate)} · ${relativeDay(
+                        trip.startDate,
+                      )}`
+                    : "Dates not set"
+                  : "Not booked yet"}
               </p>
             </motion.div>
           </motion.div>
@@ -190,52 +221,22 @@ export function HeroSection() {
 
 /* ------------------------------- pieces ------------------------------- */
 
-function WeatherCard() {
-  const Icon = WEATHER.icon === "sun" ? SunIcon : CloudIcon;
-
-  return (
-    <motion.div variants={fadeUp}>
-      <ClayCard
-        tone="sky"
-        radius="md"
-        depth="sm"
-        interactive
-        subtle
-        className="flex items-center gap-4 p-4"
-      >
-        <motion.span
-          {...floatY(5, 3.8)}
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-clay-raised text-clay-ocean shadow-clay-xs"
-        >
-          <Icon size={28} />
-        </motion.span>
-        <div className="min-w-0">
-          <p className="font-body text-[11px] font-bold uppercase tracking-wider text-clay-ink-soft">
-            {WEATHER.city} right now
-          </p>
-          <p className="font-display text-2xl font-semibold leading-tight">
-            {WEATHER.temperature}
-            <span className="text-base align-top">C</span>
-          </p>
-          <p className="truncate font-body text-xs text-clay-ink-soft">
-            {WEATHER.condition} · {WEATHER.high} / {WEATHER.low}
-          </p>
-        </div>
-      </ClayCard>
-    </motion.div>
-  );
-}
-
 function RecommendationCard({
   name,
   price,
   days,
   rating,
+  scene,
+  hex,
+  reason,
 }: {
   name: string;
   price: string;
   days: number;
   rating: number;
+  scene: SceneKind;
+  hex: string;
+  reason: string;
 }) {
   return (
     <motion.div variants={fadeUp}>
@@ -248,11 +249,11 @@ function RecommendationCard({
         className="flex items-center gap-4 overflow-hidden p-3"
       >
         <div className="h-16 w-16 shrink-0 overflow-hidden rounded-clay-sm shadow-clay-xs">
-          <ClayScene kind="torii" base="#ffd3d8" className="h-full w-full" />
+          <ClayScene kind={scene} base={hex} className="h-full w-full" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-body text-[11px] font-bold uppercase tracking-wider text-clay-muted">
-            Picked for you
+            {reason}
           </p>
           <p className="font-display text-lg font-semibold leading-tight">{name}</p>
           <p className="font-body text-xs text-clay-ink-soft">

@@ -1,3 +1,5 @@
+import type { ThemeId } from "@/types/theme";
+
 export type AuthProvider = "email" | "google";
 
 export type DestinationType = "beaches" | "mountains" | "heritage" | "islands" | "cities";
@@ -26,6 +28,11 @@ export interface UserProfile {
   createdAt: string;
   onboardingCompleted: boolean;
   preferences: TravelPreferences;
+  /**
+   * An explicit theme override. null means "follow my weather answer",
+   * which is what every user starts out as.
+   */
+  theme: ThemeId | null;
 }
 
 export type AuthStatus = "loading" | "authenticated" | "unauthenticated";
@@ -52,6 +59,8 @@ export interface ProfilePatch {
   name?: string;
   avatarId?: string;
   homeCity?: string;
+  /** Pass null to clear the override and fall back to the weather answer. */
+  theme?: ThemeId | null;
 }
 
 export interface OnboardingInput {

@@ -7,6 +7,8 @@ import { Navbar } from "@/components/shell/Navbar";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { MobileDock } from "@/components/shell/MobileDock";
 import { ClayPlane } from "@/components/ui/ClayIllustrations";
+import { WeatherAmbience } from "@/components/theme/WeatherAmbience";
+import { TripSync } from "@/components/shell/TripSync";
 import { breathe, floatY, springSoft } from "@/lib/animations";
 import { useSession } from "@/lib/auth/session";
 
@@ -31,7 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return (
       <MotionConfig reducedMotion="user">
         <div className="relative min-h-screen">
-          <AmbientBackground />
+          <WeatherAmbience />
           {children}
         </div>
       </MotionConfig>
@@ -42,7 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return (
       <MotionConfig reducedMotion="user">
         <div className="relative min-h-screen">
-          <AmbientBackground />
+          <WeatherAmbience />
           <Splash />
         </div>
       </MotionConfig>
@@ -53,7 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return (
       <MotionConfig reducedMotion="user">
         <div className="relative min-h-screen">
-          <AmbientBackground />
+          <WeatherAmbience />
           <RedirectTo path="/login" label="Taking you to sign in" />
         </div>
       </MotionConfig>
@@ -69,32 +71,22 @@ export function AppShell({ children }: { children: ReactNode }) {
     return (
       <MotionConfig reducedMotion="user">
         <div className="relative min-h-screen">
-          <AmbientBackground />
+          <WeatherAmbience />
           <RedirectTo path={ONBOARDING_ROUTE} label="Just a couple of quick questions" />
         </div>
       </MotionConfig>
     );
   }
 
-  // Already onboarded but somehow back on the questionnaire URL — skip it.
-  if (!needsOnboarding && isOnboardingRoute) {
-    return (
-      <MotionConfig reducedMotion="user">
-        <div className="relative min-h-screen">
-          <AmbientBackground />
-          <RedirectTo path="/" label="Taking you to your dashboard" />
-        </div>
-      </MotionConfig>
-    );
-  }
-
-  // On the questionnaire, and meant to be — bare shell, no nav yet, same
-  // treatment as /login.
+  // On the questionnaire — either because they have not answered it yet, or
+  // because they came back from /profile to change their answers. Both get
+  // the bare shell, no nav, same treatment as /login. (Bouncing an already
+  // onboarded user away from here used to make preferences uneditable.)
   if (isOnboardingRoute) {
     return (
       <MotionConfig reducedMotion="user">
         <div className="relative min-h-screen">
-          <AmbientBackground />
+          <WeatherAmbience />
           {children}
         </div>
       </MotionConfig>
@@ -104,7 +96,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <MotionConfig reducedMotion="user">
       <div className="relative min-h-screen">
-        <AmbientBackground />
+        <WeatherAmbience />
+        <TripSync />
 
         <Sidebar />
 
@@ -171,21 +164,3 @@ function Splash({ label = "Warming up the clay" }: { label?: string }) {
   );
 }
 
-function AmbientBackground() {
-  return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <motion.div
-        {...breathe(1.1, 14)}
-        className="absolute -left-40 top-24 h-[26rem] w-[26rem] rounded-full bg-clay-blush opacity-35 blur-3xl"
-      />
-      <motion.div
-        {...breathe(1.08, 17, 2)}
-        className="absolute -right-32 top-[38%] h-[30rem] w-[30rem] rounded-full bg-clay-sky opacity-30 blur-3xl"
-      />
-      <motion.div
-        {...breathe(1.12, 19, 4)}
-        className="absolute bottom-0 left-1/3 h-[24rem] w-[24rem] rounded-full bg-clay-mint opacity-30 blur-3xl"
-      />
-    </div>
-  );
-}
