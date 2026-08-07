@@ -284,3 +284,4 @@ keeps working.
 
 **A stale build after switching branches**
 Delete `.next` and restart the dev server.
+https://wanderly-navy.vercel.app/
