@@ -284,4 +284,6 @@ keeps working.
 
 **A stale build after switching branches**
 Delete `.next` and restart the dev server.
+
+(We have the deployed one too...but if the api key is terminated..it might not work...you have to check it out locally :) )
 https://wanderly-navy.vercel.app/
