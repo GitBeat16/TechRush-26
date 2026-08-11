@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureProfile } from "@/lib/supabase/profile";
+import { resolveProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -19,12 +19,15 @@ export async function GET() {
     );
   }
 
-  // A missing profile row used to make an authenticated user look signed out,
-  // which sent AppShell into a redirect loop. Create the row instead.
-  const profile = await ensureProfile(supabase, user);
+  // The Supabase cookie is the single source of truth for "signed in".
+  // Once getUser() has answered yes, this route must answer yes too —
+  // proxy.ts and AppShell gate on the two separately, and any
+  // disagreement bounces the user between /login and / forever. A broken
+  // profiles table degrades the profile; it never un-authenticates.
+  const { profile, degraded } = await resolveProfile(supabase, user);
 
   return NextResponse.json(
-    { user: profile, googleEnabled: true },
+    { user: profile, googleEnabled: true, degraded },
     { headers: { "cache-control": "no-store" } },
   );
 }

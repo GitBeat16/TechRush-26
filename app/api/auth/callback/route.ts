@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureProfile } from "@/lib/supabase/profile";
+import { resolveProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -27,10 +27,10 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=google_failed`);
   }
 
-  const profile = await ensureProfile(supabase, data.user);
-  if (!profile) {
-    return NextResponse.redirect(`${origin}/login?error=google_failed`);
-  }
+  // The session cookie is already set by this point. Bouncing back to
+  // /login here would send the user into a redirect loop, because proxy.ts
+  // sees an authenticated visitor on a public route and returns them to /.
+  const { profile } = await resolveProfile(supabase, data.user);
 
   // Straight to the questionnaire on a first sign-in, so the dashboard is
   // never rendered against empty preferences.

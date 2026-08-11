@@ -1,17 +1,25 @@
 import type { Metadata, Viewport } from "next";
-import { Fredoka, Nunito } from "next/font/google";
+import { Grandstander, Karla } from "next/font/google";
 import { AppShell } from "@/components/shell/AppShell";
 import { ThemeProvider, THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme/ThemeProvider";
 import "./globals.css";
 
-const fredoka = Fredoka({
-  variable: "--font-fredoka",
+// Two families, three tiers. Grandstander carries every voice that speaks up —
+// page titles, section headings, card titles, numbers — its bouncing baseline
+// and rounded terminals are the typographic echo of the clay shapes behind it.
+// Karla carries everything you actually read: a quiet grotesque with enough
+// character in the italics to not feel like a system font.
+//
+// Both are variable, so a single load covers the whole weight range and the
+// browser never has to fake a bold.
+const grandstander = Grandstander({
+  variable: "--font-grandstander",
   subsets: ["latin"],
   display: "swap",
 });
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+const karla = Karla({
+  variable: "--font-karla",
   subsets: ["latin"],
   display: "swap",
 });
@@ -41,7 +49,7 @@ export default function RootLayout({
       // The bootstrap script below rewrites data-theme before React hydrates,
       // which is a deliberate server/client mismatch, not a bug.
       suppressHydrationWarning
-      className={`${fredoka.variable} ${nunito.variable} h-full antialiased`}
+      className={`${grandstander.variable} ${karla.variable} h-full antialiased`}
     >
       <head>
         {/* Applies the cached theme before first paint. Without this the

@@ -38,7 +38,18 @@ async function pushTrip(trip: Trip): Promise<Trip | null> {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ trip }),
     });
-    if (!response.ok) throw new Error(String(response.status));
+    if (!response.ok) {
+      // Worth a log rather than a silent fallback: a failed push leaves the
+      // trip on its local id forever, which then looks like "sync is slow"
+      // rather than "the write was rejected". A missing table GRANT, an RLS
+      // refusal and an offline laptop are indistinguishable without this.
+      const detail = await response.text().catch(() => "");
+      console.error(
+        `[sync] push failed for "${trip.title}" (${response.status}):`,
+        detail.slice(0, 300),
+      );
+      throw new Error(String(response.status));
+    }
 
     const saved = ((await response.json()) as { trip?: Trip }).trip ?? null;
 

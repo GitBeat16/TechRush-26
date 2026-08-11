@@ -42,7 +42,7 @@ export function Sidebar() {
         >
           <ClayPlane size={30} base="#6f9ee6" />
         </motion.span>
-        <span className="font-display text-[11px] font-bold tracking-tight text-clay-ink">
+        <span className="font-title text-[11px] text-clay-ink">
           Wanderly
         </span>
       </Link>

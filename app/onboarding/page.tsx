@@ -315,7 +315,7 @@ export default function OnboardingPage() {
           <SparkIcon size={14} />
           Step {current + 1} of {STEPS}
         </span>
-        <h1 className="mt-4 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+        <h1 className="mt-4 font-title text-3xl leading-tight sm:text-4xl">
           {editing
             ? "Update your travel profile"
             : current === 0

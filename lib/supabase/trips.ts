@@ -140,6 +140,13 @@ export function rowsToTrip(
   travelers: TravelerRow[],
   expenses: ExpenseRow[],
   splits: SplitRow[],
+  /**
+   * Who is reading. `is_you` on the row means "the trip owner", which is only
+   * the same person as the reader on their own trips — once someone joins via
+   * an invite, trusting the stored flag would label the owner as "you" in the
+   * joiner's UI. Resolving it per reader keeps "you" meaning you.
+   */
+  viewerId?: string,
 ): Trip {
   const splitsByExpense = new Map<string, string[]>();
   splits.forEach((split) => {
@@ -148,8 +155,11 @@ export function rowsToTrip(
     splitsByExpense.set(split.expense_id, list);
   });
 
+  const ownerIsViewer = Boolean(viewerId) && trip.owner_id === viewerId;
+
   return {
     id: trip.id,
+    ownerId: trip.owner_id,
     title: trip.title,
     country: trip.country,
     destinationId: trip.destination_id,
@@ -170,7 +180,9 @@ export function rowsToTrip(
         initials: row.initials,
         tone: pick(row.tone, TONES, "mint"),
         ...(row.email ? { email: row.email } : {}),
-        ...(row.is_you ? { isYou: true } : {}),
+        ...((row.user_id && row.user_id === viewerId) || (row.is_you && ownerIsViewer)
+          ? { isYou: true }
+          : {}),
       })),
     milestones: trip.milestones ?? [],
     itinerary: trip.itinerary ?? [],
@@ -268,6 +280,10 @@ export async function listTrips(
         .returns<SplitRow[]>()
     : { data: [] as SplitRow[] };
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return trips.map((trip) =>
     rowsToTrip(
       trip,
@@ -278,6 +294,7 @@ export async function listTrips(
           (expense) => expense.id === row.expense_id && expense.trip_id === trip.id,
         ),
       ),
+      user?.id,
     ),
   );
 }
@@ -316,11 +333,16 @@ export async function getTrip(
         .returns<SplitRow[]>()
     : { data: [] as SplitRow[] };
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return rowsToTrip(
     trip,
     travelers.data ?? [],
     expenses.data ?? [],
     splits.data ?? [],
+    user?.id,
   );
 }
 

@@ -66,11 +66,17 @@ export async function ensureProfile(
   supabase: SupabaseClient,
   user: User,
 ): Promise<UserProfile | null> {
-  const { data: existing } = await supabase
+  const { data: existing, error: readError } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .maybeSingle<ProfileRow>();
+
+  if (readError) {
+    // A missing table or an RLS policy that hides the row both land here.
+    console.error("[profile] could not read row:", readError.message);
+    return null;
+  }
 
   if (existing) return rowToProfile(existing);
 
@@ -113,4 +119,84 @@ export async function ensureProfile(
   }
 
   return rowToProfile(created);
+}
+
+/* ------------------------------------------------------------------ */
+/* Degraded fallback                                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A profile assembled purely from the Supabase auth user, used when the
+ * `profiles` table cannot be read or written.
+ *
+ * `onboardingCompleted` is deliberately true: the questionnaire saves to
+ * the same table that is currently failing, so sending a degraded user
+ * there would strand them on a form that cannot submit.
+ */
+export function fallbackProfile(user: User): UserProfile {
+  const metadata = (user.user_metadata ?? {}) as Record<string, unknown>;
+  const email = user.email ?? "";
+
+  const name =
+    (typeof metadata.name === "string" && metadata.name.trim()) ||
+    (typeof metadata.full_name === "string" && metadata.full_name.trim()) ||
+    email.split("@")[0] ||
+    "Traveller";
+
+  return {
+    id: user.id,
+    email,
+    name,
+    avatarId: isAvatarId(metadata.avatar_id)
+      ? metadata.avatar_id
+      : avatarForSeed(user.id) || DEFAULT_AVATAR_ID,
+    homeCity: typeof metadata.home_city === "string" ? metadata.home_city : "",
+    provider: user.app_metadata?.provider === "google" ? "google" : "email",
+    createdAt: (user.created_at ?? "").slice(0, 10),
+    onboardingCompleted: true,
+    theme: null,
+    preferences: {
+      preferredDestinations: [],
+      preferredWeather: null,
+      budget: null,
+      travelStyle: null,
+      tripDuration: null,
+      travelGroup: null,
+    },
+  };
+}
+
+export interface ResolvedProfile {
+  profile: UserProfile;
+  /** True when the row could not be reached and the fallback is in use. */
+  degraded: boolean;
+}
+
+/**
+ * The profile for an authenticated user, guaranteed non-null.
+ *
+ * This guarantee is the whole point. `proxy.ts` gates on the Supabase
+ * cookie while `AppShell` gates on /api/auth/me; if the second one can
+ * answer "signed out" for a user the first one considers signed in, the
+ * two redirect each other between /login and / forever. Every read-path
+ * caller goes through here so that disagreement is impossible.
+ *
+ * Write paths (/api/auth/profile, /api/auth/onboarding) deliberately do
+ * not use this — they must fail loudly rather than pretend to save.
+ */
+export async function resolveProfile(
+  supabase: SupabaseClient,
+  user: User,
+): Promise<ResolvedProfile> {
+  const profile = await ensureProfile(supabase, user);
+
+  if (profile) return { profile, degraded: false };
+
+  console.error(
+    `[profile] falling back to auth metadata for ${user.id}. ` +
+      "Check that public.profiles exists and its RLS policies allow the " +
+      "signed-in user to select and insert their own row.",
+  );
+
+  return { profile: fallbackProfile(user), degraded: true };
 }

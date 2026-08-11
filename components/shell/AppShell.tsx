@@ -9,6 +9,7 @@ import { MobileDock } from "@/components/shell/MobileDock";
 import { ClayPlane } from "@/components/ui/ClayIllustrations";
 import { WeatherAmbience } from "@/components/theme/WeatherAmbience";
 import { TripSync } from "@/components/shell/TripSync";
+import { AssistantDock } from "@/components/assistant/AssistantDock";
 import { breathe, floatY, springSoft } from "@/lib/animations";
 import { useSession } from "@/lib/auth/session";
 
@@ -56,7 +57,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <MotionConfig reducedMotion="user">
         <div className="relative min-h-screen">
           <WeatherAmbience />
-          <RedirectTo path="/login" label="Taking you to sign in" />
+          {/* ?stale tells proxy.ts not to bounce us back if it disagrees and
+              still considers this visitor signed in. Without it the two gates
+              redirect each other between /login and / indefinitely. */}
+          <RedirectTo path="/login?stale=1" label="Taking you to sign in" />
         </div>
       </MotionConfig>
     );
@@ -117,6 +121,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         <MobileDock />
+
+        {/* Sits above the mobile dock on phones, in the corner on desktop.
+            Only rendered for signed-in, onboarded users — every earlier
+            branch returns before this point. */}
+        <AssistantDock />
       </div>
     </MotionConfig>
   );

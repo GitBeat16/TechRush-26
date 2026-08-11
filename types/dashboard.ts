@@ -125,6 +125,11 @@ export interface Milestone {
 
 export interface Trip {
   id: string;
+  /**
+   * Set by the server on read. Absent on trips that have never synced, so
+   * treat "missing" as "mine" rather than "someone else's".
+   */
+  ownerId?: string;
   title: string;
   country: string;
   /** links a trip back to a destination in DESTINATIONS, for artwork */

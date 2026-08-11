@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 import { PageHeader } from "@/components/shell/PageHeader";
+import { TravellingTogether } from "@/components/trip/TravellingTogether";
 import { ClayCard } from "@/components/ui/ClayCard";
 import { ClayButton, ClayChip } from "@/components/ui/ClayButton";
 import { ClayScene, SCENE_BY_ID } from "@/components/ui/ClayIllustrations";
@@ -53,6 +54,10 @@ export default function TripsPage() {
       />
 
       <motion.div variants={stagger(0.06)} initial="hidden" animate="show" className="space-y-5">
+        <motion.div variants={fadeUp}>
+          <TravellingTogether />
+        </motion.div>
+
         <motion.div variants={fadeUp} className="flex flex-wrap gap-2">
           {FILTERS.map((option) => (
             <ClayChip
