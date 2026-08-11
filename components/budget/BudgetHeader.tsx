@@ -50,7 +50,7 @@ export function BudgetHeader({
       <motion.div variants={fadeUp}>
         <ClayWell radius="lg" className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-clay-sky shadow-clay-xs text-clay-ink">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
               <PinIcon size={22} />
             </div>
             <div>

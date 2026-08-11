@@ -39,7 +39,7 @@ export function PageHeader({
           <Link
             href={backHref}
             onClick={() => feedback("nav")}
-            className="inline-flex items-center gap-1.5 rounded-full bg-clay-surface px-3.5 py-2 font-body text-xs font-bold text-clay-ink-soft shadow-clay-xs transition-shadow hover:shadow-clay-sm active:shadow-clay-pressed"
+            className="inline-flex items-center gap-1.5 rounded-full bg-clay-surface border border-clay-sky px-3.5 py-2 font-body text-xs font-bold text-clay-tangerine shadow-clay-xs transition-all hover:shadow-clay-sm active:shadow-clay-pressed"
           >
             <ChevronLeftIcon size={15} />
             {backLabel}
@@ -54,7 +54,7 @@ export function PageHeader({
               variants={fadeUp}
               whileHover={{ rotate: -8, scale: 1.06 }}
               transition={springSnappy}
-              className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-clay-sm bg-clay-peach text-clay-ink shadow-clay-sm sm:flex"
+              className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-clay-sm bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-sm sm:flex"
             >
               {icon}
             </motion.span>

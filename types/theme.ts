@@ -9,6 +9,7 @@
 import type { WeatherPreference } from "@/types/auth";
 
 export type ThemeId = "clay" | "sunny" | "snowy" | "rainy";
+export type ThemeMode = "light" | "dark";
 
 /** The ambient animation each theme paints behind the app. */
 export type AmbienceKind = "none" | "sun" | "snow" | "rain";

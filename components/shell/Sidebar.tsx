@@ -26,7 +26,7 @@ export function Sidebar() {
       initial={{ x: -90, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ ...springSoft, delay: 0.05 }}
-      className="fixed inset-y-4 left-4 z-50 hidden w-24 flex-col items-center gap-2 rounded-clay-lg bg-clay-surface/95 py-5 shadow-clay-lg backdrop-blur-xl lg:flex"
+      className="fixed inset-y-4 left-4 z-50 hidden w-24 flex-col items-center gap-2 rounded-clay-lg bg-clay-surface/95 border border-clay-sky py-5 shadow-clay-lg backdrop-blur-xl lg:flex"
     >
       <Link
         href="/"
@@ -65,7 +65,7 @@ export function Sidebar() {
                 <motion.span
                   layoutId="rail-active"
                   transition={springSnappy}
-                  className="absolute inset-0 rounded-clay-sm bg-clay-butter shadow-clay-xs"
+                  className="absolute inset-0 rounded-clay-sm bg-clay-sunken/80 border border-clay-sky shadow-clay-xs"
                 />
               )}
               <motion.span
@@ -74,7 +74,7 @@ export function Sidebar() {
                 transition={springSnappy}
                 className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300 ${
                   isActive
-                    ? "bg-clay-raised text-clay-ink shadow-clay-xs"
+                    ? "bg-clay-raised text-clay-tangerine shadow-clay-xs"
                     : "text-clay-ink-soft"
                 }`}
               >

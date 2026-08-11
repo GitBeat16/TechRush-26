@@ -44,7 +44,7 @@ export function BudgetSummary({
       tone="surface"
       radius="xl"
       depth="lg"
-      className={`p-5 sm:p-6 border-4 border-white/80 ${className}`}
+      className={`p-5 sm:p-6 border border-clay-sky ${className}`}
     >
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         {/* Left Stats Grid */}
@@ -63,7 +63,7 @@ export function BudgetSummary({
                   onResetDefaults();
                   play("toggleOff");
                 }}
-                className="inline-flex items-center gap-1.5 rounded-full bg-clay-sunken px-3.5 py-1.5 font-body text-xs font-bold text-clay-ink shadow-clay-xs hover:bg-clay-peach transition-colors border border-white/60"
+                className="inline-flex items-center gap-1.5 rounded-full bg-clay-surface border border-clay-sky px-3.5 py-1.5 font-body text-xs font-bold text-clay-tangerine shadow-clay-xs hover:border-clay-tangerine/40 transition-all"
               >
                 <RefreshIcon size={14} />
                 <span>Reset to Recommended Budget</span>
@@ -88,7 +88,7 @@ export function BudgetSummary({
                   />
                   <button
                     type="submit"
-                    className="px-2 py-1 rounded bg-clay-peach text-xs font-bold text-clay-ink"
+                    className="px-2 py-1 rounded bg-clay-tangerine text-xs font-bold text-white shadow-clay-xs"
                   >
                     Save
                   </button>
@@ -142,7 +142,7 @@ export function BudgetSummary({
               </span>
               <span
                 className={`mt-1 font-display text-xl font-bold ${
-                  isExceeded ? "text-rose-700" : "text-emerald-800"
+                  isExceeded ? "text-rose-500" : "text-clay-tangerine"
                 }`}
               >
                 {formatInr(Math.abs(summary.remainingBudget))}

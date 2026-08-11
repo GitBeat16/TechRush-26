@@ -60,11 +60,11 @@ export function TripDetailsCard({
       tone="surface"
       radius="xl"
       depth="lg"
-      className={`p-5 sm:p-6 space-y-5 border-4 border-white/80 ${className}`}
+      className={`p-5 sm:p-6 space-y-5 border border-clay-sky ${className}`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-butter shadow-clay-xs text-clay-ink">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-surface border border-clay-sky shadow-clay-xs text-clay-tangerine">
             <SuitcaseIcon size={18} />
           </div>
           <div>
@@ -97,7 +97,7 @@ export function TripDetailsCard({
         {/* Duration Dropdown */}
         <ClayWell radius="md" className="p-3.5 flex flex-col justify-between">
           <label htmlFor="duration-select" className="font-body text-[11px] font-bold uppercase tracking-wider text-clay-muted flex items-center gap-1">
-            <CalendarIcon size={12} className="text-clay-sky" />
+            <CalendarIcon size={12} className="text-clay-tangerine" />
             Trip Duration
           </label>
           <select
@@ -107,7 +107,7 @@ export function TripDetailsCard({
               onDaysChange(Number(e.target.value));
               play("pop");
             }}
-            className="mt-1 w-full bg-clay-surface rounded px-2.5 py-1 font-display text-sm font-bold text-clay-ink outline-none border border-white/80 shadow-clay-xs cursor-pointer hover:bg-clay-peach/20 transition-colors"
+            className="mt-1 w-full bg-clay-surface rounded px-2.5 py-1 font-display text-sm font-bold text-clay-ink outline-none border border-clay-sky shadow-clay-xs cursor-pointer hover:border-clay-tangerine/40 transition-all"
           >
             {DURATION_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -123,7 +123,7 @@ export function TripDetailsCard({
         {/* Travellers Dropdown */}
         <ClayWell radius="md" className="p-3.5 flex flex-col justify-between">
           <label htmlFor="travelers-select" className="font-body text-[11px] font-bold uppercase tracking-wider text-clay-muted flex items-center gap-1">
-            <UserIcon size={12} className="text-clay-mint" />
+            <UserIcon size={12} className="text-clay-tangerine" />
             Travellers
           </label>
           <select
@@ -133,7 +133,7 @@ export function TripDetailsCard({
               onTravelersChange(Number(e.target.value));
               play("pop");
             }}
-            className="mt-1 w-full bg-clay-surface rounded px-2.5 py-1 font-display text-sm font-bold text-clay-ink outline-none border border-white/80 shadow-clay-xs cursor-pointer hover:bg-clay-peach/20 transition-colors"
+            className="mt-1 w-full bg-clay-surface rounded px-2.5 py-1 font-display text-sm font-bold text-clay-ink outline-none border border-clay-sky shadow-clay-xs cursor-pointer hover:border-clay-tangerine/40 transition-all"
           >
             {TRAVELLER_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -166,10 +166,10 @@ export function TripDetailsCard({
                   onTravelStyleChange(opt.id);
                   play("toggleOn");
                 }}
-                className={`relative cursor-pointer rounded-clay-lg p-4 transition-all duration-200 border-2 ${
+                className={`relative cursor-pointer rounded-clay-lg p-4 transition-all duration-200 ${
                   isSelected
-                    ? "bg-clay-butter shadow-clay-md border-clay-tangerine/60"
-                    : "bg-clay-sunken/60 hover:bg-clay-surface shadow-clay-xs border-white/60"
+                    ? "bg-clay-sunken/90 border-2 border-clay-tangerine shadow-clay-xs"
+                    : "bg-clay-surface border border-clay-sky hover:border-clay-tangerine/40 shadow-clay-xs"
                 }`}
               >
                 {isSelected && (

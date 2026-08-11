@@ -118,7 +118,7 @@ export function MapMarker({
       {isInfoWindowOpen && (infoWindowContent || children) && (
         <InfoWindowF position={position} onCloseClick={handleClose}>
           <div
-            className={`p-3 max-w-xs rounded-clay-sm ${toneStyle.bg} shadow-clay-sm border-2 border-white text-clay-ink`}
+            className={`p-3 max-w-xs rounded-clay-sm ${toneStyle.bg} shadow-clay-sm border border-clay-sky text-clay-ink`}
           >
             {title && (
               <h4 className="font-display font-bold text-sm text-clay-ink mb-1">

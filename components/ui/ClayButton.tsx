@@ -62,12 +62,12 @@ export function ClayButton({
 
   const skin =
     variant === "primary"
-      ? "bg-clay-tangerine text-white shadow-clay hover:shadow-clay-hover active:shadow-clay-pressed"
+      ? "bg-clay-tangerine text-white shadow-clay-sm hover:shadow-clay-md active:shadow-clay-pressed"
       : variant === "ghost"
-        ? "bg-clay-surface/70 text-clay-ink-soft shadow-clay-xs hover:shadow-clay-sm active:shadow-clay-pressed"
+        ? "bg-clay-surface/90 border border-clay-sky text-clay-ink-soft shadow-clay-xs hover:text-clay-ink hover:border-clay-tangerine/40 hover:shadow-clay-sm active:shadow-clay-pressed"
         : variant === "icon"
-          ? `${TONES[tone].bg} text-clay-ink shadow-clay-sm hover:shadow-clay active:shadow-clay-pressed`
-          : `${TONES[tone].bg} text-clay-ink shadow-clay-sm hover:shadow-clay active:shadow-clay-pressed`;
+          ? `${TONES[tone].bg} border border-clay-sky text-clay-ink shadow-clay-xs hover:shadow-clay-sm hover:border-clay-tangerine/40 active:shadow-clay-pressed`
+          : `${TONES[tone].bg} border border-clay-sky text-clay-tangerine shadow-clay-xs hover:shadow-clay-sm hover:border-clay-tangerine/40 active:shadow-clay-pressed`;
 
   const shape =
     variant === "icon"
@@ -122,8 +122,8 @@ export function ClayChip({
       className={[
         "px-4 py-2 rounded-full text-sm font-body font-semibold transition-all duration-200",
         active
-          ? `${TONES[tone].bg} text-clay-ink shadow-clay-sm`
-          : "bg-clay-sunken/70 text-clay-ink-soft shadow-clay-inset-sm hover:text-clay-ink",
+          ? "bg-clay-sunken/90 border-2 border-clay-tangerine text-clay-tangerine shadow-clay-xs font-bold"
+          : "bg-clay-surface border border-clay-sky text-clay-ink-soft shadow-clay-xs hover:text-clay-ink",
         className,
       ].join(" ")}
       {...rest}

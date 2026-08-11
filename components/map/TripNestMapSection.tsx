@@ -95,7 +95,7 @@ export function TripNestMapSection({
             </p>
           </div>
 
-          <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white shadow-clay-xs text-clay-ink w-fit border border-white/60">
+          <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-clay-surface border border-clay-sky shadow-clay-xs text-clay-ink w-fit">
             {validDestinations.length} {validDestinations.length === 1 ? "Destination" : "Destinations"} on map
           </span>
         </motion.div>
@@ -126,7 +126,7 @@ export function TripNestMapSection({
             <h3 className="font-display text-base font-bold text-clay-ink">
               Matching Destinations
             </h3>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white shadow-clay-xs text-clay-ink">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-clay-surface border border-clay-sky shadow-clay-xs text-clay-ink">
               {validDestinations.length}
             </span>
           </div>
@@ -155,8 +155,8 @@ export function TripNestMapSection({
                       tone={isSelected ? "peach" : destination.tone}
                       radius="md"
                       depth={isSelected ? "md" : "sm"}
-                      className={`p-3.5 border-2 transition-all ${
-                        isSelected ? "border-clay-tangerine shadow-clay" : "border-white/70 shadow-clay-xs"
+                      className={`p-3.5 border transition-all ${
+                        isSelected ? "border-2 border-clay-tangerine shadow-clay" : "border-clay-sky shadow-clay-xs"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -175,7 +175,7 @@ export function TripNestMapSection({
                         </div>
 
                         <div className="flex flex-col items-end">
-                          <span className="font-display text-xs font-bold text-emerald-800 bg-emerald-100/60 px-2 py-0.5 rounded-full">
+                          <span className="font-display text-xs font-bold text-clay-tangerine bg-clay-sunken/80 border border-clay-sky px-2 py-0.5 rounded-full">
                             {formatInr(destination.price)}
                           </span>
                           <span className="flex items-center gap-0.5 text-[11px] font-bold text-amber-700 mt-1">

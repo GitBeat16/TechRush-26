@@ -30,7 +30,7 @@ export function ClayMapSkeleton({ tone = "surface" }: { tone?: ClayTone }) {
   const toneStyle = TONES[tone] || TONES.surface;
   return (
     <div
-      className={`relative w-full h-[400px] rounded-clay-lg shadow-clay ${toneStyle.bg} flex flex-col items-center justify-center overflow-hidden p-6 border-4 border-white/60`}
+      className={`relative w-full h-[400px] rounded-clay-lg shadow-clay ${toneStyle.bg} flex flex-col items-center justify-center overflow-hidden p-6 border border-clay-sky`}
       aria-label="Loading map"
     >
       {/* Background soft clay ripple effect */}
@@ -70,7 +70,7 @@ export function ClayMapError({
   const toneStyle = TONES[tone] || TONES.blush;
   return (
     <div
-      className={`relative w-full min-h-[250px] rounded-clay-lg shadow-clay ${toneStyle.bg} flex flex-col items-center justify-center p-6 text-center border-4 border-white/60`}
+      className={`relative w-full min-h-[250px] rounded-clay-lg shadow-clay ${toneStyle.bg} flex flex-col items-center justify-center p-6 text-center border border-clay-sky`}
     >
       <div className="w-12 h-12 rounded-full bg-clay-rose/40 shadow-clay-inset flex items-center justify-center mb-3">
         <span className="font-display font-extrabold text-xl text-clay-ink">

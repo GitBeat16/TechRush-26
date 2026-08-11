@@ -226,7 +226,7 @@ export function ExploreView() {
             {results.length} {results.length === 1 ? "destination" : "destinations"} match
           </motion.p>
 
-          <motion.div variants={fadeUp} className="flex items-center gap-1.5 bg-clay-surface/80 p-1 rounded-full shadow-clay-xs border border-white/60">
+          <motion.div variants={fadeUp} className="flex items-center gap-1.5 bg-clay-surface/80 p-1 rounded-full shadow-clay-xs border border-clay-sky">
             <ClayChip
               tone="peach"
               active={viewMode === "grid"}

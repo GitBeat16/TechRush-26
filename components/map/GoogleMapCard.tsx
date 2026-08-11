@@ -245,7 +245,7 @@ function MapInner({
         toneStyle.text,
         DEPTH[depth],
         RADIUS[radius],
-        "relative overflow-hidden border-4 border-white/80 p-3 sm:p-4 transition-shadow duration-300",
+        "relative overflow-hidden border border-clay-sky p-3 sm:p-4 transition-shadow duration-300",
         className,
       ]
         .filter(Boolean)
@@ -267,7 +267,7 @@ function MapInner({
             )}
           </div>
           {markers.length > 0 && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/70 shadow-clay-xs text-clay-ink w-fit">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-clay-surface border border-clay-sky shadow-clay-xs text-clay-ink w-fit">
               {markers.length} {markers.length === 1 ? "Location" : "Locations"}
             </span>
           )}
@@ -277,7 +277,7 @@ function MapInner({
       {/* Map Surface Container */}
       <div
         className={[
-          "relative overflow-hidden shadow-clay-inset rounded-clay-sm border-2 border-white/60",
+          "relative overflow-hidden shadow-clay-inset rounded-clay-sm border border-clay-sky",
           mapContainerClassName,
         ]
           .filter(Boolean)

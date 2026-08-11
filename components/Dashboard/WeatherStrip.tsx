@@ -163,14 +163,14 @@ function DestinationWeather({
   return (
     <motion.div variants={fadeUp}>
       <ClayCard
-        tone="mint"
+        tone="surface"
         radius="lg"
         depth="md"
         interactive
         subtle
         className="flex h-full items-center gap-4 p-4 sm:p-5"
       >
-        <WeatherGlyph state={weather} tone="text-clay-jade" />
+        <WeatherGlyph state={weather} tone="text-clay-tangerine" />
 
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 font-body text-[11px] font-bold uppercase tracking-wider text-clay-ink-soft">

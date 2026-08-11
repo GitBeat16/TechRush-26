@@ -24,7 +24,7 @@ export function ExpenseAnalysis({
       tone="surface"
       radius="lg"
       depth="md"
-      className={`p-5 space-y-4 border-2 border-white ${className}`}
+      className={`p-5 space-y-4 border border-clay-sky ${className}`}
     >
       <div className="flex items-center justify-between">
         <h3 className="font-display text-base font-bold text-clay-ink">
@@ -37,7 +37,6 @@ export function ExpenseAnalysis({
 
       <div className="space-y-3">
         {categoryBreakdown.map((item) => {
-          const toneStyle = TONES[item.tone as ClayTone] || TONES.surface;
           return (
             <div key={item.id} className="space-y-1">
               <div className="flex items-center justify-between text-xs font-semibold text-clay-ink">
@@ -49,16 +48,16 @@ export function ExpenseAnalysis({
                   <span className="font-display text-xs font-bold text-clay-ink">
                     {formatInr(item.amount)}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full bg-clay-sunken text-[10px] font-bold text-clay-muted">
+                  <span className="px-2 py-0.5 rounded-full bg-clay-surface border border-clay-sky/60 text-[10px] font-bold text-clay-tangerine shadow-clay-xs">
                     {item.percentage}%
                   </span>
                 </span>
               </div>
 
               {/* Progress bar contribution */}
-              <div className="h-3.5 w-full rounded-full bg-clay-sunken shadow-clay-inset-sm overflow-hidden p-0.5">
+              <div className="h-3.5 w-full rounded-full bg-clay-sunken/80 border border-clay-sky/60 shadow-clay-inset-sm overflow-hidden p-0.5">
                 <motion.div
-                  className={`h-full rounded-full ${toneStyle.bg} shadow-clay-xs`}
+                  className="h-full rounded-full bg-clay-tangerine shadow-clay-xs"
                   animate={{ width: `${Math.min(100, Math.max(0, item.percentage))}%` }}
                   transition={springSnappy}
                 />

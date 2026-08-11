@@ -32,7 +32,7 @@ export function BudgetBreakdown({
       tone="surface"
       radius="xl"
       depth="lg"
-      className={`p-5 sm:p-6 space-y-6 border-4 border-white/80 ${className}`}
+      className={`p-5 sm:p-6 space-y-6 border border-clay-sky ${className}`}
     >
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-clay-muted/15 pb-4">
@@ -49,7 +49,7 @@ export function BudgetBreakdown({
         </div>
 
         {/* Total Estimated Cost Badge */}
-        <ClayWell radius="md" className="p-3.5 flex flex-col justify-center sm:text-right shrink-0 bg-clay-butter/90 border border-white">
+        <ClayWell radius="md" className="p-3.5 flex flex-col justify-center sm:text-right shrink-0 bg-clay-surface border border-clay-sky shadow-clay-xs">
           <span className="font-body text-[10px] font-bold uppercase tracking-wider text-clay-muted">
             Total Estimated Cost
           </span>
@@ -68,7 +68,6 @@ export function BudgetBreakdown({
       >
         {expenses.map((item) => {
           const pct = totalCost > 0 ? Math.round((item.amount / totalCost) * 100) : 0;
-          const toneStyle = TONES[item.tone] || TONES.surface;
 
           return (
             <motion.div key={item.id} variants={fadeUp}>
@@ -76,11 +75,11 @@ export function BudgetBreakdown({
                 tone={item.tone}
                 radius="lg"
                 depth="sm"
-                className="p-4 space-y-3 border-2 border-white/80 h-full flex flex-col justify-between"
+                className="p-4 space-y-3 border border-clay-sky h-full flex flex-col justify-between"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/90 text-clay-ink shadow-clay-xs">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
                       <BudgetIcon icon={item.icon} size={18} />
                     </div>
                     <div>
@@ -93,12 +92,12 @@ export function BudgetBreakdown({
                     </div>
                   </div>
 
-                  <span className="px-2 py-0.5 rounded-full bg-white/80 font-body text-[10px] font-bold text-clay-ink shadow-clay-xs shrink-0">
+                  <span className="px-2 py-0.5 rounded-full bg-clay-surface border border-clay-sky font-body text-[10px] font-bold text-clay-tangerine shadow-clay-xs shrink-0">
                     {pct}%
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-white/60">
+                <div className="flex items-center justify-between pt-2 border-t border-clay-sky/60">
                   <span className="font-body text-xs font-bold uppercase tracking-wider text-clay-muted">
                     Allocated Amount
                   </span>
@@ -108,9 +107,9 @@ export function BudgetBreakdown({
                 </div>
 
                 {/* Progress Bar */}
-                <div className="h-2.5 w-full rounded-full bg-clay-sunken/80 overflow-hidden shadow-clay-inset-sm p-0.5">
+                <div className="h-2.5 w-full rounded-full bg-clay-sunken/80 border border-clay-sky/60 overflow-hidden shadow-clay-inset-sm p-0.5">
                   <motion.div
-                    className={`h-full rounded-full ${toneStyle.bg} shadow-clay-xs`}
+                    className="h-full rounded-full bg-clay-tangerine shadow-clay-xs"
                     initial={{ width: "0%" }}
                     animate={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
                     transition={springSnappy}

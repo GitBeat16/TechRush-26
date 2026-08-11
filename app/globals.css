@@ -7,29 +7,29 @@
 
 @theme {
   /* Surfaces */
-  --color-clay-bg: #f1e7dc;
-  --color-clay-bg-deep: #e9dcce;
-  --color-clay-surface: #fbf4ec;
-  --color-clay-raised: #fffdfa;
-  --color-clay-sunken: #ece0d4;
+  --color-clay-bg: #F5F2EA;
+  --color-clay-bg-deep: #EBE8DD;
+  --color-clay-surface: #FBFAF7;
+  --color-clay-raised: #FBFAF7;
+  --color-clay-sunken: #ECEAE1;
 
   /* Ink */
-  --color-clay-ink: #4a3a30;
-  --color-clay-ink-soft: #7c6558;
-  --color-clay-muted: #a2897a;
+  --color-clay-ink: #202522;
+  --color-clay-ink-soft: #69716B;
+  --color-clay-muted: #919993;
 
-  /* Pastel clay accents */
-  --color-clay-blush: #ffd3d8;
-  --color-clay-rose: #f7a8b8;
-  --color-clay-peach: #ffd7b3;
-  --color-clay-tangerine: #f9b384;
-  --color-clay-butter: #ffe8a3;
-  --color-clay-mint: #bfe9d5;
-  --color-clay-jade: #7fcfae;
-  --color-clay-sky: #c3dcfb;
-  --color-clay-ocean: #8fb6ee;
-  --color-clay-lilac: #dcd2fb;
-  --color-clay-grape: #b09ff0;
+  /* Luxury Editorial Palette Accents & Light Card Tones */
+  --color-clay-blush: #F7F3EE;
+  --color-clay-rose: #EFEADF;
+  --color-clay-peach: #F2F5F3;
+  --color-clay-tangerine: #263B35;
+  --color-clay-butter: #F6F4EE;
+  --color-clay-mint: #F0F4F2;
+  --color-clay-jade: #526B60;
+  --color-clay-sky: #DDDCD4;
+  --color-clay-ocean: #263B35;
+  --color-clay-lilac: #EEF1EF;
+  --color-clay-grape: #1B2A26;
 
   /* Clay radii */
   --radius-clay-sm: 22px;
@@ -37,56 +37,50 @@
   --radius-clay-lg: 42px;
   --radius-clay-xl: 50px;
 
-  /* Clay shadows — the core of the look.
-     outer drop + outer light + inner top highlight + inner bottom occlusion
-
-     The occlusion colour is a variable (--clay-shade) rather than a literal,
-     so a theme can retint every shadow in the app by changing one triple.
-     Custom-property substitution is lazy, so this resolves at use time and
-     re-resolves whenever html[data-theme] changes. */
+  /* Soft modern elevation shadows */
   --shadow-clay-xs:
-    4px 4px 10px rgb(var(--clay-shade) / 0.28),
-    -3px -3px 8px rgb(var(--clay-light) / 0.9),
-    inset 1px 1px 2px rgb(var(--clay-light) / 0.7),
-    inset -2px -2px 4px rgb(var(--clay-shade) / 0.14);
+    1px 2px 5px rgb(var(--clay-shade) / 0.04),
+    -1px -1px 4px rgb(var(--clay-light) / 0.7),
+    inset 1px 1px 2px rgb(var(--clay-light) / 0.5),
+    inset -1px -1px 2px rgb(var(--clay-shade) / 0.03);
 
   --shadow-clay-sm:
-    8px 10px 18px rgb(var(--clay-shade) / 0.3),
-    -6px -6px 14px rgb(var(--clay-light) / 0.92),
-    inset 2px 2px 4px rgb(var(--clay-light) / 0.75),
-    inset -4px -5px 9px rgb(var(--clay-shade) / 0.16);
+    2px 4px 10px rgb(var(--clay-shade) / 0.05),
+    -2px -2px 8px rgb(var(--clay-light) / 0.75),
+    inset 1px 1px 2px rgb(var(--clay-light) / 0.6),
+    inset -1px -2px 4px rgb(var(--clay-shade) / 0.04);
 
   --shadow-clay:
-    14px 18px 32px rgb(var(--clay-shade) / 0.32),
-    -10px -10px 26px rgb(var(--clay-light) / 0.9),
-    inset 3px 3px 7px rgb(var(--clay-light) / 0.8),
-    inset -7px -9px 16px rgb(var(--clay-shade) / 0.16);
+    4px 8px 16px rgb(var(--clay-shade) / 0.06),
+    -4px -4px 14px rgb(var(--clay-light) / 0.8),
+    inset 1.5px 1.5px 4px rgb(var(--clay-light) / 0.7),
+    inset -2px -3px 6px rgb(var(--clay-shade) / 0.04);
 
   --shadow-clay-lg:
-    22px 28px 52px rgb(var(--clay-shade) / 0.34),
-    -14px -14px 34px rgb(var(--clay-light) / 0.92),
-    inset 4px 4px 10px rgb(var(--clay-light) / 0.85),
-    inset -10px -12px 22px rgb(var(--clay-shade) / 0.17);
+    6px 12px 24px rgb(var(--clay-shade) / 0.07),
+    -5px -5px 18px rgb(var(--clay-light) / 0.85),
+    inset 2px 2px 5px rgb(var(--clay-light) / 0.75),
+    inset -3px -4px 8px rgb(var(--clay-shade) / 0.05);
 
   --shadow-clay-hover:
-    22px 30px 46px rgb(var(--clay-shade) / 0.36),
-    -12px -12px 30px rgb(var(--clay-light) / 0.95),
-    inset 4px 4px 9px rgb(var(--clay-light) / 0.9),
-    inset -8px -10px 18px rgb(var(--clay-shade) / 0.15);
+    8px 14px 28px rgb(var(--clay-shade) / 0.08),
+    -5px -5px 18px rgb(var(--clay-light) / 0.85),
+    inset 2px 2px 5px rgb(var(--clay-light) / 0.8),
+    inset -3px -4px 8px rgb(var(--clay-shade) / 0.05);
 
   --shadow-clay-pressed:
-    2px 2px 6px rgb(var(--clay-shade) / 0.22),
-    -2px -2px 6px rgb(var(--clay-light) / 0.7),
-    inset 6px 7px 14px rgb(var(--clay-shade) / 0.3),
-    inset -4px -4px 10px rgb(var(--clay-light) / 0.75);
+    1px 1px 3px rgb(var(--clay-shade) / 0.06),
+    -1px -1px 3px rgb(var(--clay-light) / 0.5),
+    inset 2px 3px 6px rgb(var(--clay-shade) / 0.08),
+    inset -2px -2px 5px rgb(var(--clay-light) / 0.6);
 
   --shadow-clay-inset:
-    inset 7px 8px 16px rgb(var(--clay-shade) / 0.28),
-    inset -6px -6px 14px rgb(var(--clay-light) / 0.9);
+    inset 2px 3px 6px rgb(var(--clay-shade) / 0.07),
+    inset -2px -2px 6px rgb(var(--clay-light) / 0.7);
 
   --shadow-clay-inset-sm:
-    inset 4px 5px 10px rgb(var(--clay-shade) / 0.24),
-    inset -3px -3px 8px rgb(var(--clay-light) / 0.85);
+    inset 1px 2px 4px rgb(var(--clay-shade) / 0.05),
+    inset -1px -1px 4px rgb(var(--clay-light) / 0.65);
 
   /* Type */
   --font-display: var(--font-fredoka), "SF Pro Rounded", ui-rounded, system-ui, sans-serif;
@@ -110,13 +104,77 @@
 
 :root {
   /* Shadow occlusion + highlight, as raw RGB triples. */
-  --clay-shade: 172 139 113;
+  --clay-shade: 32 37 34;
   --clay-light: 255 255 255;
   /* Ambient blob colours, read by the weather layer. */
-  --clay-amb-1: #ffd3d8;
-  --clay-amb-2: #c3dcfb;
-  --clay-amb-3: #bfe9d5;
+  --clay-amb-1: #B59B6A;
+  --clay-amb-2: #526B60;
+  --clay-amb-3: #263B35;
   --clay-precip: #ffffff;
+}
+
+/* ------------------------------------------------ Original / Clay — Dark Mode (Midnight Navy + Slate + Champagne) */
+html[data-mode="dark"],
+html[data-theme="clay"][data-mode="dark"] {
+  /* Surfaces */
+  --color-clay-bg: #0F1720;       /* Main Page Background */
+  --color-clay-bg-deep: #0A111A;  /* Deep Background Well */
+  --color-clay-surface: #18232E;  /* Primary Card Surface */
+  --color-clay-raised: #1E2B37;   /* Secondary Card / Elevated Surface */
+  --color-clay-sunken: #25333F;   /* Control / Recessed Interactive Surface */
+
+  /* Ink */
+  --color-clay-ink: #F5F1E8;      /* Primary Text (Warm Off-White) */
+  --color-clay-ink-soft: #B8BDC3; /* Secondary Text (Soft Grey) */
+  --color-clay-muted: #858D96;    /* Muted Text (Cool Grey) */
+
+  /* Tone Mappings (Zero Green, Zero Neon Glow) */
+  --color-clay-blush: #18232E;
+  --color-clay-rose: #1E2B37;
+  --color-clay-peach: #1E2B37;
+  --color-clay-tangerine: #C9A96E; /* Champagne Gold Accent */
+  --color-clay-butter: #1E2B37;
+  --color-clay-mint: #18232E;
+  --color-clay-jade: #858D96;
+  --color-clay-sky: rgba(255, 255, 255, 0.08); /* Thin neutral border */
+  --color-clay-ocean: #C9A96E;
+  --color-clay-lilac: #1E2B37;
+  --color-clay-grape: #25333F;
+
+  /* Ambient Blobs (Neutralized in Dark Mode to eliminate unwanted left-side glow) */
+  --clay-shade: 0 0 0;
+  --clay-light: 0 0 0;
+  --clay-amb-1: transparent;
+  --clay-amb-2: transparent;
+  --clay-amb-3: transparent;
+}
+
+/* Primary Button: Champagne Gold background (#C9A96E) + Dark Navy text (#0F1720) in Dark Mode */
+html[data-mode="dark"] button.bg-clay-tangerine,
+html[data-mode="dark"] .bg-clay-tangerine {
+  background-color: #C9A96E !important;
+  color: #0F1720 !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Accent icons & badges in Dark Mode */
+html[data-mode="dark"] .text-clay-tangerine {
+  color: #C9A96E !important;
+}
+
+html[data-mode="dark"] .border-clay-tangerine {
+  border-color: #C9A96E !important;
+}
+
+/* Neutral borders & zero glowing outlines in Dark Mode */
+html[data-mode="dark"] .border-clay-sky {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-mode="dark"] [class*="shadow-clay"] {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* ------------------------------------------------ hot and sunny */

@@ -20,11 +20,11 @@ export function BudgetScore({ scoreResult, className = "" }: BudgetScoreProps) {
       tone={status === "excellent" ? "mint" : status === "moderate" ? "peach" : "blush"}
       radius="lg"
       depth="md"
-      className={`p-5 flex flex-col justify-between space-y-4 border-2 border-white ${className}`}
+      className={`p-5 flex flex-col justify-between space-y-4 border border-clay-sky ${className}`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-full bg-clay-raised/80 text-clay-ink shadow-clay-xs">
+          <div className="p-2 rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
             <AwardIcon size={18} />
           </div>
           <div>
@@ -44,7 +44,7 @@ export function BudgetScore({ scoreResult, className = "" }: BudgetScoreProps) {
 
       <div className="flex items-center gap-5">
         {/* Score Circle Gauge */}
-        <div className="relative flex items-center justify-center w-24 h-24 shrink-0 bg-white/70 rounded-full shadow-clay-sm border-2 border-white">
+        <div className="relative flex items-center justify-center w-24 h-24 shrink-0 bg-clay-surface rounded-full shadow-clay-sm border border-clay-sky">
           <span className="font-display font-extrabold text-3xl text-clay-ink">
             {score}
           </span>

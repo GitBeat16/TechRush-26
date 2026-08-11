@@ -147,7 +147,7 @@ export function TripCard({ trip }: { trip: Trip }) {
                 </p>
               </div>
 
-              <div className="h-5 w-full overflow-hidden rounded-full bg-clay-sunken shadow-clay-inset">
+              <div className="h-5 w-full overflow-hidden rounded-full bg-clay-sunken/80 border border-clay-sky/60 shadow-clay-inset-sm">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={inView ? { width: `${progress}%` } : { width: 0 }}
@@ -157,7 +157,7 @@ export function TripCard({ trip }: { trip: Trip }) {
                   <motion.span
                     animate={{ opacity: [0.35, 0.8, 0.35] }}
                     transition={{ type: "tween", duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute inset-y-1 right-1 w-8 rounded-full bg-white/60"
+                    className="absolute inset-y-1 right-1 w-8 rounded-full bg-clay-surface/40"
                   />
                 </motion.div>
               </div>
@@ -248,7 +248,7 @@ function Fact({
   return (
     <motion.div variants={fadeUp}>
       <ClayCard tone="surface" radius="sm" depth="sm" interactive subtle className="h-full p-3.5">
-        <span className={`mb-2.5 flex h-9 w-9 items-center justify-center rounded-full ${TONES[tone].bg} shadow-clay-xs`}>
+        <span className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
           {icon}
         </span>
         <p className="font-body text-[11px] font-bold uppercase tracking-wide text-clay-muted">

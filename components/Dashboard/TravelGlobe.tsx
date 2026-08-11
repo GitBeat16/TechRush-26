@@ -72,6 +72,23 @@ function readPalette(): Palette {
   const styles = getComputedStyle(document.documentElement);
   const read = (name: string, fallback: string) =>
     styles.getPropertyValue(name).trim() || fallback;
+  const isDark = document.documentElement.getAttribute("data-mode") === "dark";
+
+  if (isDark) {
+    return {
+      ocean: "#131D2A",        // Dark Navy / Blue-Gray ocean surface
+      oceanDeep: "#0C131D",    // Deep Navy rim (soft cool depth, NO GOLD)
+      land: "#1E2B3A",         // Muted Slate / Blue-Gray landmass (clearly lighter than ocean)
+      landEdge: "#15202D",     // Soft lip under landmass
+      visited: "#C9A96E",      // Champagne Gold highlight for visited countries
+      visitedEdge: "#3A4B5E",  // Slate edge for planned countries
+      graticule: "rgba(255, 255, 255, 0.12)", // Soft neutral meridian lines
+      pin: "#C9A96E",          // Champagne Gold pin marker
+      planned: "#C9A96E",      // Champagne Gold planned pin marker
+      pinRing: "#1E2B3A",      // Slate pin ring
+      ink: "#F5F1E8",          // Warm Off-White ink
+    };
+  }
 
   return {
     // The ocean carries the theme colour and the land is the pale surface
@@ -126,7 +143,7 @@ interface Marker {
 
 export function TravelGlobe() {
   const { trips } = useAppState();
-  const { theme } = useTheme();
+  const { theme, mode } = useTheme();
   const { play } = useFeedback();
 
   const history = useMemo(() => buildHistory(trips), [trips]);
@@ -515,6 +532,7 @@ export function TravelGlobe() {
     return () => cancelAnimationFrame(frame);
   }, [
     theme,
+    mode,
     world,
     visitedCountries,
     plannedCountries,

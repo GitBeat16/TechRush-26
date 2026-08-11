@@ -67,12 +67,12 @@ export function TripDetails({
       tone="surface"
       radius="xl"
       depth="lg"
-      className={`p-3 sm:p-4 space-y-2.5 border-4 border-white/80 ${className}`}
+      className={`p-3 sm:p-4 space-y-2.5 border border-clay-sky ${className}`}
     >
       {/* Sleek Compact Header */}
       <div className="flex items-center justify-between border-b border-clay-muted/15 pb-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-clay-butter shadow-clay-xs text-clay-ink">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
             <SuitcaseIcon size={14} />
           </div>
           <div>

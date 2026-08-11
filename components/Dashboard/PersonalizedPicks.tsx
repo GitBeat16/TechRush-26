@@ -105,16 +105,17 @@ export function PersonalizedPicks({ limit = 3 }: { limit?: number }) {
 
                   {index === 0 && (
                     <motion.span
-                      whileHover={{ scale: 1.06 }}
+                      initial={{ scale: 0.9 }}
+                      animate={{ scale: 1 }}
                       transition={springSnappy}
-                      className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-clay-raised px-2.5 py-1 font-body text-[10px] font-extrabold uppercase tracking-wide shadow-clay-xs"
+                      className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-clay-raised border border-clay-sky px-2.5 py-1 font-body text-[10px] font-extrabold uppercase tracking-wide text-clay-tangerine shadow-clay-xs"
                     >
                       <SparkIcon size={12} />
                       Best fit
                     </motion.span>
                   )}
 
-                  <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-clay-raised px-2.5 py-1 font-display text-[11px] font-bold shadow-clay-xs">
+                  <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-clay-raised border border-clay-sky px-2.5 py-1 font-display text-[11px] font-bold text-clay-ink shadow-clay-xs">
                     {score}
                     <span className="font-body text-[9px] font-bold text-clay-muted">
                       /100
@@ -132,8 +133,8 @@ export function PersonalizedPicks({ limit = 3 }: { limit?: number }) {
                         {destination.tagline}
                       </p>
                     </div>
-                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-clay-raised px-2 py-1 font-body text-[11px] font-bold shadow-clay-xs">
-                      <StarIcon size={11} className="text-clay-tangerine" />
+                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-clay-raised border border-clay-sky px-2 py-1 font-body text-[11px] font-bold text-clay-ink shadow-clay-xs">
+                      <StarIcon size={11} className="text-clay-blush" />
                       {destination.rating}
                     </span>
                   </div>
@@ -144,7 +145,7 @@ export function PersonalizedPicks({ limit = 3 }: { limit?: number }) {
                       {reasons.map((reason) => (
                         <span
                           key={reason}
-                          className="rounded-full bg-clay-raised/80 px-2.5 py-1 font-body text-[10px] font-bold text-clay-ink-soft shadow-clay-xs"
+                          className="rounded-full bg-clay-raised border border-clay-sky px-2.5 py-1 font-body text-[10px] font-bold text-clay-ink-soft shadow-clay-xs"
                         >
                           {reason}
                         </span>

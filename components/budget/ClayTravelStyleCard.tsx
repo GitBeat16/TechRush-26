@@ -31,10 +31,10 @@ export function ClayTravelStyleCard({
         onSelect(option.id);
         play("toggleOn");
       }}
-      className={`relative cursor-pointer rounded-clay-lg p-3 transition-all duration-200 border-2 ${
+      className={`relative cursor-pointer rounded-clay-lg p-3 transition-all duration-200 ${
         selected
-          ? "bg-clay-butter shadow-clay-md border-clay-tangerine/80"
-          : "bg-clay-surface/90 hover:bg-clay-surface shadow-clay-xs border-white/80"
+          ? "bg-clay-sunken/90 border-2 border-clay-tangerine shadow-clay-xs"
+          : "bg-clay-surface border border-clay-sky hover:border-clay-tangerine/40 shadow-clay-xs"
       }`}
     >
       {/* Selected Checkmark Badge */}
@@ -51,7 +51,7 @@ export function ClayTravelStyleCard({
 
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-1.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-clay-raised/90 text-clay-ink shadow-clay-xs">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
           <BudgetIcon icon={option.icon} size={18} />
         </div>
         <div>

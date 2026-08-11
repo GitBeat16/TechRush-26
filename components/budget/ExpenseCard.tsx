@@ -25,12 +25,12 @@ export function ExpenseCard({ item, onAmountChange }: ExpenseCardProps) {
       tone={item.tone}
       radius="lg"
       depth="sm"
-      className="p-4 sm:p-5 flex flex-col justify-between space-y-4 border-2 border-white/80"
+      className="p-4 sm:p-5 flex flex-col justify-between space-y-4 border border-clay-sky"
     >
       {/* Category Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-clay-raised/90 text-clay-ink shadow-clay-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
             <BudgetIcon icon={item.icon} size={20} />
           </div>
           <div>

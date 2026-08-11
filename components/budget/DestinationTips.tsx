@@ -27,10 +27,10 @@ export function DestinationTips({
       tone="butter"
       radius="lg"
       depth="md"
-      className={`p-5 space-y-4 border-2 border-white ${className}`}
+      className={`p-5 space-y-4 border border-clay-sky ${className}`}
     >
       <div className="flex items-center gap-2">
-        <div className="p-2 rounded-full bg-white/80 text-clay-ink shadow-clay-xs">
+        <div className="p-2 rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
           <PinIcon size={18} />
         </div>
         <div>
@@ -53,10 +53,10 @@ export function DestinationTips({
           <motion.div
             key={item.id}
             variants={fadeUp}
-            className="p-3.5 rounded-clay-sm bg-white/70 shadow-clay-xs space-y-1"
+            className="p-3.5 rounded-clay-sm bg-clay-surface border border-clay-sky shadow-clay-xs space-y-1"
           >
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-clay-ink shadow-clay-xs">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
                 <BudgetIcon icon={item.icon} size={16} />
               </div>
               {item.highlight && (

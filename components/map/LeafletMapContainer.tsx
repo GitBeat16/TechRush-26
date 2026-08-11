@@ -93,7 +93,7 @@ export default function LeafletMapContainer({
     <div
       className={[
         toneStyle.bg,
-        "relative overflow-hidden rounded-clay-lg shadow-clay border-4 border-white/80 p-3 sm:p-4 transition-all duration-300",
+        "relative overflow-hidden rounded-clay-lg shadow-clay border border-clay-sky p-3 sm:p-4 transition-all duration-300",
         className,
       ]
         .filter(Boolean)
@@ -103,7 +103,7 @@ export default function LeafletMapContainer({
       }}
     >
       <div
-        className="relative overflow-hidden rounded-clay-sm shadow-clay-inset border-2 border-white/70 z-0"
+        className="relative overflow-hidden rounded-clay-sm shadow-clay-inset border border-clay-sky z-0"
         style={{
           height: typeof height === "number" ? `${height}px` : height,
           width: "100%",
@@ -163,7 +163,7 @@ export default function LeafletMapContainer({
 
                     <div className="flex items-center justify-between border-t border-clay-muted/20 pt-2 text-[11px] font-semibold">
                       {loc.estimatedCost && (
-                        <span className="text-emerald-700">
+                        <span className="text-clay-tangerine">
                           Est: {loc.estimatedCost}
                         </span>
                       )}

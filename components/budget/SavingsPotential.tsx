@@ -22,10 +22,10 @@ export function SavingsPotential({
       tone="mint"
       radius="lg"
       depth="md"
-      className={`p-5 space-y-4 border-2 border-white ${className}`}
+      className={`p-5 space-y-4 border border-clay-sky ${className}`}
     >
       <div className="flex items-center gap-2">
-        <div className="p-2 rounded-full bg-white/80 text-emerald-800 shadow-clay-xs">
+        <div className="p-2 rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
           <PiggyBankIcon size={18} />
         </div>
         <div>
@@ -48,20 +48,20 @@ export function SavingsPotential({
           </p>
         </ClayWell>
 
-        <ClayWell radius="md" className="p-3 text-center bg-white/60">
-          <span className="font-body text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+        <ClayWell radius="md" className="p-3 text-center bg-clay-surface/80 border border-clay-sky">
+          <span className="font-body text-[10px] font-bold uppercase tracking-wider text-clay-tangerine">
             Optimized Cost
           </span>
-          <p className="font-display font-bold text-base text-emerald-800 mt-0.5">
+          <p className="font-display font-bold text-base text-clay-tangerine mt-0.5">
             {formatInr(optimizedCost)}
           </p>
         </ClayWell>
 
-        <ClayWell radius="md" className="p-3 text-center bg-emerald-100/70 border border-emerald-300">
-          <span className="font-body text-[10px] font-bold uppercase tracking-wider text-emerald-900">
+        <ClayWell radius="md" className="p-3 text-center bg-clay-sunken/90 border border-clay-tangerine/40">
+          <span className="font-body text-[10px] font-bold uppercase tracking-wider text-clay-tangerine">
             Possible Savings
           </span>
-          <p className="font-display font-bold text-base text-emerald-900 mt-0.5">
+          <p className="font-display font-bold text-base text-clay-tangerine mt-0.5">
             {formatInr(potentialSavings)}
           </p>
         </ClayWell>

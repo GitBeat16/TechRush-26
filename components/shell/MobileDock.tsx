@@ -37,7 +37,7 @@ export function MobileDock() {
                 <motion.span
                   layoutId="dock-active"
                   transition={springSnappy}
-                  className="absolute inset-0 rounded-clay-sm bg-clay-butter shadow-clay-xs"
+                  className="absolute inset-0 rounded-clay-sm bg-clay-sunken/80 border border-clay-sky shadow-clay-xs"
                 />
               )}
               <motion.span

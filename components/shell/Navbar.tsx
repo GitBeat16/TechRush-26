@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   BellIcon,
   ChevronRightIcon,
+  MoonIcon,
   PinIcon,
   SearchIcon,
   SettingsIcon,
@@ -14,6 +15,7 @@ import {
   SoundOnIcon,
   SparkIcon,
   SuitcaseIcon,
+  SunIcon,
 } from "@/components/ui/Icons";
 import { ClayPlane } from "@/components/ui/ClayIllustrations";
 import { ClayAvatar } from "@/components/ui/ClayAvatar";
@@ -22,6 +24,7 @@ import { useFeedback } from "@/lib/feedback";
 import { signOut, useSession } from "@/lib/auth/session";
 import { useAppState } from "@/lib/store";
 import { DESTINATIONS } from "@/lib/data";
+import { useTheme } from "@/lib/theme/ThemeProvider";
 
 interface Notification {
   id: string;
@@ -44,6 +47,7 @@ export function Navbar() {
   const { sound, haptics, play, toggleSound, toggleHaptics } = useFeedback();
   const { user } = useSession();
   const { trips } = useAppState();
+  const { theme, mode, setMode } = useTheme();
   const [panel, setPanel] = useState<Panel>("none");
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
@@ -120,8 +124,8 @@ export function Navbar() {
               animate={{ scale: focused ? 1.02 : 1 }}
               transition={springSnappy}
               className={[
-                "flex items-center gap-3 rounded-full bg-clay-sunken px-5 py-3 transition-shadow duration-300",
-                focused ? "shadow-clay-inset ring-4 ring-clay-ocean/25" : "shadow-clay-inset-sm",
+                "flex items-center gap-3 rounded-full bg-clay-surface border border-clay-sky px-5 py-3 transition-all duration-300",
+                focused ? "shadow-clay-sm ring-2 ring-clay-tangerine/30 border-clay-tangerine" : "shadow-clay-xs",
               ].join(" ")}
             >
               <SearchIcon size={20} className="shrink-0 text-clay-muted" />
@@ -234,12 +238,24 @@ export function Navbar() {
                 <motion.span
                   animate={{ scale: [1, 1.18, 1] }}
                   transition={{ type: "tween", duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-clay-rose font-body text-[11px] font-extrabold text-white shadow-clay-xs"
+                  className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-clay-tangerine border border-clay-surface font-body text-[11px] font-extrabold text-white shadow-clay-xs"
                 >
                   {unread}
                 </motion.span>
               )}
             </NavIconButton>
+
+            {theme === "clay" && (
+              <NavIconButton
+                label={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                onClick={() => {
+                  play("tap");
+                  setMode(mode === "dark" ? "light" : "dark");
+                }}
+              >
+                {mode === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
+              </NavIconButton>
+            )}
 
             <NavIconButton
               label="Settings"
@@ -443,8 +459,10 @@ function NavIconButton({
       onClick={onClick}
       aria-label={label}
       className={[
-        "relative flex h-11 w-11 items-center justify-center rounded-full text-clay-ink transition-shadow duration-200 sm:h-12 sm:w-12",
-        active ? "bg-clay-butter shadow-clay-pressed" : "bg-clay-surface shadow-clay-sm hover:shadow-clay",
+        "relative flex h-11 w-11 items-center justify-center rounded-full text-clay-ink transition-all duration-200 sm:h-12 sm:w-12",
+        active
+          ? "bg-clay-sunken/90 border-2 border-clay-tangerine text-clay-tangerine shadow-clay-xs font-bold"
+          : "bg-clay-surface border border-clay-sky text-clay-ink shadow-clay-xs hover:shadow-clay-sm hover:border-clay-tangerine/40",
         className,
       ].join(" ")}
     >
@@ -460,7 +478,7 @@ function Popover({ children }: { children: React.ReactNode }) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.96 }}
       transition={springSnappy}
-      className="absolute right-0 top-[calc(100%+14px)] w-[min(92vw,22rem)] rounded-clay bg-clay-surface p-4 shadow-clay-lg"
+      className="absolute right-0 top-[calc(100%+14px)] w-[min(92vw,22rem)] rounded-clay bg-clay-surface border border-clay-sky p-4 shadow-clay-lg z-50"
     >
       {children}
     </motion.div>

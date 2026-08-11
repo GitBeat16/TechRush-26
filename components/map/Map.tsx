@@ -21,7 +21,7 @@ export function LeafletMapSkeleton({ tone = "surface" }: { tone?: ClayTone }) {
   const toneStyle = TONES[tone] || TONES.surface;
   return (
     <div
-      className={`relative w-full h-[450px] rounded-clay-lg shadow-clay ${toneStyle.bg} flex flex-col items-center justify-center overflow-hidden p-6 border-4 border-white/80`}
+      className={`relative w-full h-[450px] rounded-clay-lg shadow-clay ${toneStyle.bg} flex flex-col items-center justify-center overflow-hidden p-6 border border-clay-sky`}
       aria-label="Loading OpenStreetMap"
     >
       <div className="relative z-10 flex flex-col items-center text-center space-y-3">

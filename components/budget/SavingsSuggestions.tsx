@@ -40,9 +40,9 @@ export function SavingsSuggestions({
               tone={rec.tone}
               radius="md"
               depth="sm"
-              className="p-4 flex items-start gap-3.5 border-2 border-white/80 h-full"
+              className="p-4 flex items-start gap-3.5 border border-clay-sky h-full"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/90 text-clay-ink shadow-clay-xs">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-clay-surface border border-clay-sky text-clay-tangerine shadow-clay-xs">
                 <BudgetIcon icon={rec.icon} size={18} />
               </div>
               <div className="space-y-1">

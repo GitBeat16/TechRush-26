@@ -15,22 +15,22 @@ export interface BudgetProgressProps {
 
 const STATUS_COLORS: Record<BudgetStatus, { stroke: string; bg: string; text: string; badge: string }> = {
   safe: {
-    stroke: "#7fcfae",
-    bg: "bg-clay-mint",
-    text: "text-emerald-800",
-    badge: "bg-emerald-100 text-emerald-800",
+    stroke: "#C4A875",
+    bg: "bg-clay-tangerine",
+    text: "text-clay-ink",
+    badge: "bg-clay-surface border border-clay-sky text-clay-tangerine",
   },
   warning: {
     stroke: "#f9b384",
     bg: "bg-clay-peach",
-    text: "text-amber-900",
-    badge: "bg-amber-100 text-amber-900",
+    text: "text-clay-ink",
+    badge: "bg-amber-500/15 border border-amber-500/30 text-amber-500",
   },
   exceeded: {
     stroke: "#f7a8b8",
     bg: "bg-clay-blush",
-    text: "text-rose-900",
-    badge: "bg-rose-100 text-rose-900",
+    text: "text-clay-ink",
+    badge: "bg-rose-500/15 border border-rose-500/30 text-rose-500",
   },
 };
 
@@ -57,10 +57,10 @@ export function CircularBudgetProgress({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#ece0d4"
+          stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="transparent"
-          className="shadow-clay-inset-sm"
+          className="text-clay-sky/60 shadow-clay-inset-sm"
         />
         {/* Progress Arc */}
         <motion.circle
@@ -119,7 +119,7 @@ export function LinearBudgetProgress({
         </span>
       </div>
 
-      <div className="h-4 w-full rounded-full bg-clay-sunken shadow-clay-inset-sm overflow-hidden p-0.5">
+      <div className="h-4 w-full rounded-full bg-clay-sunken/80 border border-clay-sky/60 shadow-clay-inset-sm overflow-hidden p-0.5">
         <motion.div
           className={`h-full rounded-full ${colors.bg} shadow-clay-xs`}
           initial={{ width: "0%" }}

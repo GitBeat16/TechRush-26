@@ -63,6 +63,7 @@ export function ClayCard({
         TONES[tone].text,
         DEPTH[depth],
         RADIUS[radius],
+        "border border-clay-sky/80",
         interactive
           ? "cursor-pointer transition-shadow duration-300 hover:shadow-clay-hover"
           : "",
@@ -90,7 +91,7 @@ export function ClayWell({
   return (
     <div
       className={[
-        "bg-clay-sunken shadow-clay-inset",
+        "bg-clay-sunken/80 border border-clay-sky/60 shadow-clay-inset-sm",
         RADIUS[radius],
         className,
       ].join(" ")}

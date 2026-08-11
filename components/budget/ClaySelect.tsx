@@ -59,7 +59,7 @@ export function ClaySelect<T extends string | number>({
           setIsOpen((prev) => !prev);
           play("pop");
         }}
-        className="w-full flex items-center justify-between gap-2.5 rounded-clay-lg bg-clay-surface px-4 py-3 text-left font-display text-sm font-bold text-clay-ink shadow-clay-sm hover:shadow-clay transition-all duration-200 border-2 border-white/80"
+        className="w-full flex items-center justify-between gap-2.5 rounded-clay-lg bg-clay-surface px-4 py-3 text-left font-display text-sm font-bold text-clay-ink shadow-clay-xs hover:shadow-clay-sm transition-all duration-200 border border-clay-sky hover:border-clay-tangerine/40"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
@@ -87,7 +87,7 @@ export function ClaySelect<T extends string | number>({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.95 }}
             transition={springSnappy}
-            className="absolute left-0 right-0 top-full mt-2 z-50 max-h-64 overflow-y-auto no-scrollbar rounded-clay-lg bg-clay-surface/98 p-2 shadow-clay-lg backdrop-blur-xl border-2 border-white/90 space-y-1"
+            className="absolute left-0 right-0 top-full mt-2 z-50 max-h-64 overflow-y-auto no-scrollbar rounded-clay-lg bg-clay-surface p-2 shadow-clay-lg backdrop-blur-xl border border-clay-sky space-y-1"
             role="listbox"
           >
             {options.map((option) => {
@@ -105,7 +105,7 @@ export function ClaySelect<T extends string | number>({
                   }}
                   className={`flex items-center justify-between gap-2 rounded-clay-sm px-3.5 py-2.5 cursor-pointer font-display text-sm font-bold transition-colors ${
                     isSelected
-                      ? "bg-clay-butter text-clay-ink shadow-clay-xs"
+                      ? "bg-clay-sunken/90 text-clay-tangerine border border-clay-tangerine/40 shadow-clay-xs"
                       : "text-clay-ink-soft hover:bg-clay-sunken/60 hover:text-clay-ink"
                   }`}
                   role="option"

@@ -26,13 +26,13 @@ export function BudgetWarnings({ warnings, className = "" }: BudgetWarningsProps
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.98 }}
               transition={springSnappy}
-              className={`p-4 rounded-clay-sm flex items-start gap-3.5 shadow-clay-xs border-2 ${
+              className={`p-4 rounded-clay-sm flex items-start gap-3.5 shadow-clay-xs border ${
                 isHigh
                   ? "bg-rose-50/95 border-rose-300 text-rose-950"
                   : "bg-amber-50/95 border-amber-300 text-amber-950"
               }`}
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/80 shadow-clay-xs">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-clay-surface border border-clay-sky/60 shadow-clay-xs">
                 <BudgetIcon icon={warn.icon} size={18} />
               </div>
               <div className="space-y-0.5">
@@ -41,7 +41,7 @@ export function BudgetWarnings({ warnings, className = "" }: BudgetWarningsProps
                     {warn.title}
                   </h4>
                   {warn.category && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/70 shadow-clay-xs">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-clay-surface border border-clay-sky/60 shadow-clay-xs">
                       {warn.category}
                     </span>
                   )}
