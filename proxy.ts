@@ -38,7 +38,14 @@ export async function proxy(request: NextRequest) {
     return withSupabaseCookies(supabaseResponse, NextResponse.redirect(url));
   }
 
-  if (isAuthed && isPublic) {
+  // AppShell appends ?stale=1 when /api/auth/me told it the visitor is
+  // signed out. If we disagree and send them back to /, AppShell will bounce
+  // them straight here again — so honour the marker, let them land on the
+  // sign-in form, and end the cycle. The two gates should never disagree
+  // (see resolveProfile), and this is the guard for when they do.
+  const clientSaysSignedOut = request.nextUrl.searchParams.has("stale");
+
+  if (isAuthed && isPublic && !clientSaysSignedOut) {
     return withSupabaseCookies(
       supabaseResponse,
       NextResponse.redirect(new URL("/", request.nextUrl)),

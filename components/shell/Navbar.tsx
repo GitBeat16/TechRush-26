@@ -109,7 +109,7 @@ export function Navbar() {
             >
               <ClayPlane size={28} base="#6f9ee6" />
             </motion.span>
-            <span className="hidden font-display text-xl font-semibold tracking-tight sm:block">
+            <span className="hidden font-title text-xl sm:block">
               Wanderly
             </span>
           </Link>

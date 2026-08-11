@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { DEFAULT_AVATAR_ID, isAvatarId } from "@/lib/avatars";
-import { ensureProfile } from "@/lib/supabase/profile";
+import { resolveProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -85,13 +85,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const profile = await ensureProfile(supabase, data.user);
-  if (!profile) {
-    return NextResponse.json(
-      { error: "Account created, but your profile could not be saved" },
-      { status: 500 },
-    );
-  }
+  // A session exists from here on, so the response must report the user as
+  // signed in even if the profiles row could not be written — see
+  // resolveProfile for why an error here would loop the app.
+  const { profile, degraded } = await resolveProfile(supabase, data.user);
 
-  return NextResponse.json({ user: profile }, { status: 201 });
+  return NextResponse.json({ user: profile, degraded }, { status: 201 });
 }

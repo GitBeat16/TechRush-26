@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureProfile } from "@/lib/supabase/profile";
+import { resolveProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -75,13 +75,10 @@ export async function POST(request: Request) {
 
   attempts.delete(email);
 
-  const profile = await ensureProfile(supabase, data.user);
-  if (!profile) {
-    return NextResponse.json(
-      { error: "Signed in, but your profile could not be loaded" },
-      { status: 500 },
-    );
-  }
+  // Sign-in has already set the session cookie. Returning an error now
+  // would leave the browser authenticated but the client cache signed
+  // out, which is exactly the state that loops /login against /.
+  const { profile, degraded } = await resolveProfile(supabase, data.user);
 
-  return NextResponse.json({ user: profile });
+  return NextResponse.json({ user: profile, degraded });
 }

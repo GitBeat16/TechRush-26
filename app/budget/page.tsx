@@ -1,170 +1,214 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useCallback, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { PageHeader } from "@/components/shell/PageHeader";
-import { TripDetails } from "@/components/budget/TripDetails";
-import { BudgetBreakdown } from "@/components/budget/BudgetBreakdown";
-import { BudgetSummary } from "@/components/budget/BudgetSummary";
-import { ExpenseList } from "@/components/budget/ExpenseList";
-import { BudgetScore } from "@/components/budget/BudgetScore";
-import { BudgetWarnings } from "@/components/budget/BudgetWarnings";
-import { SavingsPotential } from "@/components/budget/SavingsPotential";
-import { SavingsSuggestions } from "@/components/budget/SavingsSuggestions";
-import { ExpenseAnalysis } from "@/components/budget/ExpenseAnalysis";
-import { DestinationTips } from "@/components/budget/DestinationTips";
-import { WalletIcon } from "@/components/ui/Icons";
+import { ClayButton } from "@/components/ui/ClayButton";
+import { RefreshIcon, WalletIcon } from "@/components/ui/Icons";
+import { TripIntelligenceHero } from "@/components/budget/TripIntelligenceHero";
+import { BudgetAllocationStudio } from "@/components/budget/BudgetAllocationStudio";
+import { AssistantRecommendations } from "@/components/budget/AssistantRecommendations";
+import { FineTuneDrawer } from "@/components/budget/FineTuneDrawer";
 import { DESTINATIONS } from "@/lib/data";
-import { calculateSmartBudgetEstimate, getDestinationById } from "@/lib/budget/budgetEstimator";
-import { calculateBudgetSummary } from "@/lib/budget/calculations";
-import { analyzeBudget } from "@/lib/budget/budgetAnalyzer";
+import {
+  calculateSmartBudgetEstimate,
+  getDestinationById,
+} from "@/lib/budget/budgetEstimator";
+import { buildBudgetIntelligence, type BudgetAction } from "@/lib/budget/intelligence";
+import { fadeUp, revealViewport } from "@/lib/animations";
+import { feedback } from "@/lib/feedback";
 import type { Destination } from "@/types/dashboard";
-import type { ExpenseItem, TravelStyleKey } from "@/types/budget";
+import type { ExpenseCategoryKey, ExpenseItem, TravelStyleKey } from "@/types/budget";
 
-export default function ManualSmartBudgetPlannerPage() {
-  // Manual destination selection state (defaults to Goa or first destination)
-  const [selectedDestination, setSelectedDestination] = useState<Destination>(() => DESTINATIONS[0]);
-
-  // Trip parameter states
-  const [days, setDays] = useState<number>(5);
-  const [travelers, setTravelers] = useState<number>(2);
+/**
+ * Smart Budget Planner
+ * ---------------------------------------------------------------------------
+ * Structured as a single narrative rather than a grid of widgets:
+ *   what this trip costs → where the money goes → is that healthy →
+ *   what is driving it → what to change → what if → fine tuning.
+ */
+export default function SmartBudgetPlannerPage() {
+  const [destination, setDestination] = useState<Destination>(() => DESTINATIONS[0]);
+  const [days, setDays] = useState(5);
+  const [travelers, setTravelers] = useState(2);
   const [travelStyle, setTravelStyle] = useState<TravelStyleKey>("standard");
 
-  // Destination change handler from custom clay dropdown
-  const handleDestinationChange = useCallback((destId: string) => {
-    const matched = getDestinationById(destId);
-    setSelectedDestination(matched);
+  /* The untouched estimate for the current trip shape. Doubles as the
+     anchor the category preference selectors multiply against. */
+  const estimate = useMemo(
+    () => calculateSmartBudgetEstimate({ destination, days, travelers, travelStyle }),
+    [destination, days, travelers, travelStyle]
+  );
+
+  const [expenses, setExpenses] = useState<ExpenseItem[]>(estimate.expenses);
+  const [appliedIds, setAppliedIds] = useState<string[]>([]);
+
+  /* Any change to the trip shape invalidates every manual edit. Adjusted
+     during render rather than in an effect, so the page never paints a
+     frame of stale numbers. */
+  const shapeKey = `${destination.id}|${days}|${travelers}|${travelStyle}`;
+  const [lastShapeKey, setLastShapeKey] = useState(shapeKey);
+  if (lastShapeKey !== shapeKey) {
+    setLastShapeKey(shapeKey);
+    setExpenses(estimate.expenses);
+    setAppliedIds([]);
+  }
+
+  const baselines = useMemo(() => {
+    const map: Record<string, number> = {};
+    estimate.expenses.forEach((item) => {
+      map[item.id] = item.amount;
+    });
+    return map;
+  }, [estimate]);
+
+  const intelligence = useMemo(
+    () => buildBudgetIntelligence({ destination, days, travelers, travelStyle, expenses }),
+    [destination, days, travelers, travelStyle, expenses]
+  );
+
+  /* --------------------------------------------------------- handlers */
+
+  const handleDestinationChange = useCallback((id: string) => {
+    setDestination(getDestinationById(id));
   }, []);
 
-  // Console debugging log as required
-  useEffect(() => {
-    if (selectedDestination?.name) {
-      console.log("Selected destination:", selectedDestination.name);
-    }
-  }, [selectedDestination?.name]);
-
-  // Calculate smart budget estimate dynamically based on trip parameters
-  const smartEstimate = useMemo(() => {
-    return calculateSmartBudgetEstimate({
-      destination: selectedDestination,
-      days,
-      travelers,
-      travelStyle,
-    });
-  }, [selectedDestination, days, travelers, travelStyle]);
-
-  // State for total target budget & category expense items
-  const [totalBudget, setTotalBudget] = useState<number>(smartEstimate.targetBudget);
-  const [expenses, setExpenses] = useState<ExpenseItem[]>(smartEstimate.expenses);
-
-  // When trip parameters or manually selected destination changes, load recalculated smart budget automatically
-  useEffect(() => {
-    const estimate = calculateSmartBudgetEstimate({
-      destination: selectedDestination,
-      days,
-      travelers,
-      travelStyle,
-    });
-    setTotalBudget(estimate.targetBudget);
-    setExpenses(estimate.expenses);
-  }, [selectedDestination, days, travelers, travelStyle]);
-
-  // Live basic summary calculation
-  const summary = useMemo(() => {
-    return {
-      ...calculateBudgetSummary(totalBudget, expenses),
-      destination: selectedDestination,
-    };
-  }, [totalBudget, expenses, selectedDestination]);
-
-  // Live rule-based intelligence analysis
-  const analysis = useMemo(() => {
-    return analyzeBudget(totalBudget, expenses, selectedDestination);
-  }, [totalBudget, expenses, selectedDestination]);
-
-  // Handle manual category expense slider edits
-  const handleAmountChange = useCallback((id: ExpenseItem["id"], newAmount: number) => {
+  const handleAmountChange = useCallback((id: ExpenseCategoryKey, amount: number) => {
     setExpenses((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, amount: newAmount } : item))
+      prev.map((item) => (item.id === id ? { ...item, amount: Math.max(item.min, amount) } : item))
     );
   }, []);
 
-  // Handle total budget target edit
-  const handleUpdateTotalBudget = useCallback((newTotal: number) => {
-    setTotalBudget(newTotal);
+  const applyAction = useCallback((action: BudgetAction) => {
+    feedback("success");
+    setExpenses((prev) =>
+      prev.map((item) =>
+        item.id === action.categoryKey
+          ? { ...item, amount: Math.max(item.min, action.targetAmount) }
+          : item
+      )
+    );
+    setAppliedIds((prev) => (prev.includes(action.id) ? prev : [...prev, action.id]));
   }, []);
 
-  // Reset to recommended budget for current trip details
-  const handleResetDefaults = useCallback(() => {
-    const estimate = calculateSmartBudgetEstimate({
-      destination: selectedDestination,
-      days,
-      travelers,
-      travelStyle,
-    });
-    setTotalBudget(estimate.targetBudget);
+  /** The hero CTA: commits every money-saving recommendation at once. */
+  const handleOptimize = useCallback(() => {
+    const savers = intelligence.actions.filter((a) => a.expectedSavings > 0);
+    if (savers.length === 0) return;
+    feedback("success");
+    setExpenses((prev) =>
+      prev.map((item) => {
+        const action = savers.find((a) => a.categoryKey === item.id);
+        return action ? { ...item, amount: Math.max(item.min, action.targetAmount) } : item;
+      })
+    );
+    setAppliedIds((prev) => Array.from(new Set([...prev, ...savers.map((a) => a.id)])));
+  }, [intelligence.actions]);
+
+  const handleCommitSimulation = useCallback(
+    (categoryTotals: Record<ExpenseCategoryKey, number>) => {
+      feedback("success");
+      setExpenses((prev) =>
+        prev.map((item) => ({
+          ...item,
+          amount: Math.max(item.min, categoryTotals[item.id] ?? item.amount),
+        }))
+      );
+      setAppliedIds([]);
+    },
+    []
+  );
+
+  const handleReset = useCallback(() => {
+    feedback("tap");
     setExpenses(estimate.expenses);
-  }, [selectedDestination, days, travelers, travelStyle]);
+    setAppliedIds([]);
+  }, [estimate]);
+
+  /* ------------------------------------------------------------ view */
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="pb-10">
       <PageHeader
-        eyebrow="Smart Travel Budget Planner"
-        title="Custom Trip Cost Planner"
-        subtitle="Manually select your destination, duration, travelers & travel style to generate tailored trip cost estimates and live budget analytics."
+        eyebrow="AI travel finance"
+        title="Smart Budget Planner"
+        subtitle="Your assistant prices the trip, explains the number, and tells you exactly what to change."
         icon={<WalletIcon size={24} />}
+        action={
+          <ClayButton
+            variant="ghost"
+            size="sm"
+            onClick={handleReset}
+            leftIcon={<RefreshIcon size={15} />}
+          >
+            Reset to recommended
+          </ClayButton>
+        }
       />
 
-      {/* Section 1: Trip Details Card (Custom Clay Destination Selector + Duration/Travellers Clay Dropdowns + Travel Style Cards) */}
-      <TripDetails
-        destination={selectedDestination}
-        days={days}
-        travelers={travelers}
-        travelStyle={travelStyle}
-        onDestinationChange={handleDestinationChange}
-        onDaysChange={setDays}
-        onTravelersChange={setTravelers}
-        onTravelStyleChange={setTravelStyle}
-      />
+      {/* Three questions, in the order people ask them: what does it cost,
+          what is it made of, how do I make it cheaper. Anything past that
+          lives in the drawer. */}
+      <div className="space-y-5">
+        <Section>
+          <TripIntelligenceHero
+            destination={destination}
+            days={days}
+            travelers={travelers}
+            travelStyle={travelStyle}
+            totalCost={intelligence.totalCost}
+            perPersonPerDay={intelligence.perPersonPerDay}
+            peer={intelligence.peer}
+            health={intelligence.health}
+            opportunity={intelligence.totalOpportunity}
+            onDestinationChange={handleDestinationChange}
+            onDaysChange={setDays}
+            onTravelersChange={setTravelers}
+            onTravelStyleChange={setTravelStyle}
+            onOptimize={handleOptimize}
+          />
+        </Section>
 
-      {/* Section 2: Estimated Budget Breakdown Section */}
-      <BudgetBreakdown
-        destination={selectedDestination}
-        days={days}
-        travelers={travelers}
-        totalCost={summary.totalCost}
-        expenses={expenses}
-      />
+        <Section>
+          <BudgetAllocationStudio
+            allocation={intelligence.allocation}
+            totalCost={intelligence.totalCost}
+            days={days}
+            travelers={travelers}
+          />
+        </Section>
 
-      {/* Dynamic Threshold Warnings (Appears & Disappears automatically) */}
-      <BudgetWarnings warnings={analysis.warnings} />
+        <Section>
+          <AssistantRecommendations
+            actions={intelligence.actions}
+            appliedIds={appliedIds}
+            onApply={applyAction}
+          />
+        </Section>
 
-      {/* Section 3: Live Budget Summary Overview & Allocation Control */}
-      <BudgetSummary
-        summary={summary}
-        onUpdateTotalBudget={handleUpdateTotalBudget}
-        onResetDefaults={handleResetDefaults}
-      />
-
-      {/* Section 4: Smart Budget Score & Savings Potential Cards */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <BudgetScore scoreResult={analysis.scoreResult} />
-        <SavingsPotential savingsData={analysis.savingsData} />
-      </div>
-
-      {/* Section 5: Smart Savings Suggestions */}
-      <SavingsSuggestions recommendations={analysis.savingsData.recommendations} />
-
-      {/* Section 6: Category Expense Sliders Grid */}
-      <ExpenseList
-        expenses={expenses}
-        onAmountChange={handleAmountChange}
-      />
-
-      {/* Section 7: Expense Share Analysis & Destination Tips */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ExpenseAnalysis categoryBreakdown={analysis.categoryBreakdown} />
-        <DestinationTips destination={selectedDestination} tips={analysis.destinationTips} />
+        <Section>
+          <FineTuneDrawer
+            expenses={expenses}
+            baselines={baselines}
+            totalCost={intelligence.totalCost}
+            onAmountChange={handleAmountChange}
+            onCommitSimulation={handleCommitSimulation}
+          />
+        </Section>
       </div>
     </div>
+  );
+}
+
+function Section({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.section
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="show"
+      viewport={revealViewport}
+    >
+      {children}
+    </motion.section>
   );
 }

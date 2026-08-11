@@ -71,7 +71,7 @@ export function PageHeader({
             )}
             <motion.h1
               variants={fadeUp}
-              className="font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl"
+              className="font-title text-3xl leading-tight sm:text-4xl"
             >
               {title}
             </motion.h1>

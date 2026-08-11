@@ -88,9 +88,10 @@
     inset 4px 5px 10px rgb(var(--clay-shade) / 0.24),
     inset -3px -3px 8px rgb(var(--clay-light) / 0.85);
 
-  /* Type */
-  --font-display: var(--font-fredoka), "SF Pro Rounded", ui-rounded, system-ui, sans-serif;
-  --font-body: var(--font-nunito), "SF Pro Rounded", ui-rounded, system-ui, sans-serif;
+  /* Type — Grandstander speaks, Karla reads. */
+  --font-title: var(--font-grandstander), "Baloo 2", ui-rounded, "Trebuchet MS", sans-serif;
+  --font-display: var(--font-grandstander), "Baloo 2", ui-rounded, "Trebuchet MS", sans-serif;
+  --font-body: var(--font-karla), "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
 
   /* Motion */
   --ease-clay: cubic-bezier(0.34, 1.4, 0.5, 1);
@@ -231,6 +232,20 @@ body {
   transition:
     background-color 0.7s ease,
     color 0.7s ease;
+}
+
+/* Grandstander is a variable face carrying 100–900, so unlike the single-weight
+   display font this replaced, titles can simply ask for the weight they want
+   and no synthesis guard is needed.
+
+   What it does need is a floor: the family's bouncing baseline reads as sloppy
+   rather than playful below about 600, so every title lands on 700. The letter-
+   spacing is opened very slightly because the rounded terminals otherwise touch
+   at large sizes. This rule sits outside @layer so it beats the Tailwind weight
+   utilities without needing !important. */
+.font-title {
+  font-weight: 700;
+  letter-spacing: 0.005em;
 }
 
 ::selection {

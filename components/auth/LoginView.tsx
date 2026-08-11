@@ -50,6 +50,8 @@ export function LoginView() {
 
   const next = params.get("next") ?? "/";
   const oauthError = params.get("error");
+  // Set by AppShell when the server session and /api/auth/me disagreed.
+  const staleSession = params.has("stale");
 
   return (
     <div className="mx-auto grid min-h-screen w-full max-w-[1200px] items-center gap-8 px-4 py-8 lg:grid-cols-[1.05fr_1fr] lg:gap-14 lg:px-8">
@@ -68,6 +70,16 @@ export function LoginView() {
               className="mb-4 rounded-clay-sm bg-clay-blush px-4 py-3 font-body text-xs leading-relaxed font-bold text-clay-ink shadow-clay-xs"
             >
               {OAUTH_ERRORS[oauthError] ?? "Sign-in failed. Please try again."}
+            </motion.p>
+          )}
+
+          {!oauthError && staleSession && (
+            <motion.p
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 rounded-clay-sm bg-clay-butter px-4 py-3 font-body text-xs leading-relaxed font-bold text-clay-ink shadow-clay-xs"
+            >
+              We could not verify your session. Please sign in again.
             </motion.p>
           )}
 

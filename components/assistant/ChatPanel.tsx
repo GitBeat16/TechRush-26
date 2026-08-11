@@ -6,7 +6,7 @@ import { ChatBubble } from "@/components/assistant/ChatBubble";
 import { ChatComposer } from "@/components/assistant/ChatComposer";
 import { SuggestedChips } from "@/components/assistant/SuggestedChips";
 import { ClayCard } from "@/components/ui/ClayCard";
-import { fadeUp, revealViewport, stagger } from "@/lib/animations";
+import { fadeUp, revealViewport } from "@/lib/animations";
 import { useFeedback } from "@/lib/feedback";
 import type { AssistantWidget, ChatHistoryEntry, ChatResponseBody } from "@/types/assistant";
 
@@ -30,7 +30,16 @@ function makeId() {
   return `msg-${nextId}`;
 }
 
-export function ChatPanel() {
+export interface ChatPanelProps {
+  /**
+   * `page` is the full-width card on /assistant. `dock` drops the clay card
+   * and the outer reveal animation, because the floating launcher already
+   * provides both — nesting them makes the panel animate twice.
+   */
+  variant?: "page" | "dock";
+}
+
+export function ChatPanel({ variant = "page" }: ChatPanelProps) {
   const { play } = useFeedback();
   const [messages, setMessages] = useState<Message[]>([GREETING]);
   const [sending, setSending] = useState(false);
@@ -124,40 +133,54 @@ export function ChatPanel() {
     }
   }
 
-  return (
-    <motion.div variants={stagger(0.06)} initial="hidden" whileInView="show" viewport={revealViewport}>
-      <ClayCard tone="surface" radius="xl" depth="lg" className="flex flex-col overflow-hidden p-4 sm:p-6">
-        <motion.div variants={fadeUp} className="mb-4">
-          <SuggestedChips onPick={send} disabled={sending} />
-          {locationError && (
-            <p className="mt-2 font-body text-xs font-semibold text-clay-tangerine">{locationError}</p>
-          )}
-        </motion.div>
+  const isDock = variant === "dock";
 
-        <motion.div
-          variants={fadeUp}
-          ref={scrollRef}
-          className="flex max-h-[55vh] min-h-[320px] flex-col gap-3.5 overflow-y-auto rounded-clay bg-clay-bg/60 p-3.5 shadow-clay-inset-sm sm:p-4"
-        >
-          {messages.map((message) => (
-            <ChatBubble
-              key={message.id}
-              role={message.role}
-              text={message.text}
-              widget={message.widget}
-              pending={message.pending}
-            />
-          ))}
-        </motion.div>
+  const body = (
+    <>
+      <div className={isDock ? "mb-3" : "mb-4"}>
+        <SuggestedChips onPick={send} disabled={sending} />
+        {locationError && (
+          <p className="mt-2 font-body text-xs font-semibold text-clay-tangerine">{locationError}</p>
+        )}
+      </div>
 
-        <motion.div variants={fadeUp} className="mt-4">
-          <ChatComposer
-            onSend={send}
-            disabled={sending}
-            locationEnabled={Boolean(location)}
-            onToggleLocation={toggleLocation}
+      <div
+        ref={scrollRef}
+        className={`flex flex-1 flex-col gap-3.5 overflow-y-auto rounded-clay bg-clay-bg/60 shadow-clay-inset-sm ${
+          isDock ? "min-h-0 p-3" : "max-h-[55vh] min-h-[320px] p-3.5 sm:p-4"
+        }`}
+      >
+        {messages.map((message) => (
+          <ChatBubble
+            key={message.id}
+            role={message.role}
+            text={message.text}
+            widget={message.widget}
+            pending={message.pending}
           />
-        </motion.div>
+        ))}
+      </div>
+
+      <div className={isDock ? "mt-3" : "mt-4"}>
+        <ChatComposer
+          onSend={send}
+          disabled={sending}
+          locationEnabled={Boolean(location)}
+          onToggleLocation={toggleLocation}
+        />
+      </div>
+    </>
+  );
+
+  if (isDock) {
+    // The launcher owns the surface and the entrance, so this is just layout.
+    return <div className="flex min-h-0 flex-1 flex-col">{body}</div>;
+  }
+
+  return (
+    <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={revealViewport}>
+      <ClayCard tone="surface" radius="xl" depth="lg" className="flex flex-col overflow-hidden p-4 sm:p-6">
+        {body}
       </ClayCard>
     </motion.div>
   );

@@ -1,6 +1,5 @@
 import type { ComponentType, SVGProps } from "react";
 import {
-  ChatIcon,
   GlobeIcon,
   HomeIcon,
   PinIcon,
@@ -21,6 +20,12 @@ export interface NavItem {
   primary: boolean;
 }
 
+/**
+ * The rail and the dock. The assistant is deliberately absent: it lives in
+ * the floating launcher (components/assistant/AssistantDock) so asking a
+ * question never costs you the page you were reading. /assistant is still a
+ * real route — the launcher links to it — it just isn't navigation.
+ */
 export const NAV: NavItem[] = [
   {
     href: "/",
@@ -68,14 +73,6 @@ export const NAV: NavItem[] = [
     short: "Compare",
     description: "Two destinations, side by side",
     icon: SwapIcon,
-    primary: false,
-  },
-  {
-    href: "/assistant",
-    label: "AI Assistant",
-    short: "Chat",
-    description: "Ask anything — budget, packing, weather, nearby spots",
-    icon: ChatIcon,
     primary: false,
   },
   {
