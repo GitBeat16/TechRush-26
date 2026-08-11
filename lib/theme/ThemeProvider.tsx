@@ -65,7 +65,7 @@ export const THEME_BOOTSTRAP_SCRIPT = `(function(){try{var t=localStorage.getIte
   STORAGE_KEY,
 )});var m=localStorage.getItem(${JSON.stringify(
   MODE_STORAGE_KEY,
-)})||localStorage.getItem("wanderly-theme-mode");var sysDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;var isDark=m?m==="dark":sysDark;if(t==="sunny"||t==="snowy"||t==="rainy"||t==="clay"||!t){if(t)document.documentElement.setAttribute("data-theme",t);if((!t||t==="clay")&&isDark){document.documentElement.setAttribute("data-mode","dark");}}}catch(e){}})();`;
+)})||localStorage.getItem("wanderly-theme-mode");var sysDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;var isDark=m?m==="dark":sysDark;if(t==="sunny"||t==="snowy"||t==="rainy"||t==="clay"||!t){if(t)document.documentElement.setAttribute("data-theme",t);if(!t||t==="clay"){document.documentElement.setAttribute("data-mode",isDark?"dark":"light");}}}catch(e){}})();`;
 
 /* ---------------------- the cached theme, as a store ---------------- */
 
@@ -193,8 +193,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", painted);
 
-    if (painted === "clay" && mode === "dark") {
-      document.documentElement.setAttribute("data-mode", "dark");
+    if (painted === "clay") {
+      document.documentElement.setAttribute("data-mode", mode);
     } else {
       document.documentElement.removeAttribute("data-mode");
     }

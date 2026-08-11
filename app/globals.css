@@ -7,29 +7,29 @@
 
 @theme {
   /* Surfaces */
-  --color-clay-bg: #f1e7dc;
-  --color-clay-bg-deep: #e9dcce;
-  --color-clay-surface: #fbf4ec;
-  --color-clay-raised: #fffdfa;
-  --color-clay-sunken: #ece0d4;
+  --color-clay-bg: #F7F6F2;
+  --color-clay-bg-deep: #ECEAE4;
+  --color-clay-surface: #FFFFFF;
+  --color-clay-raised: #FAFAFA;
+  --color-clay-sunken: #EFECE6;
 
   /* Ink */
-  --color-clay-ink: #4a3a30;
-  --color-clay-ink-soft: #7c6558;
-  --color-clay-muted: #a2897a;
+  --color-clay-ink: #1F2937;
+  --color-clay-ink-soft: #4B5563;
+  --color-clay-muted: #9CA3AF;
 
   /* Pastel clay accents */
-  --color-clay-blush: #ffd3d8;
-  --color-clay-rose: #f7a8b8;
-  --color-clay-peach: #ffd7b3;
-  --color-clay-tangerine: #f9b384;
-  --color-clay-butter: #ffe8a3;
-  --color-clay-mint: #bfe9d5;
-  --color-clay-jade: #7fcfae;
-  --color-clay-sky: #c3dcfb;
-  --color-clay-ocean: #8fb6ee;
-  --color-clay-lilac: #dcd2fb;
-  --color-clay-grape: #b09ff0;
+  --color-clay-blush: #F5EFEB;
+  --color-clay-rose: #E5C158;
+  --color-clay-peach: #F4E8C8;
+  --color-clay-tangerine: #C9A96E;
+  --color-clay-butter: #FFF8EA;
+  --color-clay-mint: #E8F0EC;
+  --color-clay-jade: #526B60;
+  --color-clay-sky: #E5E7EB;
+  --color-clay-ocean: #C9A96E;
+  --color-clay-lilac: #F0EFEA;
+  --color-clay-grape: #374151;
 
   /* Clay radii */
   --radius-clay-sm: 22px;
@@ -111,13 +111,50 @@
 
 :root {
   /* Shadow occlusion + highlight, as raw RGB triples. */
-  --clay-shade: 172 139 113;
+  --clay-shade: 180 185 195;
   --clay-light: 255 255 255;
   /* Ambient blob colours, read by the weather layer. */
-  --clay-amb-1: #ffd3d8;
-  --clay-amb-2: #c3dcfb;
-  --clay-amb-3: #bfe9d5;
+  --clay-amb-1: #F4E8C8;
+  --clay-amb-2: #E8F0EC;
+  --clay-amb-3: #F0EFEA;
   --clay-precip: #ffffff;
+}
+
+/* ------------------------------------------------ Original / Clay — Light Mode (Clean Off-White + Charcoal + Champagne) */
+html[data-mode="light"],
+html[data-theme="clay"][data-mode="light"],
+html[data-theme="clay"]:not([data-mode="dark"]) {
+  /* Surfaces */
+  --color-clay-bg: #F7F6F2;       /* Soft cool/light neutral background */
+  --color-clay-bg-deep: #ECEAE4;  /* Deep background well */
+  --color-clay-surface: #FFFFFF;  /* Primary Card Surface (Clean White) */
+  --color-clay-raised: #FAFAFA;   /* Secondary Card / Elevated Surface */
+  --color-clay-sunken: #EFECE6;   /* Control / Recessed Interactive Surface */
+
+  /* Ink */
+  --color-clay-ink: #1F2937;      /* Primary Text (Dark Charcoal / Navy) */
+  --color-clay-ink-soft: #4B5563; /* Secondary Text (Muted Cool Gray) */
+  --color-clay-muted: #9CA3AF;    /* Muted Text (Cool Gray) */
+
+  /* Accents & Tone Mappings */
+  --color-clay-blush: #F5EFEB;
+  --color-clay-rose: #E5C158;
+  --color-clay-peach: #F4E8C8;
+  --color-clay-tangerine: #C9A96E; /* Champagne Gold Accent */
+  --color-clay-butter: #FFF8EA;
+  --color-clay-mint: #E8F0EC;
+  --color-clay-jade: #526B60;
+  --color-clay-sky: #E5E7EB;       /* Clean neutral border */
+  --color-clay-ocean: #C9A96E;
+  --color-clay-lilac: #F0EFEA;
+  --color-clay-grape: #374151;
+
+  /* Shadows & Ambient Blobs */
+  --clay-shade: 180 185 195;       /* Crisp clean light-mode shadow occlusion */
+  --clay-light: 255 255 255;
+  --clay-amb-1: #F4E8C8;
+  --clay-amb-2: #E8F0EC;
+  --clay-amb-3: #F0EFEA;
 }
 
 /* ------------------------------------------------ Original / Clay — Dark Mode (Midnight Navy + Slate + Champagne) */
