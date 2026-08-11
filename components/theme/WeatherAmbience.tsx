@@ -60,9 +60,347 @@ function field(count: number, seed: number, config: {
   });
 }
 
+/* ------------------------------------------------ Dark Mode Fireflies */
+interface Firefly {
+  left: number;
+  top: number;
+  size: number;
+  duration: number;
+  delay: number;
+  tier: "primary" | "medium" | "background";
+  zone: "hero" | "bali" | "major" | "bg";
+  yPath: number[];
+  xPath: number[];
+  opacityPath: number[];
+}
+
+/**
+ * 20 Total Fireflies positioned across 4 controlled zones:
+ * - Zone 1 (Hero): 9 fireflies in negative space outside hero content & moon
+ * - Zone 2 (Bali Card): 3 fireflies framing top-left, right gap, and below bottom-right
+ * - Zone 3 (Major Cards): 4 fireflies framing top-left, top-right, and side gaps of Globe & Budget cards
+ * - Zone 4 (Background): 4 fireflies in distant ambient background layer
+ */
+const FIREFLIES: Firefly[] = [
+  // =========================================================================
+  // ZONE 1: PRIMARY HERO CARD ZONE (9 Fireflies surrounding main hero area)
+  // =========================================================================
+  {
+    // Floating ~35px Above Headline
+    left: 28,
+    top: 4,
+    size: 8,
+    duration: 6.8,
+    delay: 0.8,
+    tier: "primary",
+    zone: "hero",
+    yPath: [0, -18, 12, 0],
+    xPath: [0, 10, -10, 0],
+    opacityPath: [0.55, 1, 0.85, 0.55],
+  },
+  {
+    // Floating ~40px Above AI Badge
+    left: 14,
+    top: 6,
+    size: 7,
+    duration: 8.2,
+    delay: 2.1,
+    tier: "primary",
+    zone: "hero",
+    yPath: [0, -16, 14, 0],
+    xPath: [0, -9, 8, 0],
+    opacityPath: [0.55, 0.95, 0.8, 0.55],
+  },
+  {
+    // Framing Top-Right Outer Rim of Moon SVG
+    left: 89,
+    top: 7,
+    size: 9,
+    duration: 6.2,
+    delay: 0.3,
+    tier: "primary",
+    zone: "hero",
+    yPath: [0, -20, 10, 0],
+    xPath: [0, 12, -8, 0],
+    opacityPath: [0.6, 1, 0.9, 0.6],
+  },
+  {
+    // Upper-Right Side Gap of Hero Box
+    left: 92,
+    top: 14,
+    size: 7,
+    duration: 7.5,
+    delay: 1.6,
+    tier: "primary",
+    zone: "hero",
+    yPath: [0, 14, -16, 0],
+    xPath: [0, -11, 9, 0],
+    opacityPath: [0.55, 0.98, 0.88, 0.55],
+  },
+  {
+    // Left Negative Space Outside Hero Box
+    left: 4,
+    top: 18,
+    size: 8,
+    duration: 7.0,
+    delay: 0.5,
+    tier: "primary",
+    zone: "hero",
+    yPath: [0, -14, 15, 0],
+    xPath: [0, 11, -7, 0],
+    opacityPath: [0.55, 1, 0.9, 0.55],
+  },
+  {
+    // Left-Middle Gap between AI badge and buttons
+    left: 20,
+    top: 22,
+    size: 5,
+    duration: 8.6,
+    delay: 2.5,
+    tier: "medium",
+    zone: "hero",
+    yPath: [0, 10, -8, 0],
+    xPath: [0, -6, 7, 0],
+    opacityPath: [0.32, 0.85, 0.32],
+  },
+  {
+    // Right-Middle Character Outer Circle Gap
+    left: 94,
+    top: 34,
+    size: 6,
+    duration: 7.8,
+    delay: 1.9,
+    tier: "medium",
+    zone: "hero",
+    yPath: [0, 8, -12, 0],
+    xPath: [0, -8, 8, 0],
+    opacityPath: [0.35, 0.88, 0.35],
+  },
+  {
+    // Lower-Left Hero Corner Gap
+    left: 7,
+    top: 42,
+    size: 5,
+    duration: 10.2,
+    delay: 1.1,
+    tier: "medium",
+    zone: "hero",
+    yPath: [0, -10, 10, 0],
+    xPath: [0, 7, -6, 0],
+    opacityPath: [0.32, 0.84, 0.32],
+  },
+  {
+    // Lower-Right Hero Corner Gap
+    left: 88,
+    top: 44,
+    size: 6,
+    duration: 8.4,
+    delay: 3.0,
+    tier: "medium",
+    zone: "hero",
+    yPath: [0, -14, 8, 0],
+    xPath: [0, 9, -7, 0],
+    opacityPath: [0.35, 0.88, 0.35],
+  },
+
+  // =========================================================================
+  // ZONE 2: SECONDARY BALI RECOMMENDATION CARD ZONE (3 Fireflies)
+  // =========================================================================
+  {
+    // Floating 20px Above Top-Left of Bali Card
+    left: 24,
+    top: 26,
+    size: 7,
+    duration: 7.2,
+    delay: 1.4,
+    tier: "primary",
+    zone: "bali",
+    yPath: [0, -15, 10, 0],
+    xPath: [0, 10, -8, 0],
+    opacityPath: [0.55, 0.98, 0.88, 0.55],
+  },
+  {
+    // Floating 25px to the Right of Bali Card
+    left: 38,
+    top: 35,
+    size: 7,
+    duration: 6.4,
+    delay: 0.2,
+    tier: "primary",
+    zone: "bali",
+    yPath: [0, 12, -14, 0],
+    xPath: [0, -8, 9, 0],
+    opacityPath: [0.55, 1, 0.85, 0.55],
+  },
+  {
+    // Floating 20px Below Bottom-Right of Bali Card
+    left: 36,
+    top: 45,
+    size: 5,
+    duration: 9.4,
+    delay: 2.7,
+    tier: "medium",
+    zone: "bali",
+    yPath: [0, -10, 12, 0],
+    xPath: [0, 7, -7, 0],
+    opacityPath: [0.35, 0.85, 0.35],
+  },
+
+  // =========================================================================
+  // ZONE 3: TERTIARY MAJOR CARDS ZONE (4 Fireflies around Globe & Budget cards)
+  // =========================================================================
+  {
+    // Top-Left Corner of Travel Globe Card
+    left: 11,
+    top: 49,
+    size: 7,
+    duration: 7.6,
+    delay: 2.8,
+    tier: "primary",
+    zone: "major",
+    yPath: [0, -14, 9, 0],
+    xPath: [0, -9, 7, 0],
+    opacityPath: [0.5, 0.96, 0.8, 0.5],
+  },
+  {
+    // Top-Right Corner of Travel Globe Card
+    left: 87,
+    top: 51,
+    size: 5,
+    duration: 8.8,
+    delay: 1.7,
+    tier: "medium",
+    zone: "major",
+    yPath: [0, 9, -10, 0],
+    xPath: [0, -7, 6, 0],
+    opacityPath: [0.32, 0.85, 0.32],
+  },
+  {
+    // Bottom-Left Side Gap of Globe Card
+    left: 15,
+    top: 67,
+    size: 5,
+    duration: 9.8,
+    delay: 0.9,
+    tier: "medium",
+    zone: "major",
+    yPath: [0, -11, 8, 0],
+    xPath: [0, 8, -6, 0],
+    opacityPath: [0.35, 0.84, 0.35],
+  },
+  {
+    // Top-Right Corner of Lower Budget / Destination Cards
+    left: 85,
+    top: 79,
+    size: 5,
+    duration: 10.5,
+    delay: 2.1,
+    tier: "medium",
+    zone: "major",
+    yPath: [0, -8, 10, 0],
+    xPath: [0, 6, -6, 0],
+    opacityPath: [0.32, 0.82, 0.32],
+  },
+
+  // =========================================================================
+  // ZONE 4: BACKGROUND DEPTH ZONE (4 Fireflies ambient distant layer)
+  // =========================================================================
+  {
+    left: 5,
+    top: 27,
+    size: 4,
+    duration: 12.4,
+    delay: 0.6,
+    tier: "background",
+    zone: "bg",
+    yPath: [0, -6, 6, 0],
+    xPath: [0, 5, -5, 0],
+    opacityPath: [0.2, 0.65, 0.2],
+  },
+  {
+    left: 45,
+    top: 57,
+    size: 4,
+    duration: 11.2,
+    delay: 1.8,
+    tier: "background",
+    zone: "bg",
+    yPath: [0, 7, -6, 0],
+    xPath: [0, -4, 4, 0],
+    opacityPath: [0.22, 0.68, 0.22],
+  },
+  {
+    left: 52,
+    top: 77,
+    size: 4,
+    duration: 10.8,
+    delay: 1.0,
+    tier: "background",
+    zone: "bg",
+    yPath: [0, -6, 7, 0],
+    xPath: [0, 5, -5, 0],
+    opacityPath: [0.2, 0.62, 0.2],
+  },
+  {
+    left: 95,
+    top: 71,
+    size: 3,
+    duration: 13.8,
+    delay: 3.6,
+    tier: "background",
+    zone: "bg",
+    yPath: [0, 6, -5, 0],
+    xPath: [0, -4, 4, 0],
+    opacityPath: [0.18, 0.58, 0.18],
+  },
+];
+
+function DarkFireflies() {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+      {FIREFLIES.map((fly, idx) => (
+        <motion.span
+          key={idx}
+          className={`absolute rounded-full ${
+            fly.tier === "primary"
+              ? "bg-[#FFF8EA] shadow-[0_0_12px_rgba(255,248,234,0.98)]"
+              : fly.tier === "medium"
+                ? "bg-[#F4E8C8] shadow-[0_0_8px_rgba(244,232,200,0.8)]"
+                : "bg-[#E8DAB8] shadow-[0_0_5px_rgba(232,218,184,0.5)]"
+          }`}
+          style={{
+            left: `${fly.left}%`,
+            top: `${fly.top}%`,
+            width: fly.size,
+            height: fly.size,
+          }}
+          animate={{
+            y: fly.yPath,
+            x: fly.xPath,
+            opacity: fly.opacityPath,
+            scale:
+              fly.tier === "primary"
+                ? [1, 1.35, 1.15, 1]
+                : fly.tier === "medium"
+                  ? [1, 1.2, 1]
+                  : [1, 1.1, 1],
+          }}
+          transition={{
+            duration: fly.duration,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: fly.delay,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function WeatherAmbience() {
-  const { theme } = useTheme();
+  const { theme, mode } = useTheme();
   const ambience = THEMES[theme].ambience;
+  const isDark = theme === "clay" && mode === "dark";
 
   const flakes = useMemo(
     () =>
@@ -109,22 +447,29 @@ export function WeatherAmbience() {
       aria-hidden
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
     >
+      {/* --------------------------------------------- dark mode fireflies */}
+      {isDark && <DarkFireflies />}
+
       {/* --------------------------------------------- base clay blobs */}
-      <motion.div
-        {...breathe(1.1, 14)}
-        className="absolute -left-40 top-24 h-[26rem] w-[26rem] rounded-full opacity-35 blur-3xl transition-colors duration-700"
-        style={{ backgroundColor: "var(--clay-amb-1)" }}
-      />
-      <motion.div
-        {...breathe(1.08, 17, 2)}
-        className="absolute -right-32 top-[38%] h-[30rem] w-[30rem] rounded-full opacity-30 blur-3xl transition-colors duration-700"
-        style={{ backgroundColor: "var(--clay-amb-2)" }}
-      />
-      <motion.div
-        {...breathe(1.12, 19, 4)}
-        className="absolute bottom-0 left-1/3 h-[24rem] w-[24rem] rounded-full opacity-30 blur-3xl transition-colors duration-700"
-        style={{ backgroundColor: "var(--clay-amb-3)" }}
-      />
+      {!isDark && (
+        <>
+          <motion.div
+            {...breathe(1.1, 14)}
+            className="absolute -left-40 top-24 h-[26rem] w-[26rem] rounded-full opacity-35 blur-3xl transition-colors duration-700"
+            style={{ backgroundColor: "var(--clay-amb-1)" }}
+          />
+          <motion.div
+            {...breathe(1.08, 17, 2)}
+            className="absolute -right-32 top-[38%] h-[30rem] w-[30rem] rounded-full opacity-30 blur-3xl transition-colors duration-700"
+            style={{ backgroundColor: "var(--clay-amb-2)" }}
+          />
+          <motion.div
+            {...breathe(1.12, 19, 4)}
+            className="absolute bottom-0 left-1/3 h-[24rem] w-[24rem] rounded-full opacity-30 blur-3xl transition-colors duration-700"
+            style={{ backgroundColor: "var(--clay-amb-3)" }}
+          />
+        </>
+      )}
 
       {/* --------------------------------------------- hot and sunny */}
       {ambience === "sun" && (

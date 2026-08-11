@@ -120,6 +120,70 @@
   --clay-precip: #ffffff;
 }
 
+/* ------------------------------------------------ Original / Clay — Dark Mode (Midnight Navy + Slate + Champagne) */
+html[data-mode="dark"],
+html[data-theme="clay"][data-mode="dark"] {
+  /* Surfaces */
+  --color-clay-bg: #0F1720;       /* Main Page Background */
+  --color-clay-bg-deep: #0A111A;  /* Deep Background Well */
+  --color-clay-surface: #18232E;  /* Primary Card Surface */
+  --color-clay-raised: #1E2B37;   /* Secondary Card / Elevated Surface */
+  --color-clay-sunken: #25333F;   /* Control / Recessed Interactive Surface */
+
+  /* Ink */
+  --color-clay-ink: #F5F1E8;      /* Primary Text (Warm Off-White) */
+  --color-clay-ink-soft: #B8BDC3; /* Secondary Text (Soft Grey) */
+  --color-clay-muted: #858D96;    /* Muted Text (Cool Grey) */
+
+  /* Tone Mappings (Zero Green, Zero Neon Glow) */
+  --color-clay-blush: #18232E;
+  --color-clay-rose: #1E2B37;
+  --color-clay-peach: #1E2B37;
+  --color-clay-tangerine: #C9A96E; /* Champagne Gold Accent */
+  --color-clay-butter: #1E2B37;
+  --color-clay-mint: #18232E;
+  --color-clay-jade: #858D96;
+  --color-clay-sky: rgba(255, 255, 255, 0.08); /* Thin neutral border */
+  --color-clay-ocean: #C9A96E;
+  --color-clay-lilac: #1E2B37;
+  --color-clay-grape: #25333F;
+
+  /* Ambient Blobs (Neutralized in Dark Mode to eliminate unwanted left-side glow) */
+  --clay-shade: 0 0 0;
+  --clay-light: 0 0 0;
+  --clay-amb-1: transparent;
+  --clay-amb-2: transparent;
+  --clay-amb-3: transparent;
+}
+
+/* Primary Button: Champagne Gold background (#C9A96E) + Dark Navy text (#0F1720) in Dark Mode */
+html[data-mode="dark"] button.bg-clay-tangerine,
+html[data-mode="dark"] .bg-clay-tangerine {
+  background-color: #C9A96E !important;
+  color: #0F1720 !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Accent icons & badges in Dark Mode */
+html[data-mode="dark"] .text-clay-tangerine {
+  color: #C9A96E !important;
+}
+
+html[data-mode="dark"] .border-clay-tangerine {
+  border-color: #C9A96E !important;
+}
+
+/* Neutral borders & zero glowing outlines in Dark Mode */
+html[data-mode="dark"] .border-clay-sky {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-mode="dark"] [class*="shadow-clay"] {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+}
+
 /* ------------------------------------------------ hot and sunny */
 html[data-theme="sunny"] {
   --color-clay-bg: #fbeadb;

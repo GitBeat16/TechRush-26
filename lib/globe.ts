@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { geoOrthographic, geoPath, type GeoPermissibleObjects } from "d3-geo";

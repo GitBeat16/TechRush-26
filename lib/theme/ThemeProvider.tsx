@@ -12,7 +12,7 @@ import {
 } from "react";
 import { updateProfile, useSession } from "@/lib/auth/session";
 import { DEFAULT_THEME, isThemeId, resolveTheme } from "@/lib/theme/themes";
-import type { ThemeId } from "@/types/theme";
+import type { ThemeId, ThemeMode } from "@/types/theme";
 
 /* ------------------------------------------------------------------ */
 /* Theme provider                                                      */
@@ -29,16 +29,21 @@ import type { ThemeId } from "@/types/theme";
 /* ------------------------------------------------------------------ */
 
 const STORAGE_KEY = "wanderly:theme:v1";
+const MODE_STORAGE_KEY = "wanderly:mode:v1";
 
 interface ThemeContextValue {
   /** The theme currently painted. */
   theme: ThemeId;
+  /** Light or Dark mode for the Original theme. */
+  mode: ThemeMode;
   /** The user's explicit override, if they have set one. */
   explicit: ThemeId | null;
   /** True while a change is being written back to Supabase. */
   saving: boolean;
   /** Pick a theme by hand. Persists to the profile. */
   setTheme: (id: ThemeId) => void;
+  /** Set light or dark mode. Persists to local storage. */
+  setMode: (mode: ThemeMode) => void;
   /** Drop the override and fall back to the questionnaire answer. */
   clearOverride: () => void;
   /**
@@ -58,7 +63,9 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
  */
 export const THEME_BOOTSTRAP_SCRIPT = `(function(){try{var t=localStorage.getItem(${JSON.stringify(
   STORAGE_KEY,
-)});if(t==="sunny"||t==="snowy"||t==="rainy"||t==="clay"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();`;
+)});var m=localStorage.getItem(${JSON.stringify(
+  MODE_STORAGE_KEY,
+)})||localStorage.getItem("wanderly-theme-mode");var sysDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;var isDark=m?m==="dark":sysDark;if(t==="sunny"||t==="snowy"||t==="rainy"||t==="clay"||!t){if(t)document.documentElement.setAttribute("data-theme",t);if((!t||t==="clay")&&isDark){document.documentElement.setAttribute("data-mode","dark");}}}catch(e){}})();`;
 
 /* ---------------------- the cached theme, as a store ---------------- */
 
@@ -78,9 +85,32 @@ function readCache(): ThemeId {
   }
 }
 
+function readModeCache(): ThemeMode {
+  try {
+    const raw =
+      window.localStorage.getItem(MODE_STORAGE_KEY) ||
+      window.localStorage.getItem("wanderly-theme-mode");
+    if (raw === "dark" || raw === "light") return raw;
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      return "dark";
+    }
+    return "light";
+  } catch {
+    return "light";
+  }
+}
+
 /** The server has no localStorage, so it always renders the default. */
 function readCacheOnServer(): ThemeId {
   return DEFAULT_THEME;
+}
+
+function readModeOnServer(): ThemeMode {
+  return "light";
 }
 
 function writeCache(theme: ThemeId) {
@@ -93,15 +123,29 @@ function writeCache(theme: ThemeId) {
   cacheListeners.forEach((listener) => listener());
 }
 
+function writeModeCache(mode: ThemeMode) {
+  try {
+    window.localStorage.setItem(MODE_STORAGE_KEY, mode);
+    window.localStorage.setItem("wanderly-theme-mode", mode);
+  } catch {}
+  cacheListeners.forEach((listener) => listener());
+}
+
 /* ---------------------------------------------------- the provider */
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const { user } = useSession();
 
-  const cached = useSyncExternalStore(
+  const cachedTheme = useSyncExternalStore(
     subscribeToCache,
     readCache,
     readCacheOnServer,
+  );
+
+  const mode = useSyncExternalStore(
+    subscribeToCache,
+    readModeCache,
+    readModeOnServer,
   );
 
   /**
@@ -126,17 +170,39 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Precedence: an active preview, then an unsaved local pick, then the
   // profile, then whatever was cached from last time.
-  const painted = preview ?? optimistic ?? fromProfile ?? cached;
+  const painted = preview ?? optimistic ?? fromProfile ?? cachedTheme;
+
+  /* Listen for OS system preference changes if user has no saved preference */
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const query = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => {
+      const saved =
+        window.localStorage.getItem(MODE_STORAGE_KEY) ||
+        window.localStorage.getItem("wanderly-theme-mode");
+      if (!saved) {
+        cacheListeners.forEach((listener) => listener());
+      }
+    };
+    query.addEventListener("change", handleChange);
+    return () => query.removeEventListener("change", handleChange);
+  }, []);
 
   /* The only place that touches the DOM. Writing an attribute on <html> is
      exactly the external-system synchronisation effects are for. */
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", painted);
 
+    if (painted === "clay" && mode === "dark") {
+      document.documentElement.setAttribute("data-mode", "dark");
+    } else {
+      document.documentElement.removeAttribute("data-mode");
+    }
+
     // A preview is not the user's theme, so it must not poison the cache —
     // otherwise abandoning the questionnaire half way would stick.
     if (preview === null) writeCache(painted);
-  }, [painted, preview]);
+  }, [painted, preview, mode]);
 
   const previewTheme = useCallback((id: ThemeId | null) => {
     setPreview(id);
@@ -158,6 +224,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     [user],
   );
 
+  const setMode = useCallback((newMode: ThemeMode) => {
+    writeModeCache(newMode);
+  }, []);
+
   const clearOverride = useCallback(() => {
     setPreview(null);
     setOverride(null);
@@ -170,13 +240,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       theme: painted,
+      mode,
       explicit,
       saving,
       setTheme,
+      setMode,
       clearOverride,
       previewTheme,
     }),
-    [painted, explicit, saving, setTheme, clearOverride, previewTheme],
+    [painted, mode, explicit, saving, setTheme, setMode, clearOverride, previewTheme],
   );
 
   return (
@@ -186,7 +258,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           animation. A soft wash makes the palette swap read as a change in
           light rather than an instant repaint — and needs no state to drive. */}
       <div
-        key={painted}
+        key={`${painted}-${painted === "clay" ? mode : "default"}`}
         aria-hidden
         className="clay-theme-wash pointer-events-none fixed inset-0 z-[60] bg-clay-bg"
       />
