@@ -27,6 +27,35 @@ import { useSession } from "@/lib/auth/session";
 import { formatInr, greetingFor } from "@/lib/data";
 import { formatRange, relativeDay } from "@/lib/dates";
 import { buildHistory } from "@/lib/history";
+import { useTheme } from "@/lib/theme/ThemeProvider";
+
+function DarkHeroMoon() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 0.95, scale: 1 }}
+      transition={{ duration: 1, ease: "easeOut" }}
+      className="pointer-events-none absolute right-6 top-6 sm:right-12 sm:top-8 lg:right-16 lg:top-10 z-0 flex items-center justify-center"
+    >
+      {/* Soft Moonlight Ambient Halo */}
+      <div className="absolute h-24 w-24 rounded-full bg-[#F4E8C8]/15 blur-xl" />
+
+      {/* Pure SVG Crescent Moon — Warm Ivory / Soft Cream (#F4E8C8) */}
+      <svg
+        width="52"
+        height="52"
+        viewBox="0 0 24 24"
+        fill="none"
+        className="relative text-[#F4E8C8] drop-shadow-[0_0_12px_rgba(244,232,200,0.4)]"
+      >
+        <path
+          d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+          fill="currentColor"
+        />
+      </svg>
+    </motion.div>
+  );
+}
 import { heroLine, topPick } from "@/lib/personalize";
 import { SCENE_BY_ID } from "@/components/ui/ClayIllustrations";
 import { TONES } from "@/lib/tones";
@@ -39,6 +68,8 @@ const readGreeting = () => greetingFor();
 const serverGreeting = () => "Good evening";
 
 export function HeroSection() {
+  const { theme, mode } = useTheme();
+  const isDark = theme === "clay" && mode === "dark";
   const greeting = useSyncExternalStore(
     subscribeToClock,
     readGreeting,
@@ -71,8 +102,9 @@ export function HeroSection() {
         depth="lg"
         className="relative overflow-hidden px-5 pb-6 pt-8 sm:px-8 sm:pb-8 sm:pt-10 lg:px-12 lg:py-12"
       >
-        {/* ---------------------------------------------- ambient clay blobs */}
+        {/* ---------------------------------------------- ambient clay blobs & dark moon */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {isDark && <DarkHeroMoon />}
           <motion.div
             {...breathe(1.08, 9)}
             className="absolute -left-24 -top-28 h-72 w-72 rounded-full bg-clay-blush opacity-45 blur-2xl"
@@ -83,9 +115,9 @@ export function HeroSection() {
           />
           <motion.div
             {...floatDrift(16, 6, 12)}
-            className="absolute right-6 top-8 hidden lg:block"
+            className="absolute right-8 top-36 hidden lg:block"
           >
-            <ClayCloud size={130} opacity={0.85} />
+            <ClayCloud size={120} opacity={0.75} />
           </motion.div>
           <motion.div
             {...floatDrift(12, 5, 9, 1.2)}
@@ -106,7 +138,7 @@ export function HeroSection() {
           <div>
             <motion.span
               variants={fadeUp}
-              className="inline-flex items-center gap-2 rounded-full bg-clay-butter px-4 py-2 font-body text-xs font-bold uppercase tracking-wider text-clay-ink shadow-clay-xs"
+              className="inline-flex items-center gap-2 rounded-full bg-clay-sunken/80 border border-clay-sky px-4 py-2 font-body text-xs font-bold uppercase tracking-wider text-clay-tangerine shadow-clay-xs"
             >
               <SparkIcon size={15} />
               AI assistant online
@@ -155,7 +187,7 @@ export function HeroSection() {
               <Link href="/explore">
                 <ClayButton
                   size="lg"
-                  tone="mint"
+                  tone="surface"
                   leftIcon={<PinIcon size={18} />}
                   sound="tap"
                 >
@@ -177,7 +209,7 @@ export function HeroSection() {
                 days={pick.destination.days}
                 rating={pick.destination.rating}
                 scene={SCENE_BY_ID[pick.destination.id] ?? "coast"}
-                hex={TONES[pick.destination.tone].hex}
+                hex={TONES[pick.destination.tone as keyof typeof TONES]?.hex ?? "#526B60"}
                 reason={pick.reasons[0] ?? "Highest rated"}
               />
             </motion.div>
@@ -191,13 +223,13 @@ export function HeroSection() {
           >
             <motion.div
               {...breathe(1.04, 6)}
-              className="absolute h-56 w-56 rounded-full bg-clay-peach opacity-60 shadow-clay-inset sm:h-72 sm:w-72"
+              className="absolute h-56 w-56 rounded-full bg-clay-sunken/60 border border-clay-sky/60 opacity-80 shadow-clay-xs sm:h-72 sm:w-72"
             />
             <RiveCharacter size={280} className="relative" />
 
             <motion.div
               {...floatY(10, 4.4, 0.6)}
-              className="absolute -right-1 top-4 rounded-clay-sm bg-clay-surface px-4 py-2.5 shadow-clay-sm sm:right-4"
+              className="absolute -right-1 top-4 rounded-clay-sm bg-clay-surface border border-clay-sky px-4 py-2.5 shadow-clay-sm sm:right-4"
             >
               <p className="font-display text-xs font-semibold text-clay-ink">
                 Next: {trip ? trip.country : pick.destination.name}
