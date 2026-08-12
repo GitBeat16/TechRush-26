@@ -407,3 +407,23 @@ export const BuildingIcon = (p: IconProps) => (
     <path d="M9 8h2M13 8h2M9 12h2M13 12h2M11 16v4" />
   </Base>
 );
+
+export const BookOpenIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+  </Base>
+);
+
+export const ArrowLeftIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M19 12H5M12 19l-7-7 7-7" />
+  </Base>
+);
+
+export const InfoIcon = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 16v-4M12 8h.01" />
+  </Base>
+);
