@@ -149,6 +149,7 @@ function Splash({ label = "Warming up the clay" }: { label?: string }) {
   return (
     <TripNestLoader
       fullScreen
+      sound
       size="lg"
       label={label}
       sublabel="Every trip needs a nest to come home to"

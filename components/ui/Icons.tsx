@@ -421,6 +421,14 @@ export const ArrowLeftIcon = (p: IconProps) => (
   </Base>
 );
 
+export const LogoutIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M15 17l5-5-5-5" />
+    <path d="M20 12H9" />
+    <path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6" />
+  </Base>
+);
+
 export const InfoIcon = (p: IconProps) => (
   <Base {...p}>
     <circle cx="12" cy="12" r="10" />

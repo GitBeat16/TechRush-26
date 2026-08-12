@@ -46,19 +46,29 @@ function rowToComment(row: CommentRow): PhotoDumpComment {
 }
 
 function rowToDump(
+  supabase: SupabaseClient,
   row: PhotoDumpRow,
   likeCount: number,
   likedByMe: boolean,
   savedByMe: boolean,
   comments: CommentRow[],
 ): PhotoDump {
+  const imagesWithUrls = (row.images ?? []).map((img) => {
+    if (img.url) return img;
+    if (img.path.startsWith("local/")) return img; // already fallback or broken
+    
+    // Attempt to hydrate url from path
+    const { data } = supabase.storage.from("photo_dumps").getPublicUrl(img.path);
+    return { ...img, url: data.publicUrl };
+  });
+
   return {
     id: row.id,
     tripId: row.trip_id,
     ownerId: row.owner_id,
     ownerName: row.owner_name,
     ownerAvatarId: row.owner_avatar_id ?? undefined,
-    images: row.images ?? [],
+    images: imagesWithUrls,
     caption: row.caption,
     location: row.location,
     takenOn: row.taken_on,
@@ -124,6 +134,7 @@ export async function listPhotoDumps(
 
   return dumps.map((dump) =>
     rowToDump(
+      supabase,
       dump,
       likeCounts.get(dump.id) ?? 0,
       likedByViewer.has(dump.id),
@@ -191,7 +202,7 @@ export async function createPhotoDump(
     return null;
   }
 
-  return rowToDump(data, 0, false, false, []);
+  return rowToDump(supabase, data, 0, false, false, []);
 }
 
 /** Deletes the row and returns the storage paths that should be removed with it. */

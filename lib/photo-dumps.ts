@@ -8,7 +8,7 @@ import type { NewPhotoDump, PhotoDump, PhotoDumpComment, PhotoDumpImage } from "
 /* Photo dumps — client side                                           */
 /* ------------------------------------------------------------------ */
 
-const BUCKET = "photo-dumps";
+const BUCKET = "photo_dumps";
 
 function slugify(filename: string): string {
   const dot = filename.lastIndexOf(".");

@@ -9,6 +9,7 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import { feedback, whenAudible } from "@/lib/feedback";
 
 /* ------------------------------------------------------------------
    TripNest loader
@@ -355,8 +356,17 @@ export interface TripNestLoaderProps {
   size?: keyof typeof SIZES;
   /** Seconds for one pass across the sky. */
   loopSeconds?: number;
+  /**
+   * Whoosh in, propeller out. For splash screens — and worth setting even
+   * though the intro overlay also asks for it, because the shell's splash is
+   * often the first one that can *actually* be heard: it follows a click.
+   */
+  sound?: boolean;
   className?: string;
 }
+
+/** The shell's splash is brief, so its flight is brief to match. */
+const SPLASH_FLIGHT_SECONDS = 1;
 
 export function TripNestLoader({
   label = "Getting things ready",
@@ -364,8 +374,10 @@ export function TripNestLoader({
   fullScreen = false,
   size = "md",
   loopSeconds = DEFAULT_LOOP_SECONDS,
+  sound = false,
   className = "",
 }: TripNestLoaderProps) {
+  useFlightSound(sound, SPLASH_FLIGHT_SECONDS);
   const caption = <Caption label={label} sublabel={sublabel} size={size} />;
 
   if (fullScreen) {
@@ -397,6 +409,61 @@ export function TripNestLoader({
       {caption}
     </div>
   );
+}
+
+/* ------------------------------------------------------------------ */
+/* Sound                                                               */
+/*                                                                     */
+/* The flight, scored: a whoosh of air as the aeroplane sweeps in, and */
+/* the propeller chopping as it climbs out of the far corner. The two  */
+/* are scheduled as a pair against the length of the pass, so the      */
+/* blades always land just before the screen leaves rather than at     */
+/* some fixed offset that may or may not still be on screen.           */
+/*                                                                     */
+/* Everything here is subject to autoplay policy: a browser will not   */
+/* make a sound until the visitor has interacted with the page, and    */
+/* the intro is precisely the moment we have not. So it waits for the  */
+/* first gesture, recomputes what is left of the flight, and plays the */
+/* remainder — or drops it, if the screen is nearly gone.              */
+/* ------------------------------------------------------------------ */
+
+/** Blades in this long before the end, so they finish as it fades. */
+const PROPELLER_LEAD = 0.62;
+/** Below this there is not enough runway left to be worth starting. */
+const MIN_RUNWAY = 0.7;
+
+/** Once per page load — the splash can mount twice under strict mode. */
+let flightPlayed = false;
+
+/**
+ * Score a flight of `durationSeconds`. Call from whatever is showing the sky.
+ */
+export function useFlightSound(enabled: boolean, durationSeconds: number) {
+  useEffect(() => {
+    if (!enabled || flightPlayed) return;
+
+    const startedAt = performance.now();
+
+    const cancelIfUnheard = whenAudible(() => {
+      // Two sky screens can be queued at once — the intro overlay sits on top
+      // of the shell's own splash on a cold load. First one to be heard wins.
+      if (flightPlayed) return;
+
+      /* Audio may unlock part-way through — the visitor clicked two seconds
+         into the intro — so the pair is timed against what is actually left
+         of the flight, not against when it began. */
+      const remaining =
+        durationSeconds - (performance.now() - startedAt) / 1000;
+      if (remaining < MIN_RUNWAY) return;
+
+      flightPlayed = true;
+      feedback("takeoff");
+      // Scheduled on the audio clock, not a timer, so the handoff is exact.
+      feedback("propeller", Math.max(remaining - PROPELLER_LEAD, 0.34));
+    });
+
+    return cancelIfUnheard;
+  }, [enabled, durationSeconds]);
 }
 
 function Caption({
