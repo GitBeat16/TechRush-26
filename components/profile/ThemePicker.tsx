@@ -23,7 +23,7 @@ const AMBIENCE_ICON: Record<AmbienceKind, typeof SunIcon> = {
  * answer from onboarding; picking one here pins it until the user resets.
  */
 export function ThemePicker() {
-  const { theme, explicit, saving, setTheme, clearOverride, mode, setMode } = useTheme();
+  const { theme, explicit, saving, setTheme, clearOverride } = useTheme();
   const { user } = useSession();
   const { play } = useFeedback();
 
@@ -91,51 +91,6 @@ export function ThemePicker() {
           </motion.div>
         ))}
       </motion.div>
-
-
-      {/* Light / Dark Mode selector — available for all themes */}
-      <motion.div variants={fadeUp} className="mt-6 pt-5 border-t border-clay-sky space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h3 className="font-display text-sm font-bold text-clay-ink leading-tight">
-                Appearance Mode
-              </h3>
-              <p className="font-body text-xs text-clay-ink-soft">
-                Switch between day and night atmosphere
-              </p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                play("tap");
-                setMode("light");
-              }}
-              className={`flex items-center justify-center gap-2 rounded-clay-sm p-3 font-display text-sm font-bold transition-all ${
-                mode === "light"
-                  ? "bg-clay-surface border-2 border-clay-tangerine text-clay-tangerine shadow-clay-xs"
-                  : "bg-clay-sunken/80 border border-clay-sky text-clay-ink-soft hover:text-clay-ink"
-              }`}
-            >
-              <span>☀ Light</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                play("tap");
-                setMode("dark");
-              }}
-              className={`flex items-center justify-center gap-2 rounded-clay-sm p-3 font-display text-sm font-bold transition-all ${
-                mode === "dark"
-                  ? "bg-clay-surface border-2 border-clay-tangerine text-clay-tangerine shadow-clay-xs"
-                  : "bg-clay-sunken/80 border border-clay-sky text-clay-ink-soft hover:text-clay-ink"
-              }`}
-            >
-              <span>🌙 Dark</span>
-            </button>
-          </div>
-        </motion.div>
 
 
       <p className="mt-4 font-body text-xs text-clay-muted">

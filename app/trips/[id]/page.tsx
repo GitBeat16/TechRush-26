@@ -8,12 +8,14 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { ItineraryBuilder } from "@/components/trip/ItineraryBuilder";
 import { BudgetTracker } from "@/components/trip/BudgetTracker";
 import { CompanionPicker } from "@/components/trip/CompanionPicker";
+import { PhotoDumpFeed } from "@/components/trip/PhotoDumpFeed";
 import { PackingChecklist } from "@/components/Dashboard/PackingChecklist";
 import { ClayCard } from "@/components/ui/ClayCard";
 import { ClayButton } from "@/components/ui/ClayButton";
 import { ClayScene, SCENE_BY_ID } from "@/components/ui/ClayIllustrations";
 import {
   CalendarIcon,
+  CameraIcon,
   CheckIcon,
   ReceiptIcon,
   SparkIcon,
@@ -25,6 +27,7 @@ import {
 import { fadeUp, springSnappy, springSoft, stagger } from "@/lib/animations";
 import { TONES } from "@/lib/tones";
 import { useFeedback } from "@/lib/feedback";
+import { FLIPBOOK_DATA } from "@/data/flipbookData";
 import {
   actions,
   packedRatio,
@@ -37,13 +40,14 @@ import { formatInr } from "@/lib/data";
 import { formatDateShort, formatRange } from "@/lib/dates";
 import type { Trip } from "@/types/dashboard";
 
-type Tab = "overview" | "itinerary" | "packing" | "budget";
+type Tab = "overview" | "itinerary" | "packing" | "budget" | "memories";
 
 const TABS: { id: Tab; label: string; icon: typeof SparkIcon }[] = [
   { id: "overview", label: "Overview", icon: SparkIcon },
   { id: "itinerary", label: "Itinerary", icon: CalendarIcon },
   { id: "packing", label: "Packing", icon: SuitcaseIcon },
-  { id: "budget", label: "Budget", icon: WalletIcon },
+  { id: "budget", label: "Splitter", icon: WalletIcon },
+  { id: "memories", label: "Memories", icon: CameraIcon },
 ];
 
 export default function TripDetailPage() {
@@ -69,6 +73,7 @@ export default function TripDetailPage() {
   }
 
   const scene = SCENE_BY_ID[trip.destinationId] ?? "coast";
+  const coverImage = FLIPBOOK_DATA[trip.destinationId]?.coverImage;
 
   return (
     <div className="space-y-6">
@@ -85,8 +90,12 @@ export default function TripDetailPage() {
         <motion.div variants={fadeUp}>
           <ClayCard tone={trip.tone} radius="xl" depth="lg" className="overflow-hidden p-3">
             <div className="grid gap-4 sm:grid-cols-[minmax(0,14rem)_1fr] sm:items-center">
-              <div className="h-36 overflow-hidden rounded-clay shadow-clay-inset-sm sm:h-40">
-                <ClayScene kind={scene} base={TONES[trip.tone].hex} className="h-full w-full" />
+              <div className="h-36 overflow-hidden rounded-clay shadow-clay-inset-sm sm:h-40 bg-clay-sunken">
+                {coverImage ? (
+                  <img src={coverImage} alt={trip.title} className="h-full w-full object-cover" />
+                ) : (
+                  <ClayScene kind={scene} base={TONES[trip.tone].hex} className="h-full w-full" />
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-2.5 p-2 sm:grid-cols-4">
@@ -149,6 +158,7 @@ export default function TripDetailPage() {
           {tab === "itinerary" && <ItineraryBuilder trip={trip} />}
           {tab === "packing" && <PackingChecklist trip={trip} />}
           {tab === "budget" && <BudgetTracker trip={trip} />}
+          {tab === "memories" && <PhotoDumpFeed trip={trip} />}
         </motion.div>
       </AnimatePresence>
     </div>

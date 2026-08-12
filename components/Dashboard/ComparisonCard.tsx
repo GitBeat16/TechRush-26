@@ -17,6 +17,7 @@ import {
 import { TONES } from "@/lib/tones";
 import { useFeedback } from "@/lib/feedback";
 import { COMPARISON_CANDIDATES } from "@/lib/data";
+import { FLIPBOOK_DATA } from "@/data/flipbookData";
 import type { ComparisonCandidate, MetricKind } from "@/types/dashboard";
 
 /** Lower raw score wins for budget and travel difficulty. */
@@ -260,6 +261,7 @@ function Picker({
   const selected =
     candidates.find((c) => c.id === selectedId) ?? candidates[0];
   const scene = SCENE_BY_ID[selected.id] ?? "coast";
+  const coverImage = FLIPBOOK_DATA[selected.id]?.coverImage;
 
   return (
     <motion.div layout transition={springSoft}>
@@ -270,12 +272,16 @@ function Picker({
         className="overflow-hidden p-3"
       >
         <div className="flex items-center gap-3">
-          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-clay-sm shadow-clay-xs">
-            <ClayScene
-              kind={scene}
-              base={TONES[selected.tone].hex}
-              className="h-full w-full"
-            />
+          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-clay-sm shadow-clay-xs bg-clay-sunken">
+            {coverImage ? (
+              <img src={coverImage} alt={selected.name} className="h-full w-full object-cover" />
+            ) : (
+              <ClayScene
+                kind={scene}
+                base={TONES[selected.tone].hex}
+                className="h-full w-full"
+              />
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <p className="font-body text-[10px] font-extrabold uppercase tracking-wider text-clay-ink-soft">

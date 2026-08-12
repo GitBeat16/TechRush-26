@@ -4,13 +4,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import Image from "next/image";
 import { ClayCard } from "@/components/ui/ClayCard";
+import { ClayAvatar } from "@/components/ui/ClayAvatar";
 import { 
   HeartIcon, 
   MapPinIcon, 
   TrashIcon, 
   UserIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ChatIcon,
+  ShareIcon,
+  BookmarkIcon
 } from "@/components/ui/Icons";
 import { 
   togglePhotoDumpLike, 
@@ -118,9 +122,11 @@ export function PhotoDumpCard({
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-clay-muted/15">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-clay-sunken flex items-center justify-center text-clay-muted">
-             <UserIcon className="h-4 w-4" />
-          </div>
+          <ClayAvatar 
+            id={dump.ownerAvatarId} 
+            initials={dump.ownerName ? dump.ownerName.slice(0, 2).toUpperCase() : "TR"} 
+            size={32} 
+          />
           <div className="flex flex-col">
             <span className="font-display text-sm font-semibold text-clay-ink">
               {dump.ownerName || "Traveler"}
@@ -225,9 +231,15 @@ export function PhotoDumpCard({
               <HeartIcon className={`h-6 w-6 transition-colors ${dump.likedByMe ? 'text-clay-blush' : 'text-clay-ink-soft group-hover:text-clay-blush'}`} />
               {dump.likeCount > 0 && <span className="font-body text-xs font-semibold">{dump.likeCount}</span>}
             </button>
+            <button className="flex items-center gap-1 group">
+              <ChatIcon className="h-6 w-6 transition-colors text-clay-ink-soft hover:text-clay-ink" />
+            </button>
+            <button className="flex items-center gap-1 group">
+              <ShareIcon className="h-6 w-6 transition-colors text-clay-ink-soft hover:text-clay-ink" />
+            </button>
           </div>
           <button onClick={handleSave}>
-            <HeartIcon className={`h-6 w-6 transition-colors ${dump.savedByMe ? 'text-clay-ink' : 'text-clay-ink-soft hover:text-clay-ink'}`} />
+            <BookmarkIcon className={`h-6 w-6 transition-colors ${dump.savedByMe ? 'text-clay-ink' : 'text-clay-ink-soft hover:text-clay-ink'}`} />
           </button>
         </div>
 

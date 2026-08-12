@@ -17,16 +17,8 @@ import { TONES } from "@/lib/tones";
 import type { Destination } from "@/types/dashboard";
 
 function HoverShuffleImage({ destination, isHovered }: { destination: Destination, isHovered: boolean }) {
-  const [images, setImages] = useState<{ url: string; label: string }[]>([]);
+  const images = useMemo(() => getDestinationShuffleImages(destination.id, destination.name), [destination.id, destination.name]);
   const [imageIndex, setImageIndex] = useState(0);
-
-  useEffect(() => {
-    const fetchedImages = getDestinationShuffleImages(destination.id, destination.name);
-    if (fetchedImages.length > 0) {
-      setImages(fetchedImages);
-      setImageIndex(0);
-    }
-  }, [destination.id, destination.name]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;

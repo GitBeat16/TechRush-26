@@ -68,8 +68,8 @@ interface Palette {
   ink: string;
 }
 
-function readPalette(isDark: boolean): Palette {
-  if (isDark) {
+function readPalette(isClayDark: boolean, mode: string): Palette {
+  if (isClayDark) {
     return {
       ocean: "#131D2A",        // Dark Navy / Blue-Gray ocean surface
       oceanDeep: "#0C131D",    // Deep Navy rim (soft cool depth, NO GOLD)
@@ -89,9 +89,11 @@ function readPalette(isDark: boolean): Palette {
   const read = (name: string, fallback: string) =>
     styles.getPropertyValue(name).trim() || fallback;
 
+  const isDarkMode = mode === "dark";
+
   return {
-    ocean: read("--color-clay-sky", "#c3dcfb"),
-    oceanDeep: read("--color-clay-ocean", "#8fb6ee"),
+    ocean: isDarkMode ? read("--color-clay-ocean", "#c3dcfb") : read("--color-clay-sky", "#c3dcfb"),
+    oceanDeep: isDarkMode ? read("--color-clay-bg-deep", "#8fb6ee") : read("--color-clay-ocean", "#8fb6ee"),
     land: read("--color-clay-surface", "#fbf4ec"),
     landEdge: read("--color-clay-bg-deep", "#e9dcce"),
     visited: read("--color-clay-jade", "#7fcfae"),
@@ -223,8 +225,10 @@ export function TravelGlobe() {
     const canvas = canvasRef.current;
     if (!canvas || world.status !== "ready") return;
 
-    const isDark = theme === "clay" && mode === "dark";
-    const palette = readPalette(isDark);
+    const isDark = mode === "dark";
+    const isClayDark = theme === "clay" && isDark;
+    let palette = readPalette(isClayDark, mode);
+    let pendingPaletteUpdate = true;
 
     const context = canvas.getContext("2d");
     if (!context) return;
@@ -252,6 +256,11 @@ export function TravelGlobe() {
     let last = performance.now();
 
     const draw = (now: number) => {
+      if (pendingPaletteUpdate) {
+        palette = readPalette(isClayDark, mode);
+        pendingPaletteUpdate = false;
+      }
+
       const elapsed = Math.min((now - last) / 1000, 0.05);
       last = now;
 
