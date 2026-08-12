@@ -68,15 +68,28 @@ interface Palette {
   ink: string;
 }
 
-function readPalette(): Palette {
+function readPalette(isDark: boolean): Palette {
+  if (isDark) {
+    return {
+      ocean: "#131D2A",        // Dark Navy / Blue-Gray ocean surface
+      oceanDeep: "#0C131D",    // Deep Navy rim (soft cool depth, NO GOLD)
+      land: "#1E2B3A",         // Muted Slate / Blue-Gray landmass (clearly lighter than ocean)
+      landEdge: "#15202D",     // Soft lip under landmass
+      visited: "#C9A96E",      // Champagne Gold highlight for visited countries
+      visitedEdge: "#3A4B5E",  // Slate edge for planned countries
+      graticule: "rgba(255, 255, 255, 0.12)", // Soft neutral meridian lines
+      pin: "#C9A96E",          // Champagne Gold pin marker
+      planned: "#C9A96E",      // Champagne Gold planned pin marker
+      pinRing: "#1E2B3A",      // Slate pin ring
+      ink: "#F5F1E8",          // Warm Off-White ink
+    };
+  }
+
   const styles = getComputedStyle(document.documentElement);
   const read = (name: string, fallback: string) =>
     styles.getPropertyValue(name).trim() || fallback;
 
   return {
-    // The ocean carries the theme colour and the land is the pale surface
-    // tone. The other way round leaves almost no contrast in the cooler
-    // themes, where the background and the deep background are neighbours.
     ocean: read("--color-clay-sky", "#c3dcfb"),
     oceanDeep: read("--color-clay-ocean", "#8fb6ee"),
     land: read("--color-clay-surface", "#fbf4ec"),
@@ -126,7 +139,7 @@ interface Marker {
 
 export function TravelGlobe() {
   const { trips } = useAppState();
-  const { theme } = useTheme();
+  const { theme, mode } = useTheme();
   const { play } = useFeedback();
 
   const history = useMemo(() => buildHistory(trips), [trips]);
@@ -210,10 +223,8 @@ export function TravelGlobe() {
     const canvas = canvasRef.current;
     if (!canvas || world.status !== "ready") return;
 
-    // Read straight from CSS rather than mirroring it into state: `theme` is
-    // in the dependency list, so a palette swap re-runs this effect and picks
-    // up the new variables without an extra render pass.
-    const palette = readPalette();
+    const isDark = theme === "clay" && mode === "dark";
+    const palette = readPalette(isDark);
 
     const context = canvas.getContext("2d");
     if (!context) return;
@@ -342,7 +353,7 @@ export function TravelGlobe() {
       const lip = context.createLinearGradient(0, centre - radius, 0, centre + radius);
       lip.addColorStop(0, "rgba(255,255,255,0.18)");
       lip.addColorStop(0.5, "rgba(255,255,255,0)");
-      lip.addColorStop(1, "rgba(74,58,48,0.12)");
+      lip.addColorStop(1, isDark ? "rgba(0,0,0,0.25)" : "rgba(30,41,59,0.08)");
       context.fillStyle = lip;
       context.fillRect(0, 0, SIZE, SIZE);
       context.restore();
@@ -409,7 +420,7 @@ export function TravelGlobe() {
       );
       shade.addColorStop(0, "rgba(255,255,255,0.12)");
       shade.addColorStop(0.6, "rgba(255,255,255,0)");
-      shade.addColorStop(1, "rgba(74,58,48,0.22)");
+      shade.addColorStop(1, isDark ? "rgba(0,0,0,0.35)" : "rgba(30,41,59,0.12)");
 
       context.beginPath();
       context.arc(centre, centre, radius, 0, Math.PI * 2);
@@ -465,7 +476,7 @@ export function TravelGlobe() {
         // above the globe rather than painted onto it.
         context.beginPath();
         context.ellipse(point.x, point.y + 2, size * 0.62, size * 0.24, 0, 0, Math.PI * 2);
-        context.fillStyle = "rgba(74,58,48,0.18)";
+        context.fillStyle = isDark ? "rgba(0,0,0,0.30)" : "rgba(30,41,59,0.10)";
         context.globalAlpha = drop;
         context.fill();
         context.globalAlpha = 1;
@@ -515,6 +526,7 @@ export function TravelGlobe() {
     return () => cancelAnimationFrame(frame);
   }, [
     theme,
+    mode,
     world,
     visitedCountries,
     plannedCountries,

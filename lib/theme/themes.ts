@@ -9,7 +9,7 @@ import type { ThemeDefinition, ThemeId } from "@/types/theme";
 export const THEMES: Record<ThemeId, ThemeDefinition> = {
   clay: {
     id: "clay",
-    label: "Terracotta",
+    label: "Original",
     hint: "The original warm clay",
     ambience: "none",
     swatch: ["#f1e7dc", "#ffd7b3", "#f9b384"],
