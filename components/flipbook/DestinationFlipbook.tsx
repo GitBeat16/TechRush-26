@@ -339,7 +339,7 @@ export function DestinationFlipbook({ destination }: DestinationFlipbookProps) {
             {isFlipping && flipRequest?.dir === "forward" && (
               <>
                 <div
-                  className="flipbook-static-right flipbook-paper-texture"
+                  className="flipbook-static-right flipbook-paper-texture flipbook-revealed"
                   style={{ zIndex: 3, ...(isMobile ? { left: 0, width: "100%" } : {}) }}
                 >
                   <div className="flipbook-page-content">
@@ -347,7 +347,7 @@ export function DestinationFlipbook({ destination }: DestinationFlipbookProps) {
                   </div>
                 </div>
                 {!isMobile && (
-                  <div className="flipbook-static-left flipbook-paper-texture" style={{ zIndex: 3 }}>
+                  <div className="flipbook-static-left flipbook-paper-texture flipbook-revealed" style={{ zIndex: 3 }}>
                     <div className="flipbook-page-content">
                       {renderPage(flippedCount * 2 + 1)}
                     </div>
@@ -360,7 +360,7 @@ export function DestinationFlipbook({ destination }: DestinationFlipbookProps) {
             {isFlipping && flipRequest?.dir === "backward" && (
               <>
                 <div
-                  className="flipbook-static-right flipbook-paper-texture"
+                  className="flipbook-static-right flipbook-paper-texture flipbook-revealed"
                   style={{ zIndex: 3, ...(isMobile ? { left: 0, width: "100%" } : {}) }}
                 >
                   <div className="flipbook-page-content">
@@ -368,7 +368,7 @@ export function DestinationFlipbook({ destination }: DestinationFlipbookProps) {
                   </div>
                 </div>
                 {!isMobile && flippedCount >= 2 && (
-                  <div className="flipbook-static-left flipbook-paper-texture" style={{ zIndex: 3 }}>
+                  <div className="flipbook-static-left flipbook-paper-texture flipbook-revealed" style={{ zIndex: 3 }}>
                     <div className="flipbook-page-content">
                       {renderPage((flippedCount - 2) * 2 + 1)}
                     </div>

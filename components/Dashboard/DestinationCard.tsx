@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ClayCard } from "@/components/ui/ClayCard";
@@ -24,7 +24,7 @@ import {
 import { TONES } from "@/lib/tones";
 import { useFeedback } from "@/lib/feedback";
 import { actions, useSavedDestinations } from "@/lib/store";
-import { DESTINATIONS, formatInr } from "@/lib/data";
+import { DESTINATIONS, formatInr, getDestinationShuffleImages } from "@/lib/data";
 import type { Destination } from "@/types/dashboard";
 
 export interface DestinationCardProps {
@@ -37,7 +37,31 @@ export function DestinationCard({ destination, fluid = false }: DestinationCardP
   const { play } = useFeedback();
   const { isSaved } = useSavedDestinations();
   const saved = isSaved(destination.id);
-  const scene = SCENE_BY_ID[destination.id] ?? "coast";
+  const [images, setImages] = useState<{ url: string; label: string }[]>([]);
+  const [imageIndex, setImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    const fetchedImages = getDestinationShuffleImages(destination.id, destination.name);
+    if (fetchedImages.length > 0) {
+      setImages(fetchedImages);
+      setImageIndex(0);
+    }
+  }, [destination.id, destination.name]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isHovered && images.length > 1) {
+      interval = setInterval(() => {
+        setImageIndex((current) => (current + 1) % images.length);
+      }, 2500);
+    } else {
+      setImageIndex(0);
+    }
+    return () => clearInterval(interval);
+  }, [isHovered, images.length]);
+
+  const imageObj = images.length > 0 ? images[imageIndex] : undefined;
 
   return (
     <motion.div
@@ -52,9 +76,35 @@ export function DestinationCard({ destination, fluid = false }: DestinationCardP
         onHoverStart={() => play("pop")}
         className="group h-full overflow-hidden p-3"
       >
-        <div className="relative h-40 overflow-hidden rounded-clay shadow-clay-inset-sm sm:h-44">
-          <motion.div whileHover={{ scale: 1.08 }} transition={springSoft} className="h-full w-full">
-            <ClayScene kind={scene} base={TONES[destination.tone].hex} className="h-full w-full" />
+        <div 
+          className="relative w-full aspect-[4/3] overflow-hidden rounded-clay shadow-clay-inset-sm bg-clay-surface/50"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <motion.div whileHover={{ scale: 1.08 }} transition={springSoft} className="h-full w-full relative">
+            {imageObj ? (
+              <div className="relative h-full w-full overflow-hidden">
+                <AnimatePresence initial={false}>
+                  <motion.img
+                    key={imageIndex}
+                    src={imageObj.url}
+                    alt={imageObj.label}
+                    initial={{ x: "100%" }}
+                    animate={{ x: 0 }}
+                    exit={{ x: "-100%" }}
+                    transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                </AnimatePresence>
+                <div className="absolute bottom-2 right-4 z-20 max-w-[90%] rounded-md bg-clay-ink/40 px-2 py-0.5 backdrop-blur-md">
+                  <span className="line-clamp-2 font-display text-[10px] font-bold uppercase tracking-wider text-white">
+                    {imageObj.label}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <ClayScene kind={SCENE_BY_ID[destination.id] ?? "coast"} base={TONES[destination.tone].hex} className="h-full w-full" />
+            )}
           </motion.div>
 
           <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-clay-surface/95 px-2.5 py-1 font-body text-[11px] font-bold shadow-clay-xs">
@@ -124,6 +174,13 @@ export function DestinationCard({ destination, fluid = false }: DestinationCardP
             </p>
             <div className="flex items-center gap-1.5">
               <Link
+                href={`/destinations/${destination.id}`}
+                onClick={() => play("nav")}
+                className="rounded-full bg-clay-rose px-2.5 py-1 font-body text-[11px] font-bold text-white shadow-clay-xs transition-shadow hover:shadow-clay-sm"
+              >
+                Magazine
+              </Link>
+              <Link
                 href="/budget"
                 onClick={() => play("nav")}
                 className="rounded-full bg-clay-mint px-2.5 py-1 font-body text-[11px] font-bold text-clay-ink shadow-clay-xs transition-shadow hover:shadow-clay-sm"
@@ -134,7 +191,7 @@ export function DestinationCard({ destination, fluid = false }: DestinationCardP
               <Link
                 href={`/plan?destination=${encodeURIComponent(destination.name)}`}
                 onClick={() => play("nav")}
-                className="rounded-full bg-clay-butter px-3 py-1 font-body text-[11px] font-bold shadow-clay-xs transition-shadow hover:shadow-clay-sm"
+                className="rounded-full bg-clay-butter px-3 py-1 font-body text-[11px] font-bold text-clay-ink shadow-clay-xs transition-shadow hover:shadow-clay-sm"
               >
                 Plan this
               </Link>

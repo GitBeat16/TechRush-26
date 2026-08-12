@@ -65,7 +65,7 @@ export const THEME_BOOTSTRAP_SCRIPT = `(function(){try{var t=localStorage.getIte
   STORAGE_KEY,
 )});var m=localStorage.getItem(${JSON.stringify(
   MODE_STORAGE_KEY,
-)})||localStorage.getItem("wanderly-theme-mode");var sysDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;var isDark=m?m==="dark":sysDark;if(t==="sunny"||t==="snowy"||t==="rainy"||t==="clay"||!t){if(t)document.documentElement.setAttribute("data-theme",t);if(!t||t==="clay"){document.documentElement.setAttribute("data-mode",isDark?"dark":"light");}}}catch(e){}})();`;
+)})||localStorage.getItem("wanderly-theme-mode");var sysDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;var isDark=m?m==="dark":sysDark;if(t==="sunny"||t==="snowy"||t==="rainy"||t==="clay"||!t){if(t)document.documentElement.setAttribute("data-theme",t);document.documentElement.setAttribute("data-mode",isDark?"dark":"light");}}catch(e){}})();`;
 
 /* ---------------------- the cached theme, as a store ---------------- */
 
@@ -192,12 +192,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
      exactly the external-system synchronisation effects are for. */
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", painted);
-
-    if (painted === "clay") {
-      document.documentElement.setAttribute("data-mode", mode);
-    } else {
-      document.documentElement.removeAttribute("data-mode");
-    }
+    document.documentElement.setAttribute("data-mode", mode);
 
     // A preview is not the user's theme, so it must not poison the cache —
     // otherwise abandoning the questionnaire half way would stick.

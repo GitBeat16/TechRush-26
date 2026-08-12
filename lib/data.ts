@@ -3,6 +3,7 @@ import type {
   Destination,
   TravelStyle,
 } from "@/types/dashboard";
+import { FLIPBOOK_DATA, type FlipbookPlace } from "@/data/flipbookData";
 
 /**
  * Static reference data only.
@@ -165,4 +166,29 @@ export function greetingFor(date = new Date()): string {
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
+}
+
+export function getDestinationImages(destinationId: string): string[] {
+  const data = FLIPBOOK_DATA[destinationId];
+  if (!data) return [];
+  return [data.coverImage, ...data.places.map(p => p.image)].filter(Boolean);
+}
+
+export function getDestinationShuffleImages(destinationId: string, destinationName: string): { url: string; label: string }[] {
+  const data = FLIPBOOK_DATA[destinationId];
+  if (!data) return [];
+  const images: { url: string; label: string }[] = [];
+  if (data.coverImage) {
+    images.push({ url: data.coverImage, label: destinationName });
+  }
+  data.places.forEach(p => {
+    if (p.image) {
+      images.push({ url: p.image, label: p.name });
+    }
+  });
+  return images;
+}
+
+export function getDestinationPlaces(destinationId: string): FlipbookPlace[] {
+  return FLIPBOOK_DATA[destinationId]?.places || [];
 }

@@ -10,9 +10,12 @@ import { THEMES } from "@/lib/theme/themes";
 /* Ambient weather layer                                               */
 /*                                                                     */
 /* Sits behind the whole app. Three soft breathing blobs are always     */
-/* there — they just take their colour from the theme. On top of that,  */
+/* there — they just take their colour from the theme. On top of that, */
 /* each weather theme adds its own particle system, driven entirely by  */
 /* CSS keyframes on transform/opacity so nothing hits the main thread.  */
+/*                                                                     */
+/* In dark mode, each weather theme gets a distinct nighttime           */
+/* atmosphere — stars, moon glow, drifting clouds, or lightning.        */
 /* ------------------------------------------------------------------ */
 
 /**
@@ -60,7 +63,7 @@ function field(count: number, seed: number, config: {
   });
 }
 
-/* ------------------------------------------------ Dark Mode Fireflies */
+/* ------------------------------------------------ Dark Mode Fireflies (Clay theme) */
 interface Firefly {
   left: number;
   top: number;
@@ -82,277 +85,30 @@ interface Firefly {
  * - Zone 4 (Background): 4 fireflies in distant ambient background layer
  */
 const FIREFLIES: Firefly[] = [
-  // =========================================================================
   // ZONE 1: PRIMARY HERO CARD ZONE (9 Fireflies surrounding main hero area)
-  // =========================================================================
-  {
-    // Floating ~35px Above Headline
-    left: 28,
-    top: 4,
-    size: 8,
-    duration: 6.8,
-    delay: 0.8,
-    tier: "primary",
-    zone: "hero",
-    yPath: [0, -18, 12, 0],
-    xPath: [0, 10, -10, 0],
-    opacityPath: [0.55, 1, 0.85, 0.55],
-  },
-  {
-    // Floating ~40px Above AI Badge
-    left: 14,
-    top: 6,
-    size: 7,
-    duration: 8.2,
-    delay: 2.1,
-    tier: "primary",
-    zone: "hero",
-    yPath: [0, -16, 14, 0],
-    xPath: [0, -9, 8, 0],
-    opacityPath: [0.55, 0.95, 0.8, 0.55],
-  },
-  {
-    // Framing Top-Right Outer Rim of Moon SVG
-    left: 89,
-    top: 7,
-    size: 9,
-    duration: 6.2,
-    delay: 0.3,
-    tier: "primary",
-    zone: "hero",
-    yPath: [0, -20, 10, 0],
-    xPath: [0, 12, -8, 0],
-    opacityPath: [0.6, 1, 0.9, 0.6],
-  },
-  {
-    // Upper-Right Side Gap of Hero Box
-    left: 92,
-    top: 14,
-    size: 7,
-    duration: 7.5,
-    delay: 1.6,
-    tier: "primary",
-    zone: "hero",
-    yPath: [0, 14, -16, 0],
-    xPath: [0, -11, 9, 0],
-    opacityPath: [0.55, 0.98, 0.88, 0.55],
-  },
-  {
-    // Left Negative Space Outside Hero Box
-    left: 4,
-    top: 18,
-    size: 8,
-    duration: 7.0,
-    delay: 0.5,
-    tier: "primary",
-    zone: "hero",
-    yPath: [0, -14, 15, 0],
-    xPath: [0, 11, -7, 0],
-    opacityPath: [0.55, 1, 0.9, 0.55],
-  },
-  {
-    // Left-Middle Gap between AI badge and buttons
-    left: 20,
-    top: 22,
-    size: 5,
-    duration: 8.6,
-    delay: 2.5,
-    tier: "medium",
-    zone: "hero",
-    yPath: [0, 10, -8, 0],
-    xPath: [0, -6, 7, 0],
-    opacityPath: [0.32, 0.85, 0.32],
-  },
-  {
-    // Right-Middle Character Outer Circle Gap
-    left: 94,
-    top: 34,
-    size: 6,
-    duration: 7.8,
-    delay: 1.9,
-    tier: "medium",
-    zone: "hero",
-    yPath: [0, 8, -12, 0],
-    xPath: [0, -8, 8, 0],
-    opacityPath: [0.35, 0.88, 0.35],
-  },
-  {
-    // Lower-Left Hero Corner Gap
-    left: 7,
-    top: 42,
-    size: 5,
-    duration: 10.2,
-    delay: 1.1,
-    tier: "medium",
-    zone: "hero",
-    yPath: [0, -10, 10, 0],
-    xPath: [0, 7, -6, 0],
-    opacityPath: [0.32, 0.84, 0.32],
-  },
-  {
-    // Lower-Right Hero Corner Gap
-    left: 88,
-    top: 44,
-    size: 6,
-    duration: 8.4,
-    delay: 3.0,
-    tier: "medium",
-    zone: "hero",
-    yPath: [0, -14, 8, 0],
-    xPath: [0, 9, -7, 0],
-    opacityPath: [0.35, 0.88, 0.35],
-  },
-
-  // =========================================================================
+  { left: 28, top: 4, size: 8, duration: 6.8, delay: 0.8, tier: "primary", zone: "hero", yPath: [0, -18, 12, 0], xPath: [0, 10, -10, 0], opacityPath: [0.55, 1, 0.85, 0.55] },
+  { left: 14, top: 6, size: 7, duration: 8.2, delay: 2.1, tier: "primary", zone: "hero", yPath: [0, -16, 14, 0], xPath: [0, -9, 8, 0], opacityPath: [0.55, 0.95, 0.8, 0.55] },
+  { left: 89, top: 7, size: 9, duration: 6.2, delay: 0.3, tier: "primary", zone: "hero", yPath: [0, -20, 10, 0], xPath: [0, 12, -8, 0], opacityPath: [0.6, 1, 0.9, 0.6] },
+  { left: 92, top: 14, size: 7, duration: 7.5, delay: 1.6, tier: "primary", zone: "hero", yPath: [0, 14, -16, 0], xPath: [0, -11, 9, 0], opacityPath: [0.55, 0.98, 0.88, 0.55] },
+  { left: 4, top: 18, size: 8, duration: 7.0, delay: 0.5, tier: "primary", zone: "hero", yPath: [0, -14, 15, 0], xPath: [0, 11, -7, 0], opacityPath: [0.55, 1, 0.9, 0.55] },
+  { left: 20, top: 22, size: 5, duration: 8.6, delay: 2.5, tier: "medium", zone: "hero", yPath: [0, 10, -8, 0], xPath: [0, -6, 7, 0], opacityPath: [0.32, 0.85, 0.32] },
+  { left: 94, top: 34, size: 6, duration: 7.8, delay: 1.9, tier: "medium", zone: "hero", yPath: [0, 8, -12, 0], xPath: [0, -8, 8, 0], opacityPath: [0.35, 0.88, 0.35] },
+  { left: 7, top: 42, size: 5, duration: 10.2, delay: 1.1, tier: "medium", zone: "hero", yPath: [0, -10, 10, 0], xPath: [0, 7, -6, 0], opacityPath: [0.32, 0.84, 0.32] },
+  { left: 88, top: 44, size: 6, duration: 8.4, delay: 3.0, tier: "medium", zone: "hero", yPath: [0, -14, 8, 0], xPath: [0, 9, -7, 0], opacityPath: [0.35, 0.88, 0.35] },
   // ZONE 2: SECONDARY BALI RECOMMENDATION CARD ZONE (3 Fireflies)
-  // =========================================================================
-  {
-    // Floating 20px Above Top-Left of Bali Card
-    left: 24,
-    top: 26,
-    size: 7,
-    duration: 7.2,
-    delay: 1.4,
-    tier: "primary",
-    zone: "bali",
-    yPath: [0, -15, 10, 0],
-    xPath: [0, 10, -8, 0],
-    opacityPath: [0.55, 0.98, 0.88, 0.55],
-  },
-  {
-    // Floating 25px to the Right of Bali Card
-    left: 38,
-    top: 35,
-    size: 7,
-    duration: 6.4,
-    delay: 0.2,
-    tier: "primary",
-    zone: "bali",
-    yPath: [0, 12, -14, 0],
-    xPath: [0, -8, 9, 0],
-    opacityPath: [0.55, 1, 0.85, 0.55],
-  },
-  {
-    // Floating 20px Below Bottom-Right of Bali Card
-    left: 36,
-    top: 45,
-    size: 5,
-    duration: 9.4,
-    delay: 2.7,
-    tier: "medium",
-    zone: "bali",
-    yPath: [0, -10, 12, 0],
-    xPath: [0, 7, -7, 0],
-    opacityPath: [0.35, 0.85, 0.35],
-  },
-
-  // =========================================================================
-  // ZONE 3: TERTIARY MAJOR CARDS ZONE (4 Fireflies around Globe & Budget cards)
-  // =========================================================================
-  {
-    // Top-Left Corner of Travel Globe Card
-    left: 11,
-    top: 49,
-    size: 7,
-    duration: 7.6,
-    delay: 2.8,
-    tier: "primary",
-    zone: "major",
-    yPath: [0, -14, 9, 0],
-    xPath: [0, -9, 7, 0],
-    opacityPath: [0.5, 0.96, 0.8, 0.5],
-  },
-  {
-    // Top-Right Corner of Travel Globe Card
-    left: 87,
-    top: 51,
-    size: 5,
-    duration: 8.8,
-    delay: 1.7,
-    tier: "medium",
-    zone: "major",
-    yPath: [0, 9, -10, 0],
-    xPath: [0, -7, 6, 0],
-    opacityPath: [0.32, 0.85, 0.32],
-  },
-  {
-    // Bottom-Left Side Gap of Globe Card
-    left: 15,
-    top: 67,
-    size: 5,
-    duration: 9.8,
-    delay: 0.9,
-    tier: "medium",
-    zone: "major",
-    yPath: [0, -11, 8, 0],
-    xPath: [0, 8, -6, 0],
-    opacityPath: [0.35, 0.84, 0.35],
-  },
-  {
-    // Top-Right Corner of Lower Budget / Destination Cards
-    left: 85,
-    top: 79,
-    size: 5,
-    duration: 10.5,
-    delay: 2.1,
-    tier: "medium",
-    zone: "major",
-    yPath: [0, -8, 10, 0],
-    xPath: [0, 6, -6, 0],
-    opacityPath: [0.32, 0.82, 0.32],
-  },
-
-  // =========================================================================
-  // ZONE 4: BACKGROUND DEPTH ZONE (4 Fireflies ambient distant layer)
-  // =========================================================================
-  {
-    left: 5,
-    top: 27,
-    size: 4,
-    duration: 12.4,
-    delay: 0.6,
-    tier: "background",
-    zone: "bg",
-    yPath: [0, -6, 6, 0],
-    xPath: [0, 5, -5, 0],
-    opacityPath: [0.2, 0.65, 0.2],
-  },
-  {
-    left: 45,
-    top: 57,
-    size: 4,
-    duration: 11.2,
-    delay: 1.8,
-    tier: "background",
-    zone: "bg",
-    yPath: [0, 7, -6, 0],
-    xPath: [0, -4, 4, 0],
-    opacityPath: [0.22, 0.68, 0.22],
-  },
-  {
-    left: 52,
-    top: 77,
-    size: 4,
-    duration: 10.8,
-    delay: 1.0,
-    tier: "background",
-    zone: "bg",
-    yPath: [0, -6, 7, 0],
-    xPath: [0, 5, -5, 0],
-    opacityPath: [0.2, 0.62, 0.2],
-  },
-  {
-    left: 95,
-    top: 71,
-    size: 3,
-    duration: 13.8,
-    delay: 3.6,
-    tier: "background",
-    zone: "bg",
-    yPath: [0, 6, -5, 0],
-    xPath: [0, -4, 4, 0],
-    opacityPath: [0.18, 0.58, 0.18],
-  },
+  { left: 24, top: 26, size: 7, duration: 7.2, delay: 1.4, tier: "primary", zone: "bali", yPath: [0, -15, 10, 0], xPath: [0, 10, -8, 0], opacityPath: [0.55, 0.98, 0.88, 0.55] },
+  { left: 38, top: 35, size: 7, duration: 6.4, delay: 0.2, tier: "primary", zone: "bali", yPath: [0, 12, -14, 0], xPath: [0, -8, 9, 0], opacityPath: [0.55, 1, 0.85, 0.55] },
+  { left: 36, top: 45, size: 5, duration: 9.4, delay: 2.7, tier: "medium", zone: "bali", yPath: [0, -10, 12, 0], xPath: [0, 7, -7, 0], opacityPath: [0.35, 0.85, 0.35] },
+  // ZONE 3: TERTIARY MAJOR CARDS ZONE (4 Fireflies)
+  { left: 11, top: 49, size: 7, duration: 7.6, delay: 2.8, tier: "primary", zone: "major", yPath: [0, -14, 9, 0], xPath: [0, -9, 7, 0], opacityPath: [0.5, 0.96, 0.8, 0.5] },
+  { left: 87, top: 51, size: 5, duration: 8.8, delay: 1.7, tier: "medium", zone: "major", yPath: [0, 9, -10, 0], xPath: [0, -7, 6, 0], opacityPath: [0.32, 0.85, 0.32] },
+  { left: 15, top: 67, size: 5, duration: 9.8, delay: 0.9, tier: "medium", zone: "major", yPath: [0, -11, 8, 0], xPath: [0, 8, -6, 0], opacityPath: [0.35, 0.84, 0.35] },
+  { left: 85, top: 79, size: 5, duration: 10.5, delay: 2.1, tier: "medium", zone: "major", yPath: [0, -8, 10, 0], xPath: [0, 6, -6, 0], opacityPath: [0.32, 0.82, 0.32] },
+  // ZONE 4: BACKGROUND DEPTH ZONE (4 Fireflies)
+  { left: 5, top: 27, size: 4, duration: 12.4, delay: 0.6, tier: "background", zone: "bg", yPath: [0, -6, 6, 0], xPath: [0, 5, -5, 0], opacityPath: [0.2, 0.65, 0.2] },
+  { left: 45, top: 57, size: 4, duration: 11.2, delay: 1.8, tier: "background", zone: "bg", yPath: [0, 7, -6, 0], xPath: [0, -4, 4, 0], opacityPath: [0.22, 0.68, 0.22] },
+  { left: 52, top: 77, size: 4, duration: 10.8, delay: 1.0, tier: "background", zone: "bg", yPath: [0, -6, 7, 0], xPath: [0, 5, -5, 0], opacityPath: [0.2, 0.62, 0.2] },
+  { left: 95, top: 71, size: 3, duration: 13.8, delay: 3.6, tier: "background", zone: "bg", yPath: [0, 6, -5, 0], xPath: [0, -4, 4, 0], opacityPath: [0.18, 0.58, 0.18] },
 ];
 
 function DarkFireflies() {
@@ -397,10 +153,125 @@ function DarkFireflies() {
   );
 }
 
+/* ------------------------------------------------ Night Stars (Sunny & Snowy dark) */
+interface Star {
+  left: number;
+  top: number;
+  size: number;
+  duration: number;
+  delay: number;
+  minOpacity: number;
+  maxOpacity: number;
+}
+
+function makeStars(count: number, seed: number): Star[] {
+  return Array.from({ length: count }, (_, i) => {
+    const n = seed + i * 13;
+    return {
+      left: rand(n) * 100,
+      top: rand(n + 1) * 55, // Keep stars in upper 55% of viewport
+      size: 1.5 + rand(n + 2) * 2.5,
+      duration: 3 + rand(n + 3) * 5,
+      delay: rand(n + 4) * 8,
+      minOpacity: 0.15 + rand(n + 5) * 0.25,
+      maxOpacity: 0.6 + rand(n + 6) * 0.4,
+    };
+  });
+}
+
+function NightStars({ count = 18, seed = 42, color = "white" }: { count?: number; seed?: number; color?: string }) {
+  const stars = useMemo(() => makeStars(count, seed), [count, seed]);
+  return (
+    <>
+      {stars.map((star, idx) => (
+        <span
+          key={idx}
+          className="clay-star"
+          style={{
+            left: `${star.left}%`,
+            top: `${star.top}%`,
+            width: star.size,
+            height: star.size,
+            background: color,
+            ["--star-duration" as string]: `${star.duration}s`,
+            ["--star-delay" as string]: `${star.delay}s`,
+            ["--star-min" as string]: star.minOpacity,
+            ["--star-max" as string]: star.maxOpacity,
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
+/* ------------------------------------------------ Moon Glow */
+function MoonGlow({ color = "rgba(200, 210, 240, 0.12)", offsetRight = 10, offsetTop = 5 }: {
+  color?: string;
+  offsetRight?: number;
+  offsetTop?: number;
+}) {
+  return (
+    <motion.div
+      animate={{ scale: [1, 1.08, 1], opacity: [0.7, 1, 0.7] }}
+      transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      className="absolute rounded-full blur-[80px]"
+      style={{
+        right: `${offsetRight}%`,
+        top: `${offsetTop}%`,
+        width: "22rem",
+        height: "22rem",
+        background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+      }}
+    />
+  );
+}
+
+/* ------------------------------------------------ Drifting Clouds (Rainy dark) */
+function DriftingClouds() {
+  const clouds = useMemo(() => [
+    { top: 3, height: 120, width: 350, duration: 90, delay: 0 },
+    { top: 8, height: 80, width: 280, duration: 110, delay: -35 },
+    { top: 1, height: 100, width: 400, duration: 75, delay: -50 },
+  ], []);
+
+  return (
+    <>
+      {clouds.map((cloud, idx) => (
+        <div
+          key={idx}
+          className="clay-cloud"
+          style={{
+            top: `${cloud.top}%`,
+            width: cloud.width,
+            height: cloud.height,
+            ["--cloud-duration" as string]: `${cloud.duration}s`,
+            ["--cloud-delay" as string]: `${cloud.delay}s`,
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
+/* ------------------------------------------------ Lightning Flashes (Rainy dark) */
+function LightningFlashes() {
+  return (
+    <>
+      <div className="clay-lightning-flash" style={{ ["--lightning-duration" as string]: "18s", ["--lightning-delay" as string]: "3s" }} />
+      <div className="clay-lightning-flash-2" style={{ ["--lightning-duration" as string]: "24s", ["--lightning-delay" as string]: "8s" }} />
+    </>
+  );
+}
+
+/* ================================================================
+   MAIN COMPONENT
+   ================================================================ */
+
 export function WeatherAmbience() {
   const { theme, mode } = useTheme();
   const ambience = THEMES[theme].ambience;
-  const isDark = theme === "clay" && mode === "dark";
+  const isDark = mode === "dark";
+  const isClayDark = theme === "clay" && isDark;
 
   const flakes = useMemo(
     () =>
@@ -447,10 +318,10 @@ export function WeatherAmbience() {
       aria-hidden
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
     >
-      {/* --------------------------------------------- dark mode fireflies */}
-      {isDark && <DarkFireflies />}
+      {/* --------------------------------------------- Clay dark mode fireflies */}
+      {isClayDark && <DarkFireflies />}
 
-      {/* --------------------------------------------- base clay blobs */}
+      {/* --------------------------------------------- base clay blobs (light mode only) */}
       {!isDark && (
         <>
           <motion.div
@@ -472,7 +343,7 @@ export function WeatherAmbience() {
       )}
 
       {/* --------------------------------------------- hot and sunny */}
-      {ambience === "sun" && (
+      {ambience === "sun" && !isDark && (
         <>
           {/* A slow conic sweep from off-canvas top-right, doing the work of
               a sun without ever drawing one. */}
@@ -516,8 +387,35 @@ export function WeatherAmbience() {
         </>
       )}
 
+      {/* --------------------------------------------- sunny DARK — Clear Night Sky */}
+      {ambience === "sun" && isDark && (
+        <>
+          {/* Moon glow — soft warm sunset/twilight glow upper right */}
+          <MoonGlow color="rgba(255, 160, 120, 0.15)" offsetRight={8} offsetTop={3} />
+
+          {/* Stars */}
+          <NightStars count={20} seed={42} color="rgba(255, 220, 180, 0.9)" />
+
+          {/* Sunset atmospheric gradient at the bottom (deep maroon/pink) */}
+          <div
+            className="absolute inset-x-0 bottom-0 h-[40vh] opacity-40"
+            style={{
+              background: "linear-gradient(to top, rgba(160, 40, 70, 0.5), transparent)",
+            }}
+          />
+
+          {/* Deep twilight purple sky gradient wash */}
+          <div
+            className="absolute inset-x-0 top-0 h-[60vh] opacity-30"
+            style={{
+              background: "linear-gradient(to bottom, rgba(70, 20, 90, 0.5), transparent)",
+            }}
+          />
+        </>
+      )}
+
       {/* --------------------------------------------- cold and snowy */}
-      {ambience === "snow" && (
+      {ambience === "snow" && !isDark && (
         <>
           {flakes.map((flake, index) => (
             <span
@@ -546,8 +444,44 @@ export function WeatherAmbience() {
         </>
       )}
 
+      {/* --------------------------------------------- snowy DARK — Moonlit Snowfall */}
+      {ambience === "snow" && isDark && (
+        <>
+          {/* Moonlit glow — cool blue */}
+          <MoonGlow color="rgba(140, 180, 240, 0.08)" offsetRight={12} offsetTop={2} />
+
+          {/* Stars — fewer, subtle behind snow */}
+          <NightStars count={14} seed={88} color="rgba(200, 220, 255, 0.8)" />
+
+          {/* Snow continues falling — brighter against dark sky */}
+          {flakes.map((flake, index) => (
+            <span
+              key={index}
+              className="clay-flake"
+              style={{
+                left: `${flake.left}%`,
+                width: flake.size,
+                height: flake.size,
+                animationDuration: `${flake.duration}s`,
+                animationDelay: `${flake.delay}s`,
+                ["--flake-opacity" as string]: Math.min(flake.opacity * 1.2, 1),
+                ["--flake-drift" as string]: `${flake.drift}vw`,
+              }}
+            />
+          ))}
+
+          {/* Moonlit snow drift at bottom — soft blue-white */}
+          <div
+            className="absolute inset-x-0 bottom-0 h-48 opacity-30"
+            style={{
+              background: "linear-gradient(to top, rgba(140, 170, 220, 0.3), transparent)",
+            }}
+          />
+        </>
+      )}
+
       {/* --------------------------------------------- cool and rainy */}
-      {ambience === "rain" && (
+      {ambience === "rain" && !isDark && (
         <>
           {drops.map((drop, index) => (
             <span
@@ -588,6 +522,65 @@ export function WeatherAmbience() {
           />
         </>
       )}
+
+      {/* --------------------------------------------- rainy DARK — Night Rain & Thunder */}
+      {ambience === "rain" && isDark && (
+        <>
+          {/* Drifting dark clouds */}
+          <DriftingClouds />
+
+          {/* Subtle lightning flashes */}
+          <LightningFlashes />
+
+          {/* Rain continues — slightly brighter for visibility */}
+          {drops.map((drop, index) => (
+            <span
+              key={index}
+              className="clay-drop"
+              style={{
+                left: `${drop.left}%`,
+                height: drop.size,
+                animationDuration: `${drop.duration}s`,
+                animationDelay: `${drop.delay}s`,
+                ["--drop-opacity" as string]: Math.min(drop.opacity * 1.3, 0.7),
+              }}
+            />
+          ))}
+
+          {/* Ripples continue */}
+          {ripples.map((ripple, index) => (
+            <span
+              key={index}
+              className="clay-ripple"
+              style={{
+                left: `${ripple.left}%`,
+                bottom: `${(rand(index * 5.1) * 22).toFixed(2)}%`,
+                width: ripple.size,
+                height: ripple.size * 0.34,
+                animationDuration: `${ripple.duration}s`,
+                animationDelay: `${ripple.delay}s`,
+              }}
+            />
+          ))}
+
+          {/* Heavy dark cloud cover */}
+          <div
+            className="absolute inset-x-0 top-0 h-80 opacity-60"
+            style={{
+              background: "linear-gradient(to bottom, rgba(10, 15, 20, 0.7), transparent)",
+            }}
+          />
+
+          {/* Dim atmospheric haze at bottom */}
+          <div
+            className="absolute inset-x-0 bottom-0 h-40 opacity-25"
+            style={{
+              background: "linear-gradient(to top, rgba(20, 30, 35, 0.5), transparent)",
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }
+

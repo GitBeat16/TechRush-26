@@ -1,5 +1,6 @@
 import type { ComponentType, SVGProps } from "react";
 import {
+  BookOpenIcon,
   GlobeIcon,
   HomeIcon,
   PinIcon,

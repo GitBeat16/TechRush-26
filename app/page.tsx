@@ -9,7 +9,6 @@ import { WeatherStrip } from "@/components/Dashboard/WeatherStrip";
 import { TripCard } from "@/components/Dashboard/TripCard";
 import { TripCalendar } from "@/components/Dashboard/TripCalendar";
 import { TravelGlobe } from "@/components/Dashboard/TravelGlobe";
-import { DestinationCarousel } from "@/components/Dashboard/DestinationCard";
 import { PersonalizedPicks } from "@/components/Dashboard/PersonalizedPicks";
 import { TravelStats } from "@/components/Dashboard/TravelStats";
 import { ClaySuitcase } from "@/components/ui/ClayIllustrations";
@@ -45,8 +44,6 @@ export default function HomePage() {
       <PersonalizedPicks />
 
       <TripCalendar />
-
-      <DestinationCarousel />
 
       <TravelStats />
 

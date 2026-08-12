@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
-  BellIcon,
+  BookOpenIcon,
   ChevronRightIcon,
   MoonIcon,
   PinIcon,
@@ -26,21 +26,7 @@ import { useAppState } from "@/lib/store";
 import { DESTINATIONS } from "@/lib/data";
 import { useTheme } from "@/lib/theme/ThemeProvider";
 
-interface Notification {
-  id: string;
-  title: string;
-  body: string;
-  href: string;
-  unread: boolean;
-}
-
-const NOTIFICATIONS: Notification[] = [
-  { id: "n1", title: "Visa approved", body: "Your Japan tourist visa is confirmed for 14 Oct.", href: "/trips", unread: true },
-  { id: "n2", title: "Fare drop", body: "Bengaluru to Osaka is down 12% for your dates.", href: "/explore", unread: true },
-  { id: "n3", title: "Packing reminder", body: "Items still unpacked in your Japan checklist.", href: "/trips", unread: false },
-];
-
-type Panel = "none" | "alerts" | "settings" | "search";
+type Panel = "none" | "settings" | "search";
 
 export function Navbar() {
   const router = useRouter();
@@ -53,7 +39,7 @@ export function Navbar() {
   const [focused, setFocused] = useState(false);
   const shellRef = useRef<HTMLDivElement>(null);
 
-  const unread = NOTIFICATIONS.filter((n) => n.unread).length;
+
   const needle = query.trim().toLowerCase();
 
   const destinationHits = needle
@@ -228,34 +214,21 @@ export function Navbar() {
               <SearchIcon size={20} />
             </NavIconButton>
 
-            <NavIconButton
-              label="Notifications"
-              active={panel === "alerts"}
-              onClick={() => openPanel("alerts")}
-            >
-              <BellIcon size={20} />
-              {unread > 0 && (
-                <motion.span
-                  animate={{ scale: [1, 1.18, 1] }}
-                  transition={{ type: "tween", duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-clay-tangerine border border-clay-surface font-body text-[11px] font-extrabold text-white shadow-clay-xs"
-                >
-                  {unread}
-                </motion.span>
-              )}
-            </NavIconButton>
-
-            {theme === "clay" && (
-              <NavIconButton
-                label={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                onClick={() => {
-                  play("tap");
-                  setMode(mode === "dark" ? "light" : "dark");
-                }}
-              >
-                {mode === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
+            <Link href="/destinations" onClick={() => play("nav")}>
+              <NavIconButton label="Travel Guides" onClick={() => {}}>
+                <BookOpenIcon size={20} />
               </NavIconButton>
-            )}
+            </Link>
+
+            <NavIconButton
+              label={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              onClick={() => {
+                play("tap");
+                setMode(mode === "dark" ? "light" : "dark");
+              }}
+            >
+              {mode === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
+            </NavIconButton>
 
             <NavIconButton
               label="Settings"
@@ -328,50 +301,7 @@ export function Navbar() {
           )}
         </AnimatePresence>
 
-        {/* notifications */}
-        <AnimatePresence>
-          {panel === "alerts" && (
-            <Popover>
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="font-display text-lg font-semibold">Updates</h3>
-                <span className="rounded-full bg-clay-blush px-3 py-1 font-body text-xs font-bold shadow-clay-xs">
-                  {unread} new
-                </span>
-              </div>
-              <ul className="space-y-2">
-                {NOTIFICATIONS.map((n, i) => (
-                  <motion.li
-                    key={n.id}
-                    initial={{ opacity: 0, x: 14 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ ...springSnappy, delay: 0.04 * i }}
-                  >
-                    <Link
-                      href={n.href}
-                      onClick={() => {
-                        play("tap");
-                        setPanel("none");
-                      }}
-                      className="flex gap-3 rounded-clay-sm bg-clay-sunken/60 p-3 shadow-clay-inset-sm transition-colors hover:bg-clay-sunken"
-                    >
-                      <span
-                        className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${
-                          n.unread ? "bg-clay-rose" : "bg-clay-muted/40"
-                        }`}
-                      />
-                      <span>
-                        <span className="block font-display text-sm font-semibold">{n.title}</span>
-                        <span className="block font-body text-xs leading-relaxed text-clay-ink-soft">
-                          {n.body}
-                        </span>
-                      </span>
-                    </Link>
-                  </motion.li>
-                ))}
-              </ul>
-            </Popover>
-          )}
-        </AnimatePresence>
+
 
         {/* settings */}
         <AnimatePresence>

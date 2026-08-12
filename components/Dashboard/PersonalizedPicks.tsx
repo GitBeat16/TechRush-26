@@ -1,26 +1,76 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ClayCard } from "@/components/ui/ClayCard";
 import { ClayButton } from "@/components/ui/ClayButton";
 import { ClayScene, SCENE_BY_ID } from "@/components/ui/ClayIllustrations";
 import { ArrowRightIcon, EditIcon, SparkIcon, StarIcon } from "@/components/ui/Icons";
 import { fadeUp, revealViewport, springSnappy, stagger } from "@/lib/animations";
 import { useSession } from "@/lib/auth/session";
-import { formatInr } from "@/lib/data";
+import { formatInr, getDestinationShuffleImages } from "@/lib/data";
 import { rankDestinations } from "@/lib/personalize";
 import { buildHistory, favouriteVibes } from "@/lib/history";
 import { useAppState } from "@/lib/store";
 import { TONES } from "@/lib/tones";
+import type { Destination } from "@/types/dashboard";
 
-/**
- * Every destination scored against two things: the six answers from
- * onboarding, and where the user has actually been. Best fit first, with the
- * reasons shown rather than hidden — including the unflattering ones, like a
- * place scoring low because they were there last month.
- */
+function HoverShuffleImage({ destination, isHovered }: { destination: Destination, isHovered: boolean }) {
+  const [images, setImages] = useState<{ url: string; label: string }[]>([]);
+  const [imageIndex, setImageIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchedImages = getDestinationShuffleImages(destination.id, destination.name);
+    if (fetchedImages.length > 0) {
+      setImages(fetchedImages);
+      setImageIndex(0);
+    }
+  }, [destination.id, destination.name]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isHovered && images.length > 1) {
+      interval = setInterval(() => {
+        setImageIndex((current) => (current + 1) % images.length);
+      }, 2500);
+    } else {
+      setImageIndex(0);
+    }
+    return () => clearInterval(interval);
+  }, [isHovered, images.length]);
+
+  const imageObj = images.length > 0 ? images[imageIndex] : undefined;
+
+  return imageObj ? (
+    <div className="relative h-full w-full overflow-hidden">
+      <AnimatePresence initial={false}>
+        <motion.img
+          key={imageIndex}
+          src={imageObj.url}
+          alt={imageObj.label}
+          initial={{ x: "100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "-100%" }}
+          transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      </AnimatePresence>
+      <div className="absolute bottom-2 right-4 z-20 max-w-[90%] rounded-md bg-clay-ink/40 px-2 py-0.5 backdrop-blur-md">
+        <span className="line-clamp-2 font-display text-[10px] font-bold uppercase tracking-wider text-white">
+          {imageObj.label}
+        </span>
+      </div>
+    </div>
+  ) : (
+    <ClayScene
+      kind={SCENE_BY_ID[destination.id] ?? "coast"}
+      base={TONES[destination.tone].hex}
+      className="h-full w-full"
+    />
+  );
+}
+
 export function PersonalizedPicks({ limit = 3 }: { limit?: number }) {
   const { user } = useSession();
   const { trips } = useAppState();
@@ -33,8 +83,6 @@ export function PersonalizedPicks({ limit = 3 }: { limit?: number }) {
     [preferences, history, limit],
   );
 
-  // The subtitle has to be true for whoever is reading it, so it names the
-  // signals actually in play rather than always claiming both.
   const basis = useMemo(() => {
     const vibes = favouriteVibes(history, 2);
     if (history.isEmpty) return "Scored against the six answers you gave us";
@@ -84,96 +132,128 @@ export function PersonalizedPicks({ limit = 3 }: { limit?: number }) {
       </motion.div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {ranked.map(({ destination, score, reasons }, index) => {
-          const scene = SCENE_BY_ID[destination.id] ?? "coast";
-
-          return (
-            <motion.div key={destination.id} variants={fadeUp}>
-              <ClayCard
-                tone={destination.tone}
-                radius="lg"
-                depth="md"
-                interactive
-                className="flex h-full flex-col overflow-hidden p-3"
-              >
-                <div className="relative h-32 overflow-hidden rounded-clay shadow-clay-inset-sm">
-                  <ClayScene
-                    kind={scene}
-                    base={TONES[destination.tone].hex}
-                    className="h-full w-full"
-                  />
-
-                  {index === 0 && (
-                    <motion.span
-                      whileHover={{ scale: 1.06 }}
-                      transition={springSnappy}
-                      className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-clay-raised px-2.5 py-1 font-body text-[10px] font-extrabold uppercase tracking-wide shadow-clay-xs"
-                    >
-                      <SparkIcon size={12} />
-                      Best fit
-                    </motion.span>
-                  )}
-
-                  <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-clay-raised px-2.5 py-1 font-display text-[11px] font-bold shadow-clay-xs">
-                    {score}
-                    <span className="font-body text-[9px] font-bold text-clay-muted">
-                      /100
-                    </span>
-                  </span>
-                </div>
-
-                <div className="flex flex-1 flex-col p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="font-display text-lg font-semibold leading-tight">
-                        {destination.name}
-                      </p>
-                      <p className="font-body text-xs text-clay-ink-soft">
-                        {destination.tagline}
-                      </p>
-                    </div>
-                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-clay-raised px-2 py-1 font-body text-[11px] font-bold shadow-clay-xs">
-                      <StarIcon size={11} className="text-clay-tangerine" />
-                      {destination.rating}
-                    </span>
-                  </div>
-
-                  {/* The "why" — the whole point of personalising. */}
-                  {reasons.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {reasons.map((reason) => (
-                        <span
-                          key={reason}
-                          className="rounded-full bg-clay-raised/80 px-2.5 py-1 font-body text-[10px] font-bold text-clay-ink-soft shadow-clay-xs"
-                        >
-                          {reason}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="mt-auto flex items-center justify-between gap-2 pt-4">
-                    <span className="font-body text-xs text-clay-ink-soft">
-                      {formatInr(destination.price)} · {destination.days} days
-                    </span>
-                    <Link
-                      href={`/plan?destination=${encodeURIComponent(destination.name)}`}
-                    >
-                      <ClayButton
-                        size="sm"
-                        tone="surface"
-                        rightIcon={<ArrowRightIcon size={14} />}
-                      >
-                        Plan it
-                      </ClayButton>
-                    </Link>
-                  </div>
-                </div>
-              </ClayCard>
-            </motion.div>
-          );
-        })}
+        {ranked.map(({ destination, score, reasons }, index) => (
+          <PersonalizedPickCard
+            key={destination.id}
+            destination={destination}
+            score={score}
+            reasons={reasons}
+            index={index}
+          />
+        ))}
       </div>
     </motion.section>
+  );
+}
+
+function PersonalizedPickCard({
+  destination,
+  score,
+  reasons,
+  index,
+}: {
+  destination: Destination;
+  score: number;
+  reasons: string[];
+  index: number;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div variants={fadeUp}>
+      <ClayCard
+        tone="surface"
+        radius="lg"
+        depth="md"
+        interactive
+        className="flex h-full flex-col overflow-hidden p-3"
+      >
+        <div 
+          className="relative w-full aspect-[4/3] overflow-hidden rounded-clay shadow-clay-inset-sm bg-clay-surface/50"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <HoverShuffleImage destination={destination} isHovered={isHovered} />
+
+          {index === 0 && (
+            <motion.span
+              whileHover={{ scale: 1.06 }}
+              transition={springSnappy}
+              className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-clay-raised px-2.5 py-1 font-body text-[10px] font-extrabold uppercase tracking-wide shadow-clay-xs"
+            >
+              <SparkIcon size={12} />
+              Best fit
+            </motion.span>
+          )}
+
+          <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-clay-raised px-2.5 py-1 font-display text-[11px] font-bold shadow-clay-xs">
+            {score}
+            <span className="font-body text-[9px] font-bold text-clay-muted">
+              /100
+            </span>
+          </span>
+        </div>
+
+        <div className="flex flex-1 flex-col p-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="font-display text-lg font-semibold leading-tight">
+                {destination.name}
+              </p>
+              <p className="mt-0.5 truncate font-body text-[11px] font-bold uppercase tracking-wider text-clay-muted">
+                {destination.region}
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Link href={`/destinations/${destination.id}`}>
+                <ClayButton
+                  size="sm"
+                  tone="surface"
+                  className="shadow-clay-inset-sm !bg-clay-rose !text-white"
+                  sound="nav"
+                >
+                  Magazine
+                </ClayButton>
+              </Link>
+              <Link href={`/plan?destination=${encodeURIComponent(destination.name)}`}>
+                <ClayButton
+                  size="sm"
+                  tone="surface"
+                  className="shadow-clay-inset-sm"
+                  sound="nav"
+                >
+                  Plan this
+                </ClayButton>
+              </Link>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-1 flex-col gap-2">
+            {reasons.slice(0, 3).map((reason, i) => (
+              <div key={i} className="flex gap-2">
+                <span className="mt-1 flex h-1.5 w-1.5 shrink-0 rounded-full bg-clay-rose/40" />
+                <p className="font-body text-xs text-clay-ink-soft">{reason}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 flex items-center justify-between border-t border-clay-muted/20 pt-3">
+            <span className="font-display text-sm font-semibold">
+              {formatInr(destination.price)}
+            </span>
+            <Link
+              href="/explore"
+              className="group flex items-center gap-1 font-body text-[11px] font-bold text-clay-tangerine transition-colors hover:text-clay-ink"
+            >
+              See similar
+              <ArrowRightIcon
+                size={14}
+                className="transition-transform group-hover:translate-x-0.5"
+              />
+            </Link>
+          </div>
+        </div>
+      </ClayCard>
+    </motion.div>
   );
 }
