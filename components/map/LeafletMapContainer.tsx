@@ -4,8 +4,6 @@ import React, { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "maplibre-gl/dist/maplibre-gl.css";
-import { useTheme } from "@/lib/theme/ThemeProvider";
 import { TONES } from "@/lib/tones";
 import type { ClayTone } from "@/types/dashboard";
 
@@ -66,54 +64,6 @@ function ChangeMapView({
   return null;
 }
 
-/**
- * Helper component that renders OpenFreeMap Dark style via MapLibre GL Leaflet plugin
- */
-function OpenFreeMapDarkLayer() {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!map) return;
-    let glLayer: L.Layer | null = null;
-    let mounted = true;
-
-    Promise.all([
-      import("maplibre-gl"),
-      import("@maplibre/maplibre-gl-leaflet"),
-    ]).then(([maplibreglModule]) => {
-      if (!mounted) return;
-      const mgl = maplibreglModule.default || maplibreglModule;
-      if (typeof window !== "undefined") {
-        (window as unknown as Record<string, unknown>).maplibregl = mgl;
-      }
-      const leafletGl = L as typeof L & {
-        maplibreGL?: (options: { style: string; attribution: string }) => L.Layer;
-      };
-      if (leafletGl.maplibreGL) {
-        glLayer = leafletGl.maplibreGL({
-          style: "https://tiles.openfreemap.org/styles/dark",
-          attribution:
-            '&copy; <a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-        });
-        glLayer.addTo(map);
-      }
-    });
-
-    return () => {
-      mounted = false;
-      if (glLayer && map) {
-        try {
-          map.removeLayer(glLayer);
-        } catch {
-          // ignore layer removal error if map destroyed
-        }
-      }
-    };
-  }, [map]);
-
-  return null;
-}
-
 export interface LeafletMapContainerProps {
   center: { lat: number; lng: number };
   zoom?: number;
@@ -134,11 +84,9 @@ export default function LeafletMapContainer({
   width = "100%",
   tone = "surface",
   onMarkerClick,
-  selectedLocationId,
+  selectedLocationId: _selectedLocationId,
   className = "",
 }: LeafletMapContainerProps) {
-  const { theme, mode } = useTheme();
-  const isDark = theme === "clay" && mode === "dark";
   const toneStyle = TONES[tone] || TONES.surface;
 
   return (
@@ -171,15 +119,11 @@ export default function LeafletMapContainer({
           {/* Change map view dynamically when center changes */}
           <ChangeMapView center={center} zoom={zoom} />
 
-          {/* Map Tiles: OpenFreeMap Dark in Dark Mode, OpenStreetMap in Light Mode */}
-          {isDark ? (
-            <OpenFreeMapDarkLayer />
-          ) : (
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-          )}
+          {/* Standard OpenStreetMap raster tile layer */}
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
 
           {/* Location Markers */}
           {locations.map((loc) => {
