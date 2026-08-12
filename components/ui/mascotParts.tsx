@@ -1,6 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import {
+  motion,
+  motionValue,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 import { floatY } from "@/lib/animations";
 import type { ThemeId } from "@/types/theme";
 
@@ -15,6 +20,9 @@ import type { ThemeId } from "@/types/theme";
 /* All coordinates are in the original 220×220 space, with the head     */
 /* centred on (110, 86) at r=40. MascotFace just crops to that.         */
 /* ------------------------------------------------------------------ */
+
+/** Stand-in for "no gaze supplied". Never written to, so sharing it is safe. */
+const ZERO = motionValue(0);
 
 export const SKIN = "#ffd7b3";
 export const SKIN_SHADE = "#f2b283";
@@ -108,7 +116,17 @@ export function Headwear({ theme }: { theme: ThemeId }) {
 
 /* -------------------------------- face ----------------------------- */
 
-export function Eyes() {
+export interface EyesProps {
+  /** Optional pointer gaze, in −1 … 1. Supply both or neither. */
+  gazeX?: MotionValue<number>;
+  gazeY?: MotionValue<number>;
+}
+
+export function Eyes({ gazeX, gazeY }: EyesProps = {}) {
+  // Pupils travel a couple of units — any further and they leave the face.
+  const lookX = useTransform(gazeX ?? ZERO, (v: number) => v * 3);
+  const lookY = useTransform(gazeY ?? ZERO, (v: number) => v * 2.2);
+
   return (
     <motion.g
       animate={{ scaleY: [1, 1, 0.08, 1, 1] }}
@@ -123,10 +141,13 @@ export function Eyes() {
          measures from the SVG's origin and the eyes slide off the face. */
       style={{ transformBox: "fill-box", transformOrigin: "center" }}
     >
-      <circle cx="96" cy="94" r="5.2" fill={INK} />
-      <circle cx="126" cy="94" r="5.2" fill={INK} />
-      <circle cx="97.6" cy="92.2" r="1.8" fill="#ffffff" />
-      <circle cx="127.6" cy="92.2" r="1.8" fill="#ffffff" />
+      {/* Translation only, so this group needs no origin of its own. */}
+      <motion.g style={{ x: lookX, y: lookY }}>
+        <circle cx="96" cy="94" r="5.2" fill={INK} />
+        <circle cx="126" cy="94" r="5.2" fill={INK} />
+        <circle cx="97.6" cy="92.2" r="1.8" fill="#ffffff" />
+        <circle cx="127.6" cy="92.2" r="1.8" fill="#ffffff" />
+      </motion.g>
     </motion.g>
   );
 }
