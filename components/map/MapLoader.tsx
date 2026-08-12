@@ -4,6 +4,7 @@ import React, { type ReactNode } from "react";
 import { useJsApiLoader, type Libraries } from "@react-google-maps/api";
 import type { ClayTone } from "@/types/dashboard";
 import { TONES } from "@/lib/tones";
+import { TripNestLoader } from "@/components/ui/TripNestLoader";
 
 const DEFAULT_LIBRARIES: Libraries = ["places"];
 
@@ -36,22 +37,12 @@ export function ClayMapSkeleton({ tone = "surface" }: { tone?: ClayTone }) {
       {/* Background soft clay ripple effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-black/5 pointer-events-none" />
 
-      <div className="relative z-10 flex flex-col items-center text-center space-y-4">
-        {/* Animated clay compass / pin orb */}
-        <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-clay-peach shadow-clay-sm animate-pulse">
-          <div className="w-8 h-8 rounded-full bg-clay-tangerine shadow-clay-inset flex items-center justify-center">
-            <div className="w-3 h-3 rounded-full bg-white shadow-sm" />
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          <p className="font-display font-bold text-lg text-clay-ink tracking-wide">
-            Loading Map...
-          </p>
-          <p className="font-body text-xs text-clay-ink-soft">
-            Preparing world tiles & markers
-          </p>
-        </div>
+      <div className="relative z-10 flex flex-col items-center text-center">
+        <TripNestLoader
+          size="md"
+          label="Loading map"
+          sublabel="Preparing world tiles & markers"
+        />
       </div>
     </div>
   );

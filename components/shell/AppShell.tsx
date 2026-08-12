@@ -6,11 +6,11 @@ import { useEffect, type ReactNode } from "react";
 import { Navbar } from "@/components/shell/Navbar";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { MobileDock } from "@/components/shell/MobileDock";
-import { ClayPlane } from "@/components/ui/ClayIllustrations";
+import { TripNestLoader } from "@/components/ui/TripNestLoader";
 import { WeatherAmbience } from "@/components/theme/WeatherAmbience";
 import { TripSync } from "@/components/shell/TripSync";
 import { AssistantDock } from "@/components/assistant/AssistantDock";
-import { breathe, floatY, springSoft } from "@/lib/animations";
+import { springSoft } from "@/lib/animations";
 import { useSession } from "@/lib/auth/session";
 
 const PUBLIC_ROUTES = ["/login"];
@@ -146,30 +146,12 @@ function RedirectTo({ path, label }: { path: string; label: string }) {
 
 function Splash({ label = "Warming up the clay" }: { label?: string }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-5">
-      <motion.div {...floatY(10, 2.6)}>
-        <span className="flex h-20 w-20 items-center justify-center rounded-clay-sm bg-clay-sky shadow-clay">
-          <ClayPlane size={48} base="#6f9ee6" />
-        </span>
-      </motion.div>
-      <div className="flex items-center gap-2">
-        {[0, 1, 2].map((index) => (
-          <motion.span
-            key={index}
-            animate={{ scale: [1, 0.6, 1], opacity: [1, 0.4, 1] }}
-            transition={{
-              type: "tween",
-              duration: 1.1,
-              repeat: Infinity,
-              delay: index * 0.15,
-              ease: "easeInOut",
-            }}
-            className="h-2.5 w-2.5 rounded-full bg-clay-tangerine"
-          />
-        ))}
-      </div>
-      <p className="font-body text-sm text-clay-muted">{label}</p>
-    </div>
+    <TripNestLoader
+      fullScreen
+      size="lg"
+      label={label}
+      sublabel="Every trip needs a nest to come home to"
+    />
   );
 }
 

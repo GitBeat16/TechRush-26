@@ -139,11 +139,17 @@ function BrandPanel() {
         {...breathe(1.08, 15, 2)}
         className="absolute bottom-0 right-8 h-64 w-64 rounded-full bg-clay-mint opacity-40 blur-3xl"
       />
-      <motion.div {...floatDrift(16, 6, 12)} className="absolute right-4 top-4">
-        <ClayCloud size={120} opacity={0.9} />
+      {/* The cloud and the plane read as one pair in the top-right corner.
+          The plane used to sit at right-40, which put it underneath the
+          heading — clear of it now, and above the copy rather than behind. */}
+      <motion.div {...floatDrift(16, 6, 12)} className="absolute right-2 top-2 z-10">
+        <ClayCloud size={126} opacity={0.9} />
       </motion.div>
-      <motion.div {...floatDrift(20, 9, 10, 1)} className="absolute right-40 top-24">
-        <ClayPlane size={64} base="#a9c8f4" />
+      <motion.div
+        {...floatDrift(20, 9, 10, 1)}
+        className="absolute right-14 top-28 z-10 -rotate-6"
+      >
+        <ClayPlane size={72} base="#a9c8f4" />
       </motion.div>
 
       <div className="relative">

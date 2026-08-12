@@ -1,8 +1,10 @@
 "use client";
 
 import { useRive } from "@rive-app/react-canvas";
-import { motion } from "framer-motion";
+import { motion, useTransform } from "framer-motion";
+import { useRef } from "react";
 import { breathe, floatY, springSoft, sway } from "@/lib/animations";
+import { useGaze, type Gaze } from "@/lib/gaze";
 import { useTheme } from "@/lib/theme/ThemeProvider";
 import {
   Eyes,
@@ -50,10 +52,16 @@ export function RiveCharacter({
   const { theme: activeTheme } = useTheme();
   const dressedFor = theme ?? activeTheme;
 
+  // The guide watches the pointer: head, eyes and body all read from this.
+  const stage = useRef<HTMLDivElement>(null);
+  const gaze = useGaze(stage);
+
   return (
     <motion.div
+      ref={stage}
       initial={{ opacity: 0, scale: 0.7, y: 24 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
+      whileHover={{ scale: 1.03 }}
       transition={{ ...springSoft, delay: 0.25 }}
       className={`relative ${className}`}
       style={{ width: size, height: size }}
@@ -69,7 +77,7 @@ export function RiveCharacter({
           size={size}
         />
       ) : (
-        <ClayGuide size={size} theme={dressedFor} />
+        <ClayGuide size={size} theme={dressedFor} gaze={gaze} />
       )}
     </motion.div>
   );
@@ -165,8 +173,25 @@ const OUTFITS: Record<ThemeId, Outfit> = {
 /* The stand-in: a chunky clay travel guide, dressed for the weather.  */
 /* ------------------------------------------------------------------ */
 
-function ClayGuide({ size, theme }: { size: number; theme: ThemeId }) {
+function ClayGuide({
+  size,
+  theme,
+  gaze,
+}: {
+  size: number;
+  theme: ThemeId;
+  gaze: Gaze;
+}) {
   const outfit = OUTFITS[theme];
+
+  /* One gaze, three depths. The head leads, the body follows a little, and
+     the pupils (inside <Eyes/>) go furthest relative to their own size —
+     which is what makes it read as looking rather than sliding. */
+  const headX = useTransform(gaze.x, (v: number) => v * 7);
+  const headY = useTransform(gaze.y, (v: number) => v * 5);
+  const headTilt = useTransform(gaze.x, (v: number) => v * 5);
+  const bodyX = useTransform(gaze.x, (v: number) => v * 2.5);
+  const bodyY = useTransform(gaze.y, (v: number) => v * 1.5);
 
   return (
     <motion.svg
@@ -185,89 +210,108 @@ function ClayGuide({ size, theme }: { size: number; theme: ThemeId }) {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        {/* backpack */}
-        <rect x="52" y="96" width="46" height="58" rx="20" fill={outfit.pack} />
-        <rect
-          x="60"
-          y="112"
-          width="30"
-          height="20"
-          rx="9"
-          fill={outfit.packShade}
-        />
-
-        {/* body */}
-        <motion.g
-          {...breathe(1.03, 4.2)}
-          /* pivot at the base of the torso so breathing lifts the shoulders */
-          style={{ transformBox: "fill-box", transformOrigin: "50% 85%" }}
-        >
-          <path
-            d="M74 168c0-26 16-44 36-44s36 18 36 44a10 10 0 0 1-10 10H84a10 10 0 0 1-10-10Z"
-            fill={outfit.coat}
-          />
-          <path
-            d="M110 124c20 0 36 18 36 44a10 10 0 0 1-10 10h-14c8-20 2-42-12-54Z"
-            fill={outfit.coatShade}
-            opacity="0.7"
-          />
-
-          <CoatDetail theme={theme} outfit={outfit} />
-
-          {outfit.scarf ? (
-            <path
-              d="M84 132c14 10 38 10 52 0l4 12c-18 12-42 12-60 0Z"
-              fill={outfit.scarf}
-            />
-          ) : null}
-        </motion.g>
-
-        {/* the arm that holds the prop, plus the prop itself */}
-        <PropArm theme={theme} outfit={outfit} />
-
-        {/* waving arm */}
-        <motion.g
-          animate={{ rotate: [0, -16, 4, -12, 0] }}
-          transition={{
-            type: "tween",
-            duration: 3.4,
-            repeat: Infinity,
-            ease: "easeInOut",
-            repeatDelay: 1.6,
-          }}
-          /* pivot at the shoulder end of the sleeve, not the hand */
-          style={{ transformBox: "fill-box", transformOrigin: "46% 52%" }}
-        >
+        {/* The whole figure leans towards the pointer, a little. */}
+        <motion.g style={{ x: bodyX, y: bodyY }}>
+          {/* backpack */}
+          <rect x="52" y="96" width="46" height="58" rx="20" fill={outfit.pack} />
           <rect
-            x="140"
-            y="128"
-            width="18"
-            height="42"
+            x="60"
+            y="112"
+            width="30"
+            height="20"
             rx="9"
-            fill={outfit.sleeve}
-          />
-          <circle cx="149" cy="124" r="12" fill={outfit.hand} />
-        </motion.g>
-
-        {/* head */}
-        <motion.g {...floatY(4, 3.4, 0.3)}>
-          {theme === "rainy" ? (
-            /* hood shell, behind the face */
-            <ellipse cx="110" cy="88" rx="52" ry="54" fill="#f2c53d" />
-          ) : null}
-
-          <circle cx="110" cy="86" r="40" fill={SKIN} />
-          <path
-            d="M110 46a40 40 0 0 1 0 80c14-22 14-58 0-80Z"
-            fill={SKIN_SHADE}
-            opacity="0.55"
+            fill={outfit.packShade}
           />
 
-          <Headwear theme={theme} />
+          {/* body */}
+          <motion.g
+            {...breathe(1.03, 4.2)}
+            /* pivot at the base of the torso so breathing lifts the shoulders */
+            style={{ transformBox: "fill-box", transformOrigin: "50% 85%" }}
+          >
+            <path
+              d="M74 168c0-26 16-44 36-44s36 18 36 44a10 10 0 0 1-10 10H84a10 10 0 0 1-10-10Z"
+              fill={outfit.coat}
+            />
+            <path
+              d="M110 124c20 0 36 18 36 44a10 10 0 0 1-10 10h-14c8-20 2-42-12-54Z"
+              fill={outfit.coatShade}
+              opacity="0.7"
+            />
 
-          {theme === "sunny" ? <Sunglasses /> : <Eyes />}
+            <CoatDetail theme={theme} outfit={outfit} />
 
-          <FaceWarmth />
+            {outfit.scarf ? (
+              <path
+                d="M84 132c14 10 38 10 52 0l4 12c-18 12-42 12-60 0Z"
+                fill={outfit.scarf}
+              />
+            ) : null}
+          </motion.g>
+
+          {/* the arm that holds the prop, plus the prop itself */}
+          <PropArm theme={theme} outfit={outfit} />
+
+          {/* waving arm */}
+          <motion.g
+            animate={{ rotate: [0, -16, 4, -12, 0] }}
+            transition={{
+              type: "tween",
+              duration: 3.4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              repeatDelay: 1.6,
+            }}
+            /* pivot at the shoulder end of the sleeve, not the hand */
+            style={{ transformBox: "fill-box", transformOrigin: "46% 52%" }}
+          >
+            <rect
+              x="140"
+              y="128"
+              width="18"
+              height="42"
+              rx="9"
+              fill={outfit.sleeve}
+            />
+            <circle cx="149" cy="124" r="12" fill={outfit.hand} />
+          </motion.g>
+
+          {/* head — floats on its own, then turns to follow the pointer.
+              The pivot sits at the neck, so the tilt reads as a head turn
+              rather than the whole head sliding sideways. */}
+          <motion.g {...floatY(4, 3.4, 0.3)}>
+            <motion.g
+              style={{
+                x: headX,
+                y: headY,
+                rotate: headTilt,
+                transformBox: "fill-box",
+                transformOrigin: "50% 96%",
+              }}
+            >
+              {theme === "rainy" ? (
+                /* hood shell, behind the face */
+                <ellipse cx="110" cy="88" rx="52" ry="54" fill="#f2c53d" />
+              ) : null}
+
+              <circle cx="110" cy="86" r="40" fill={SKIN} />
+              <path
+                d="M110 46a40 40 0 0 1 0 80c14-22 14-58 0-80Z"
+                fill={SKIN_SHADE}
+                opacity="0.55"
+              />
+
+              <Headwear theme={theme} />
+
+              {theme === "sunny" ? (
+                <Sunglasses />
+              ) : (
+                <Eyes gazeX={gaze.x} gazeY={gaze.y} />
+              )}
+
+              <FaceWarmth />
+            </motion.g>
+          </motion.g>
         </motion.g>
       </motion.g>
     </motion.svg>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Grandstander, Karla } from "next/font/google";
 import { AppShell } from "@/components/shell/AppShell";
+import { IntroSplash } from "@/components/shell/IntroSplash";
 import { ThemeProvider, THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme/ThemeProvider";
 import "./globals.css";
 
@@ -59,6 +60,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-clay-bg text-clay-ink">
         <ThemeProvider>
           <AppShell>{children}</AppShell>
+          {/* Overlay, not a gate — the app below hydrates and fetches while
+              this holds for one full flight. Once per session. */}
+          <IntroSplash />
         </ThemeProvider>
       </body>
     </html>
