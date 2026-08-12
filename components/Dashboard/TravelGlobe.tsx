@@ -68,20 +68,36 @@ interface Palette {
   ink: string;
 }
 
-function readPalette(isDark: boolean): Palette {
-  if (isDark) {
+function readPalette(isDark: boolean, theme: string): Palette {
+  if (isDark && theme === "clay") {
     return {
-      ocean: "#131D2A",        // Dark Navy / Blue-Gray ocean surface
-      oceanDeep: "#0C131D",    // Deep Navy rim (soft cool depth, NO GOLD)
-      land: "#1E2B3A",         // Muted Slate / Blue-Gray landmass (clearly lighter than ocean)
-      landEdge: "#15202D",     // Soft lip under landmass
+      ocean: "#0E1724",        // Rich deep midnight navy ocean surface
+      oceanDeep: "#080E17",    // Subtle deep navy rim
+      land: "#243346",         // Lighter slate / blue-gray landmass (clearly distinguishable from ocean)
+      landEdge: "#1B2737",     // Subtle darker edge definition under landmass
       visited: "#C9A96E",      // Champagne Gold highlight for visited countries
-      visitedEdge: "#3A4B5E",  // Slate edge for planned countries
-      graticule: "rgba(255, 255, 255, 0.12)", // Soft neutral meridian lines
+      visitedEdge: "#3F5268",  // Slate edge for planned countries
+      graticule: "rgba(255, 255, 255, 0.14)", // Soft neutral meridian lines
       pin: "#C9A96E",          // Champagne Gold pin marker
       planned: "#C9A96E",      // Champagne Gold planned pin marker
-      pinRing: "#1E2B3A",      // Slate pin ring
+      pinRing: "#243346",      // Slate pin ring
       ink: "#F5F1E8",          // Warm Off-White ink
+    };
+  }
+
+  if (!isDark && theme === "clay") {
+    return {
+      ocean: "#c3dcfb",
+      oceanDeep: "#8fb6ee",
+      land: "#fbf4ec",
+      landEdge: "#e9dcce",
+      visited: "#7fcfae",
+      visitedEdge: "#bfe9d5",
+      graticule: "#fffdfa",
+      pin: "#f9b384",
+      planned: "#f7a8b8",
+      pinRing: "#fffdfa",
+      ink: "#4a3a30",
     };
   }
 
@@ -223,16 +239,20 @@ export function TravelGlobe() {
     const canvas = canvasRef.current;
     if (!canvas || world.status !== "ready") return;
 
-    const isDark = theme === "clay" && mode === "dark";
-    const palette = readPalette(isDark);
+    const isDark = mode === "dark";
+    const palette = readPalette(isDark, theme);
 
     const context = canvas.getContext("2d");
     if (!context) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = SIZE * dpr;
-    canvas.height = SIZE * dpr;
-    context.scale(dpr, dpr);
+    const targetW = SIZE * dpr;
+    const targetH = SIZE * dpr;
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+      context.scale(dpr, dpr);
+    }
 
     // Anything that has appeared since the last render is new, and gets the
     // drop animation. Anything already on the map keeps its original stamp so
@@ -353,7 +373,7 @@ export function TravelGlobe() {
       const lip = context.createLinearGradient(0, centre - radius, 0, centre + radius);
       lip.addColorStop(0, "rgba(255,255,255,0.18)");
       lip.addColorStop(0.5, "rgba(255,255,255,0)");
-      lip.addColorStop(1, isDark ? "rgba(0,0,0,0.25)" : "rgba(30,41,59,0.08)");
+      lip.addColorStop(1, isDark ? "rgba(0,0,0,0.12)" : "rgba(30,41,59,0.08)");
       context.fillStyle = lip;
       context.fillRect(0, 0, SIZE, SIZE);
       context.restore();
@@ -420,7 +440,7 @@ export function TravelGlobe() {
       );
       shade.addColorStop(0, "rgba(255,255,255,0.12)");
       shade.addColorStop(0.6, "rgba(255,255,255,0)");
-      shade.addColorStop(1, isDark ? "rgba(0,0,0,0.35)" : "rgba(30,41,59,0.12)");
+      shade.addColorStop(1, isDark ? "rgba(0,0,0,0.16)" : "rgba(30,41,59,0.12)");
 
       context.beginPath();
       context.arc(centre, centre, radius, 0, Math.PI * 2);
@@ -465,9 +485,15 @@ export function TravelGlobe() {
         // have been sits still. Movement means "ahead of you".
         if (marker.kind === "planned" || marker.returning) {
           context.beginPath();
-          context.arc(point.x, py, size + 5 + pulse * 8, 0, Math.PI * 2);
+          context.arc(
+            point.x,
+            py,
+            isDark ? size + 2 + pulse * 3.5 : size + 5 + pulse * 8,
+            0,
+            Math.PI * 2,
+          );
           context.fillStyle = palette.planned;
-          context.globalAlpha = 0.32 * (1 - pulse) * drop;
+          context.globalAlpha = (isDark ? 0.18 : 0.32) * (1 - pulse) * drop;
           context.fill();
           context.globalAlpha = 1;
         }
@@ -476,7 +502,7 @@ export function TravelGlobe() {
         // above the globe rather than painted onto it.
         context.beginPath();
         context.ellipse(point.x, point.y + 2, size * 0.62, size * 0.24, 0, 0, Math.PI * 2);
-        context.fillStyle = isDark ? "rgba(0,0,0,0.30)" : "rgba(30,41,59,0.10)";
+        context.fillStyle = isDark ? "rgba(0,0,0,0.16)" : "rgba(30,41,59,0.10)";
         context.globalAlpha = drop;
         context.fill();
         context.globalAlpha = 1;
@@ -522,6 +548,7 @@ export function TravelGlobe() {
       frame = requestAnimationFrame(draw);
     };
 
+    draw(performance.now());
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
   }, [
