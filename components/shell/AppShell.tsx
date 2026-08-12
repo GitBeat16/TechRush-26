@@ -27,10 +27,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { status, user } = useSession();
   const isPublic = PUBLIC_ROUTES.includes(pathname);
+  const isFlipbookRoute = pathname !== "/destinations" && pathname.startsWith("/destinations/");
   const isOnboardingRoute = pathname === ONBOARDING_ROUTE;
 
-  // Auth screens get the background and nothing else.
-  if (isPublic) {
+  // Auth screens and full-screen 3D magazine pages get isolated view
+  if (isPublic || isFlipbookRoute) {
     return (
       <MotionConfig reducedMotion="user">
         <div className="relative min-h-screen">
