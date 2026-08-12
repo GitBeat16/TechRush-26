@@ -23,6 +23,8 @@ export type FeedbackKind =
   | "drop" // dropping it on a new date
   | "spin" // globe flicked into a spin
   | "pin" // a pin on the globe comes into view / is selected
+  | "takeoff" // the splash screen arriving — a long rush of air
+  | "propeller" // and leaving: blades chopping as the aeroplane passes
   | "weatherClay" // theme changed → terracotta
   | "weatherSun" // theme changed → hot and sunny
   | "weatherSnow" // theme changed → cold and snowy
@@ -41,11 +43,39 @@ interface Voice {
   cutoff?: number;
 }
 
+interface NoiseCfg {
+  dur: number;
+  gain: number;
+  from: number;
+  to: number;
+  /** delay from the start of the sound, in seconds */
+  at?: number;
+  /** bandpass Q — higher is more "whistly", lower is more "airy" */
+  q?: number;
+}
+
 interface Recipe {
   voices: Voice[];
-  noise?: { dur: number; gain: number; from: number; to: number };
+  /** One burst, or several — a propeller is just the same burst repeated. */
+  noise?: NoiseCfg | NoiseCfg[];
   vibrate: number | number[];
 }
+
+/** One blade chop of the propeller: a thud with a puff of air on top. */
+function blade(at: number, gain: number): [Voice, NoiseCfg] {
+  return [
+    { freq: 132, to: 88, type: "sine", dur: 0.075, gain, at, cutoff: 420 },
+    { dur: 0.07, gain: gain * 0.42, from: 1500, to: 520, at, q: 0.7 },
+  ];
+}
+
+/* Seven chops over ~0.37s — fast enough to read as a spinning propeller,
+   swelling as it comes past and dropping away again as it goes. Kept short
+   on purpose: the whole flight has to fit inside a splash screen that is
+   often gone in well under a second. */
+const BLADES = [0.9, 1, 1, 0.9, 0.72, 0.5, 0.3].map((level, i) =>
+  blade(i * 0.053, 0.17 * level),
+);
 
 const RECIPES: Record<FeedbackKind, Recipe> = {
   tap: {
@@ -137,6 +167,40 @@ const RECIPES: Record<FeedbackKind, Recipe> = {
   },
 
   /* ---------------------------------------------------------------- */
+  /* Splash screen — the aeroplane arrives, then leaves.               */
+  /* ---------------------------------------------------------------- */
+
+  /* A long rush of air sweeping past. Two noise layers moving in opposite
+     directions — one falling, one rising — so it swells through the middle
+     instead of just fading, which is what makes it read as *passing* you
+     rather than simply stopping. */
+  takeoff: {
+    voices: [
+      { freq: 700, to: 170, type: "sine", dur: 0.42, gain: 0.1, cutoff: 1400 },
+      { freq: 210, to: 100, type: "sine", dur: 0.5, gain: 0.11, cutoff: 520 },
+    ],
+    noise: [
+      { dur: 0.46, gain: 0.19, from: 380, to: 2600, q: 0.5 },
+      { dur: 0.4, gain: 0.13, from: 3000, to: 700, at: 0.07, q: 0.8 },
+    ],
+    vibrate: [8, 60, 14],
+  },
+
+  /* Blades chopping as it climbs away — the chops sit over a low engine
+     hum that fades out under them. */
+  propeller: {
+    voices: [
+      { freq: 108, to: 74, type: "sine", dur: 0.44, gain: 0.11, cutoff: 380 },
+      ...BLADES.map(([voice]) => voice),
+    ],
+    noise: [
+      { dur: 0.42, gain: 0.08, from: 900, to: 300, q: 0.6 },
+      ...BLADES.map(([, noise]) => noise),
+    ],
+    vibrate: [6, 40, 6, 40, 10],
+  },
+
+  /* ---------------------------------------------------------------- */
   /* Weather stingers — one per theme, played when the palette lands.  */
   /* Longer and softer than the UI sounds: these are scenery, not      */
   /* button clicks.                                                    */
@@ -205,6 +269,7 @@ let hydrated = false;
 const listeners = new Set<() => void>();
 let audioCtx: AudioContext | null = null;
 let noiseBuffer: AudioBuffer | null = null;
+let longNoiseBuffer: AudioBuffer | null = null;
 
 function emit() {
   listeners.forEach((l) => l());
@@ -260,6 +325,25 @@ function getNoiseBuffer(ctx: AudioContext) {
   return noiseBuffer;
 }
 
+/* The short buffer above has its own decay baked in, which is what makes the
+   little UI sounds feel clipped and clay-like — but it also runs out after
+   0.4s. Anything longer (the splash whoosh) gets this flat buffer instead and
+   is shaped entirely by its gain envelope. */
+function getLongNoiseBuffer(ctx: AudioContext) {
+  if (longNoiseBuffer) return longNoiseBuffer;
+  const length = Math.floor(ctx.sampleRate * 2);
+  const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  let last = 0;
+  for (let i = 0; i < length; i += 1) {
+    // Lightly smoothed, so it is moving air rather than radio static.
+    last = last * 0.72 + (Math.random() * 2 - 1) * 0.28;
+    data[i] = last * 2.4;
+  }
+  longNoiseBuffer = buffer;
+  return longNoiseBuffer;
+}
+
 function playVoice(ctx: AudioContext, v: Voice, startAt: number) {
   const t0 = startAt + (v.at ?? 0);
   const osc = ctx.createOscillator();
@@ -283,23 +367,27 @@ function playVoice(ctx: AudioContext, v: Voice, startAt: number) {
   osc.stop(t0 + v.dur + 0.05);
 }
 
-function playNoise(ctx: AudioContext, cfg: NonNullable<Recipe["noise"]>, startAt: number) {
+function playNoise(ctx: AudioContext, cfg: NoiseCfg, startAt: number) {
+  const t0 = startAt + (cfg.at ?? 0);
   const src = ctx.createBufferSource();
-  src.buffer = getNoiseBuffer(ctx);
+  src.buffer = cfg.dur > 0.35 ? getLongNoiseBuffer(ctx) : getNoiseBuffer(ctx);
   const filter = ctx.createBiquadFilter();
   filter.type = "bandpass";
-  filter.frequency.setValueAtTime(cfg.from, startAt);
-  filter.frequency.exponentialRampToValueAtTime(cfg.to, startAt + cfg.dur);
-  filter.Q.value = 0.9;
+  filter.frequency.setValueAtTime(cfg.from, t0);
+  filter.frequency.exponentialRampToValueAtTime(cfg.to, t0 + cfg.dur);
+  filter.Q.value = cfg.q ?? 0.9;
 
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.0001, startAt);
-  gain.gain.exponentialRampToValueAtTime(cfg.gain, startAt + 0.03);
-  gain.gain.exponentialRampToValueAtTime(0.0001, startAt + cfg.dur);
+  /* Long bursts get a slow swell; short ones stay percussive. Attacking a
+     1.2s whoosh in 30ms would put a click on the front of it. */
+  const attack = Math.min(cfg.dur * 0.35, 0.22);
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(cfg.gain, t0 + Math.max(attack, 0.03));
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + cfg.dur);
 
   src.connect(filter).connect(gain).connect(ctx.destination);
-  src.start(startAt);
-  src.stop(startAt + cfg.dur + 0.05);
+  src.start(t0);
+  src.stop(t0 + cfg.dur + 0.05);
 }
 
 /**
@@ -319,7 +407,10 @@ export function feedback(kind: FeedbackKind = "tap", delay = 0) {
     if (ctx) {
       const now = ctx.currentTime + 0.001 + Math.max(delay, 0);
       recipe.voices.forEach((v) => playVoice(ctx, v, now));
-      if (recipe.noise) playNoise(ctx, recipe.noise, now);
+      if (recipe.noise) {
+        const bursts = Array.isArray(recipe.noise) ? recipe.noise : [recipe.noise];
+        bursts.forEach((cfg) => playNoise(ctx, cfg, now));
+      }
     }
   }
 
@@ -338,6 +429,97 @@ export function feedback(kind: FeedbackKind = "tap", delay = 0) {
     if (delay > 0) window.setTimeout(buzz, delay * 1000);
     else buzz();
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Autoplay policy                                                     */
+/*                                                                     */
+/* A browser will not let an AudioContext make a sound until the       */
+/* visitor has interacted with the page — and the splash screen is the */
+/* one moment we are guaranteed not to have had that yet on a cold     */
+/* load. Scheduling into a suspended context does not throw, it just   */
+/* silently never plays, which is why the splash sounded like nothing  */
+/* at all.                                                             */
+/*                                                                     */
+/* So: if the context is already running, play now. If it is not, hold */
+/* the sound and play it on the very first gesture instead. The whole  */
+/* queue is flushed together, so a whoosh followed by a propeller stays*/
+/* a whoosh followed by a propeller.                                   */
+/* ------------------------------------------------------------------ */
+
+const GESTURES: (keyof WindowEventMap)[] = [
+  "pointerdown",
+  "keydown",
+  "touchstart",
+  "wheel",
+  "scroll",
+];
+
+let pending: (() => void)[] = [];
+let armed = false;
+
+function flushPending() {
+  disarm();
+  const queue = pending;
+  pending = [];
+  if (!queue.length) return;
+
+  const ctx = getCtx();
+  const run = () => queue.forEach((play) => play());
+
+  /* resume() is a promise, and until it settles the clock has not started
+     moving again. Scheduling before that is how sounds get swallowed. */
+  if (ctx && ctx.state !== "running") {
+    void ctx.resume().then(run, run);
+  } else {
+    run();
+  }
+}
+
+function disarm() {
+  if (!armed) return;
+  armed = false;
+  GESTURES.forEach((event) => window.removeEventListener(event, flushPending));
+}
+
+function arm() {
+  if (armed || typeof window === "undefined") return;
+  armed = true;
+  GESTURES.forEach((event) =>
+    window.addEventListener(event, flushPending, { passive: true }),
+  );
+}
+
+/**
+ * Run something that makes sound as soon as the browser will actually let it
+ * be heard: immediately if we already have audio permission, otherwise on the
+ * next gesture.
+ *
+ * Returns a cancel function. Use it for sounds that belong to a moment — a
+ * whoosh that arrives after the thing it was announcing has gone is worse
+ * than no whoosh, so the caller should cancel when the moment passes.
+ */
+export function whenAudible(run: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+
+  const ctx = getCtx();
+  if (ctx && ctx.state === "running") {
+    run();
+    return () => {};
+  }
+
+  pending.push(run);
+  arm();
+
+  return () => {
+    pending = pending.filter((queued) => queued !== run);
+    if (!pending.length) disarm();
+  };
+}
+
+/** `feedback`, deferred until the browser will let it be heard. */
+export function feedbackWhenAudible(kind: FeedbackKind = "tap", delay = 0) {
+  whenAudible(() => feedback(kind, delay));
 }
 
 /* --------------------------- preference store --------------------------- */
