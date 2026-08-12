@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import type { TargetAndTransition, Transition } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ClayButton } from "@/components/ui/ClayButton";
 import { ClayCard } from "@/components/ui/ClayCard";
@@ -31,7 +32,14 @@ const TONE_BG: Record<HighlightSlide["type"], string> = {
   photo: "#121210",
 };
 
-const TRANSITIONS = [
+type SlideTransition = {
+  initial: TargetAndTransition;
+  animate: TargetAndTransition;
+  exit: TargetAndTransition;
+  transition: Transition;
+};
+
+const TRANSITIONS: SlideTransition[] = [
   {
     initial: { opacity: 0, scale: 0.96 },
     animate: { opacity: 1, scale: 1 },

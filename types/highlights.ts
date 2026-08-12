@@ -15,9 +15,13 @@ export interface HighlightSlide {
 }
 
 export interface TripHighlight {
+  /** Row id — same as the trip id, since a trip has one highlight. */
+  id?: string;
   tripId: string;
   title: string;
   subtitle: string;
   slides: HighlightSlide[];
-  generatedAt: string;
+  generatedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
