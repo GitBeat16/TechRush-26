@@ -103,7 +103,6 @@ export interface ClayChipProps extends HTMLMotionProps<"button"> {
 /** Small selectable pill used for travel styles, interests and filters. */
 export function ClayChip({
   active = false,
-  tone = "peach",
   className = "",
   children,
   onClick,
@@ -122,8 +121,8 @@ export function ClayChip({
       className={[
         "px-4 py-2 rounded-full text-sm font-body font-semibold transition-all duration-200",
         active
-          ? `${TONES[tone].bg} text-clay-ink shadow-clay-sm`
-          : "bg-clay-sunken/70 text-clay-ink-soft shadow-clay-inset-sm hover:text-clay-ink",
+          ? "bg-clay-sunken/90 border-2 border-clay-tangerine text-clay-tangerine shadow-clay-xs font-bold"
+          : "bg-clay-surface border border-clay-sky text-clay-ink-soft shadow-clay-xs hover:text-clay-ink",
         className,
       ].join(" ")}
       {...rest}
