@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { TripNestSky } from "@/components/ui/TripNestLoader";
+import { TripNestSky, useFlightSound } from "@/components/ui/TripNestLoader";
 
 /* ------------------------------------------------------------------
    Intro splash
@@ -42,6 +42,10 @@ export function IntroSplash({ holdMs = HOLD_MS }: { holdMs?: number }) {
       // Private mode or storage disabled — showing the intro is the safe miss.
     }
   }, []);
+
+  // Whoosh as the aeroplane sweeps in, propeller as it climbs out the far
+  // corner — scored against the same crossing the animation is running.
+  useFlightSound(visible, holdMs / 1000);
 
   useEffect(() => {
     if (!visible) return;

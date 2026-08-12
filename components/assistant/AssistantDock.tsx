@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChatPanel } from "@/components/assistant/ChatPanel";
 import { MascotFace } from "@/components/ui/MascotFace";
-import { ArrowRightIcon, SparkIcon } from "@/components/ui/Icons";
+import { ArrowRightIcon } from "@/components/ui/Icons";
 import { breathe, floatY, springSnappy, springSoft } from "@/lib/animations";
 import { feedback } from "@/lib/feedback";
 
@@ -20,22 +20,16 @@ import { feedback } from "@/lib/feedback";
 /*                                                                     */
 /* The button wears the mascot's face, and the face dresses for the    */
 /* active theme, so the corner restyles itself with the weather.       */
+/*                                                                     */
+/* There is no greeting bubble any more: a speech balloon that appears */
+/* unbidden reads as an ad. The invitation is now in the button — it   */
+/* shakes its head when you hover, which says the same thing without   */
+/* covering the page.                                                  */
 /* ------------------------------------------------------------------ */
-
-const NUDGE_DELAY_MS = 2600;
 
 export function AssistantDock() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [nudged, setNudged] = useState(false);
-
-  // The greeting bubble appears once per session, a beat after the page
-  // settles, then never interrupts again.
-  useEffect(() => {
-    if (nudged) return;
-    const timer = window.setTimeout(() => setNudged(true), NUDGE_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [nudged]);
 
   // Close on Escape — a floating panel that traps you is worse than no panel.
   useEffect(() => {
@@ -50,8 +44,6 @@ export function AssistantDock() {
   // The dedicated page is the same conversation at full size; showing the
   // launcher on top of it is just clutter.
   if (pathname.startsWith("/assistant")) return null;
-
-  const showNudge = nudged && !open;
 
   return (
     <div className="fixed bottom-24 right-4 z-[60] flex flex-col items-end gap-3 lg:bottom-6 lg:right-6">
@@ -123,47 +115,32 @@ export function AssistantDock() {
         )}
       </AnimatePresence>
 
-      {/* ----------------------------------------- the greeting nudge */}
-      <AnimatePresence>
-        {showNudge && (
-          <motion.button
-            type="button"
-            initial={{ opacity: 0, x: 20, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 12, scale: 0.94 }}
-            transition={springSnappy}
-            onClick={() => {
-              feedback("pop");
-              setOpen(true);
-            }}
-            className="max-w-[220px] rounded-clay-sm rounded-br-md bg-clay-butter px-3.5 py-2.5 text-left shadow-clay-sm"
-          >
-            <span className="flex items-center gap-1.5 font-body text-[9px] font-extrabold uppercase tracking-[0.12em] text-clay-ink/60">
-              <SparkIcon size={11} />
-              Wanderly
-            </span>
-            <span className="mt-0.5 block font-display text-[12.5px] font-bold leading-snug text-clay-ink">
-              Need a hand with this page? Ask me anything.
-            </span>
-          </motion.button>
-        )}
-      </AnimatePresence>
-
       {/* --------------------------------------------- the launcher */}
       <motion.button
         type="button"
         onClick={() => {
           feedback(open ? "toggleOff" : "toggleOn");
           setOpen((current) => !current);
-          setNudged(true);
         }}
+        onHoverStart={() => feedback("pop")}
         aria-expanded={open}
         aria-label={open ? "Close assistant" : "Open the travel assistant"}
         initial={{ scale: 0, rotate: -40 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ ...springSoft, delay: 0.5 }}
-        whileHover={{ scale: 1.08, y: -4 }}
-        whileTap={{ scale: 0.9 }}
+        /* Hover gives it a nudge: it lifts, then shakes its head like it is
+           trying to get your attention. Keyframes need a tween — a spring
+           can only move between two values. */
+        whileHover={{
+          scale: 1.08,
+          y: -4,
+          rotate: [0, -10, 8, -6, 4, -2, 0],
+          transition: {
+            rotate: { type: "tween", duration: 0.55, ease: "easeInOut" },
+            default: springSnappy,
+          },
+        }}
+        whileTap={{ scale: 0.9, rotate: 0 }}
         className="relative flex h-16 w-16 items-center justify-center rounded-full bg-clay-surface shadow-clay transition-shadow duration-300 hover:shadow-clay-hover active:shadow-clay-pressed"
       >
         {/* A slow halo, so the corner has a pulse without demanding attention. */}
