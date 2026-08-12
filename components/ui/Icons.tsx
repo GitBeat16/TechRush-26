@@ -435,3 +435,41 @@ export const InfoIcon = (p: IconProps) => (
     <path d="M12 16v-4M12 8h.01" />
   </Base>
 );
+
+export const PlayIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M8 5.6a.8.8 0 0 1 1.2-.7l9 6.4a.8.8 0 0 1 0 1.4l-9 6.4a.8.8 0 0 1-1.2-.7z" />
+  </Base>
+);
+
+export const PauseIcon = (p: IconProps) => (
+  <Base {...p}>
+    <rect x="7" y="5" width="3.4" height="14" rx="1.2" />
+    <rect x="13.6" y="5" width="3.4" height="14" rx="1.2" />
+  </Base>
+);
+
+export const ShareIcon = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="18" cy="5.5" r="2.6" />
+    <circle cx="6" cy="12" r="2.6" />
+    <circle cx="18" cy="18.5" r="2.6" />
+    <path d="M8.4 10.8 15.6 6.8M8.4 13.2l7.2 4" />
+  </Base>
+);
+
+export const HeartIcon = ({
+  filled = false,
+  ...p
+}: IconProps & { filled?: boolean }) => (
+  <Base {...p} fill={filled ? "currentColor" : "none"}>
+    <path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.6-7 9-7 9Z" />
+  </Base>
+);
+
+export const MapPinIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M12 21s6.5-5.7 6.5-10.4A6.5 6.5 0 0 0 5.5 10.6C5.5 15.3 12 21 12 21Z" />
+    <circle cx="12" cy="10.4" r="2.4" />
+  </Base>
+);

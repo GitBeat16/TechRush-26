@@ -32,7 +32,7 @@ export interface PhotoDump {
 }
 
 export interface NewPhotoDump {
-  images: Omit<PhotoDumpImage, "url">[];
+  images: PhotoDumpImage[];
   caption?: string;
   location?: string;
   takenOn?: string;
