@@ -158,9 +158,8 @@ export async function createPhotoDump(
     .maybeSingle();
 
   if (!existingTrip) {
-    await supabase
-      .from("trips")
-      .upsert(
+    try {
+      await supabase.from("trips").upsert(
         {
           id: tripId,
           owner_id: owner.id,
@@ -177,8 +176,10 @@ export async function createPhotoDump(
           status: "planning",
         },
         { onConflict: "id" },
-      )
-      .catch(() => undefined);
+      );
+    } catch {
+      // Ignore — the insert below will surface any real problem.
+    }
   }
 
   const { data, error } = await supabase
@@ -188,10 +189,10 @@ export async function createPhotoDump(
       owner_id: owner.id,
       owner_name: owner.name,
       owner_avatar_id: owner.avatarId ?? null,
-      caption: input.caption.trim(),
-      location: input.location.trim(),
-      taken_on: input.takenOn,
-      tags: input.tags,
+      caption: (input.caption ?? "").trim(),
+      location: (input.location ?? "").trim(),
+      taken_on: input.takenOn ?? new Date().toISOString().slice(0, 10),
+      tags: input.tags ?? [],
       images: input.images,
     })
     .select("*")

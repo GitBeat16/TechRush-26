@@ -20,6 +20,7 @@ import {
 import { fadeUp, springSoft, stagger } from "@/lib/animations";
 import { TONES } from "@/lib/tones";
 import { feedback } from "@/lib/feedback";
+import { FLIPBOOK_DATA } from "@/data/flipbookData";
 import { packedRatio, tripProgress, tripSpend, useAppState } from "@/lib/store";
 import { formatInr } from "@/lib/data";
 import type { Trip, TripStatus } from "@/types/dashboard";
@@ -106,6 +107,7 @@ export default function TripsPage() {
 
 function TripRow({ trip }: { trip: Trip }) {
   const scene = SCENE_BY_ID[trip.destinationId] ?? "coast";
+  const coverImage = FLIPBOOK_DATA[trip.destinationId]?.coverImage;
   const progress = tripProgress(trip);
   const spent = tripSpend(trip);
   const activities = trip.itinerary.reduce((total, day) => total + day.items.length, 0);
@@ -114,8 +116,12 @@ function TripRow({ trip }: { trip: Trip }) {
     <Link href={`/trips/${trip.id}`} onClick={() => feedback("nav")} className="block h-full">
       <ClayCard tone="surface" radius="lg" depth="md" interactive className="h-full overflow-hidden p-3">
         <div className="flex gap-4">
-          <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-clay shadow-clay-inset-sm sm:h-32 sm:w-32">
-            <ClayScene kind={scene} base={TONES[trip.tone].hex} className="h-full w-full" />
+          <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-clay shadow-clay-inset-sm sm:h-32 sm:w-32 bg-clay-sunken">
+            {coverImage ? (
+              <img src={coverImage} alt={trip.title} className="h-full w-full object-cover" />
+            ) : (
+              <ClayScene kind={scene} base={TONES[trip.tone].hex} className="h-full w-full" />
+            )}
             <span className="absolute bottom-2 left-2 rounded-full bg-clay-surface/95 px-2 py-0.5 font-body text-[10px] font-extrabold uppercase tracking-wide shadow-clay-xs">
               {trip.status}
             </span>

@@ -46,7 +46,7 @@ export function PhotoDumpUpload({
     try {
       const images = await uploadPhotoDumpImages(files, userId, tripId, setProgress);
       const dump = await createPhotoDump(tripId, {
-        images: images.map(img => ({ path: img.path, width: img.width, height: img.height })),
+        images,
         caption,
         location,
       });

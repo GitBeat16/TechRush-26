@@ -349,8 +349,9 @@ export function AIPlanner({ initialDestination = "" }: { initialDestination?: st
           </div>
 
           {/* ------------------------------------------- output panel */}
-          <ClayCard tone="surface" radius="lg" depth="sm" className="min-h-[24rem] overflow-hidden p-5">
-            <AnimatePresence mode="wait">
+          <div className="lg:relative lg:h-full">
+            <ClayCard tone="surface" radius="lg" depth="sm" className="flex h-full min-h-[24rem] flex-col overflow-hidden p-5 lg:absolute lg:inset-0 lg:min-h-0">
+              <AnimatePresence mode="wait">
               {phase === "idle" && (
                 <motion.div
                   key="idle"
@@ -358,7 +359,7 @@ export function AIPlanner({ initialDestination = "" }: { initialDestination?: st
                   initial="hidden"
                   animate="show"
                   exit={{ opacity: 0, scale: 0.94 }}
-                  className="flex h-full flex-col items-center justify-center gap-4 py-10 text-center"
+                  className="flex h-full flex-1 flex-col items-center justify-center gap-4 py-10 text-center"
                 >
                   <motion.span {...floatY(8, 4)}>
                     <ClayGlobe size={96} base="#8fb6ee" />
@@ -376,7 +377,7 @@ export function AIPlanner({ initialDestination = "" }: { initialDestination?: st
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex h-full flex-col justify-center gap-3 py-6"
+                  className="flex h-full flex-1 flex-col justify-center gap-3 py-6"
                 >
                   {AI_STEPS.map((label, index) => {
                     const done = index < step;
@@ -421,7 +422,7 @@ export function AIPlanner({ initialDestination = "" }: { initialDestination?: st
                   initial="hidden"
                   animate="show"
                   exit={{ opacity: 0 }}
-                  className="flex h-full flex-col items-center justify-center gap-4 py-10 text-center"
+                  className="flex h-full flex-1 flex-col items-center justify-center gap-4 py-10 text-center"
                 >
                   <span className="flex h-14 w-14 items-center justify-center rounded-full bg-clay-blush text-clay-rose shadow-clay-xs">
                     <RefreshIcon size={26} />
@@ -442,9 +443,9 @@ export function AIPlanner({ initialDestination = "" }: { initialDestination?: st
                   initial="hidden"
                   animate="show"
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex h-full flex-col"
+                  className="flex h-full flex-1 flex-col"
                 >
-                  <motion.div variants={popIn} className="flex items-start gap-3">
+                  <motion.div variants={popIn} className="flex items-start gap-3 shrink-0">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-clay-mint text-clay-ink shadow-clay-xs">
                       <CheckIcon size={20} />
                     </span>
@@ -458,12 +459,12 @@ export function AIPlanner({ initialDestination = "" }: { initialDestination?: st
                   </motion.div>
 
                   {plan.summary && (
-                    <motion.p variants={fadeUp} className="mt-3 font-body text-xs leading-relaxed text-clay-ink-soft">
+                    <motion.p variants={fadeUp} className="mt-3 shrink-0 font-body text-xs leading-relaxed text-clay-ink-soft">
                       {plan.summary}
                     </motion.p>
                   )}
 
-                  <div className="mt-3 max-h-64 space-y-2 overflow-y-auto pr-1">
+                  <div className="mt-3 flex-1 min-h-0 space-y-2 overflow-y-auto pr-1">
                     {plan.days.map((day, index) => (
                       <motion.div
                         key={`${day.label}-${index}`}
@@ -487,7 +488,7 @@ export function AIPlanner({ initialDestination = "" }: { initialDestination?: st
                     ))}
                   </div>
 
-                  <motion.div variants={fadeUp} className="mt-auto flex gap-2 pt-4">
+                  <motion.div variants={fadeUp} className="mt-auto shrink-0 flex gap-2 pt-4">
                     <ClayButton size="sm" tone="mint" className="flex-1" sound="toggleOn" onClick={saveAsTrip}>
                       Save as trip
                     </ClayButton>
@@ -507,7 +508,8 @@ export function AIPlanner({ initialDestination = "" }: { initialDestination?: st
                 </motion.div>
               )}
             </AnimatePresence>
-          </ClayCard>
+            </ClayCard>
+          </div>
         </motion.div>
       </ClayCard>
     </motion.section>
