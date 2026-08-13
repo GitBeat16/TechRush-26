@@ -7,7 +7,7 @@ them — the colour theme, the recommendations, even the character on the
 homepage. As you take trips, it learns from those too. And the practical parts,
 like what to pack, are built from the real forecast for your real dates.
 
-Built for TechRush 26 · Frontend Development.
+Built for IEEE TechRush 26 · Frontend Development.
 
 ```bash
 npm install
@@ -41,6 +41,24 @@ reading. Every suggestion states its reason: "lows near 4°C", "rain on 2 days".
 coastlines, a solid pin on every place you have visited and a hollow pulsing
 one on every place you are going.
 
+**It prices the trip, and refuses to lie about it.** The budget planner
+estimates from destination, duration, party size and travel style, then lets
+you model a different version of the trip — cheaper hotels, leaner style, fewer
+paid activities — and watch the total move. What it will not do is optimise its
+way to a number nobody could travel on: every destination carries a floor, and
+below that the answer stops being "spend less" and becomes "change the trip".
+It then tells you how — fewer days, fewer rooms, a quieter month, a cheaper
+country. See [docs/BUDGET-FLOORS.md](docs/BUDGET-FLOORS.md).
+
+**It remembers the trip afterwards.** Drop a folder of photos onto a trip and
+they land as a pile of prints. Once there are enough, it offers a highlight
+reel — each photo drifting in its own direction, captions riding over the
+bottom. It does not claim to pick your best photos; it takes an even spread
+across the pile, oldest to newest, which is the shape of the trip.
+
+**It lets other people in.** Invite a companion to a trip by link, and the
+itinerary, the budget split and the memories are shared.
+
 **It never lies to you.** There is no demo data anywhere in this app. Every
 number is counted from trips you actually created. A new account looks empty,
 and each section explains what will fill it. If the weather service is down,
@@ -62,8 +80,9 @@ Wanderly uses [Supabase](https://supabase.com) for accounts and for storing
 trips. The free tier is plenty.
 
 1. Create a project.
-2. Open the **SQL Editor** and run the two files in `supabase/migrations/`, in
-   order. They are safe to run more than once.
+2. Open the **SQL Editor** and run the six files in `supabase/migrations/`, in
+   filename order. They are safe to run more than once. The last one also
+   creates the `photo_dumps` storage bucket used by Memories.
 3. From **Project Settings → API**, copy the project URL and the publishable
    (anon) key.
 
@@ -126,16 +145,22 @@ Create an account, answer the six questions, and plan a trip.
 | `/` | The dashboard — hero, live weather, current trip, recommendations, calendar, travel shelf, globe |
 | `/plan` | AI trip generation, saved straight into a real trip |
 | `/explore` | Browse and filter destinations, with a map |
+| `/destinations` | The six destination magazines |
+| `/destinations/[slug]` | One magazine, with 3D page turns |
 | `/trips` | All your trips |
 | `/trips/[id]` | One trip: Overview, Itinerary, Packing, Budget |
-| `/budget` | Standalone budget estimator with live analytics |
+| `/memories` | Photo dumps and highlight reels, per trip |
+| `/budget` | The budget planner — estimate, allocation, ways to save, what-if |
 | `/compare` | Two destinations side by side across six signals |
 | `/assistant` | The travel assistant chat |
 | `/profile` | Your details, preferences, theme picker, saved places |
+| `/join/[code]` | Accepting an invite to somebody else's trip |
 
-**API routes:** `/api/auth/*` (signup, login, logout, me, profile, onboarding,
-google), `/api/trips` and `/api/trips/[id]` (trip sync), `/api/plan` (the
-planner), `/api/chat` (the assistant).
+**API routes (19):** `/api/auth/*` (signup, login, logout, me, profile,
+onboarding, google, callback), `/api/trips` and `/api/trips/[id]` (trip sync),
+`/api/trips/[id]/photo-dumps` and `/api/trips/[id]/highlights` (memories),
+`/api/trips/[id]/invites`, `/api/trips/invites/[code]` and `/api/trips/join`
+(sharing), `/api/plan` (the planner), `/api/chat` (the assistant).
 
 ---
 
@@ -148,13 +173,14 @@ planner), `/api/chat` (the assistant).
 | **Styling** | Tailwind CSS v4, with the palette as CSS variables |
 | **Motion** | Framer Motion |
 | **Sound** | WebAudio, synthesised — no audio files |
-| **Data** | Supabase (Postgres + auth), with `localStorage` in front |
+| **Data** | Supabase (Postgres + auth + storage), with `localStorage` in front |
 | **Weather** | Open-Meteo — forecast, archive and geocoding, no key |
 | **Globe** | `d3-geo` + `topojson-client` + `world-atlas`, drawn on canvas |
-| **Maps** | Leaflet (free tiles) and optional Google Maps |
+| **Maps** | Leaflet and MapLibre (free tiles), optional Google Maps |
 
 **No UI component library.** Every card, button, input, icon and illustration
-is hand-built — 42 SVG icons and 32 clay packing objects.
+is hand-built — 64 SVG icons, 32 clay packing objects and 36 destination
+doodles, across roughly 33,700 lines and 160-odd files.
 
 ---
 
@@ -201,16 +227,21 @@ lib/
   globe.ts              world map loading + projection maths
   feedback.ts           the sound engine
   dates.ts              ISO dates, ranges, the calendar grid
+  budget/               estimator, intelligence engine, feasibility floors
+  highlights-ai.ts      building a reel out of a pile of photos
+  photo-dumps.ts        upload, resize and store memories
   theme/                the theme provider
   sync/                 background sync to Supabase
+  supabase/             server-side data access, one file per table
 
+services/               outward-facing calls — weather, geocoding, Groq
 types/                  shared shapes — Trip, UserProfile, Destination …
 supabase/migrations/    the database, as SQL
 public/geo/             the world map, served rather than bundled
 ```
 
-A fuller walkthrough — every folder, every important file, and why the tricky
-parts are built the way they are — is in **[TECHNICAL.md](TECHNICAL.md)**.
+A fuller walkthrough of how the pieces fit together is in
+**[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 
 ---
 
@@ -222,7 +253,7 @@ redefines them. Shadows, chips, buttons, bars and the ambient background all
 change at once, with no re-render and no reload. An inline script applies your
 saved theme before first paint so you never see a flash of the wrong colours.
 
-**Fifteen sounds, zero audio files.** Every sound is a recipe — oscillators,
+**Nineteen sounds, zero audio files.** Every sound is a recipe — oscillators,
 filters and envelopes — played through WebAudio. Nothing loads until your first
 click, and both sound and vibration have toggles.
 
@@ -231,9 +262,16 @@ data, drawn on canvas because 177 country outlines as DOM nodes drops frames.
 Pins behind the sphere are culled by angular distance, so nothing shows through
 the planet.
 
-**Packing rules, not a model.** Deterministic, offline-capable, and testable —
-85 unit tests cover the packing rules, date handling and the globe's projection
-maths.
+**Packing rules, not a model.** The obvious move is to ask a model what to
+pack. We wrote deterministic rules over real forecast data instead, because a
+packing list has to be checkable — "lows near 4°C" is either true or it is not,
+and it works with no network and no key.
+
+**A budget that knows what is impossible.** Trimming percentages off categories
+will happily walk a total towards zero, which is a wrong answer delivered
+confidently. Every destination carries a researched floor, priced per room
+rather than per head, and optimising stops at a healthy line above it rather
+than stripping the trip bare.
 
 ---
 
@@ -247,11 +285,15 @@ We would rather write these down than have you find them.
 - **Rive is wired but unused.** `RiveCharacter` can load a `.riv` file; we did
   not author one, so the mascot is animated SVG. Dropping a file in
   `public/rive/` and passing `src` is the only change needed.
-- **Tests are run by hand.** They are plain Node scripts over the pure modules,
-  not yet wired into CI.
+- **There is no automated test suite.** The packing rules, date handling,
+  projection maths and budget floors are all written as pure, deterministic
+  modules precisely so they can be tested — but the tests are not written and
+  nothing runs in CI. This is the first thing we would fix.
 - **Accessibility is partial.** Reduce-motion, sound toggles and keyboard
   alternatives to drag are done. A full screen-reader and contrast audit is not.
-- **Trip sharing** is designed but not built.
+- **The budget floors are estimates.** They come from published 2026 travel
+  costs, not a live pricing API, and the flight numbers are the softest of them.
+  Sources are listed in [docs/BUDGET-FLOORS.md](docs/BUDGET-FLOORS.md).
 
 ---
 
@@ -259,10 +301,9 @@ We would rather write these down than have you find them.
 
 | Document | What is in it |
 | --- | --- |
-| [TECHNICAL.md](TECHNICAL.md) | The full tour — stack, every folder, the seven ideas worth understanding |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the pieces fit together |
 | [docs/AUTH.md](docs/AUTH.md) | Authentication, including Google OAuth setup |
-| [PITCH.md](PITCH.md) | Presentation script and demo run sheet |
+| [docs/BUDGET-FLOORS.md](docs/BUDGET-FLOORS.md) | Where the budget floors come from, and why the optimiser stops |
 
 ---
 
@@ -287,3 +328,10 @@ Delete `.next` and restart the dev server.
 
 (We have the deployed one too...but if the api key is terminated..it might not work...you have to check it out locally :) )
 https://tech-rush-26-amber.vercel.app
+---
+
+## The team
+
+Vibhu · Anmol · Harsh · Srushti
+
+**🏆 Winning project — IEEE TechRush 26 Hackathon.**
